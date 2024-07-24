@@ -8,19 +8,13 @@ const Logo: React.FC<{ className?: string }> = ({ className }) => {
     <Link
       href={"/"}
       className={cn(
-        "flex items-center justify-center bg-white px-3 shadow-sm shadow-accent-500 rounded-md",
+        " relative flex w-28 h-10 py-2 px-3 items-center justify-center bg-white shadow-sm shadow-accent-500 rounded-md",
         className
       )}
     >
-      <div className="relative w-full h-10   py-5">
-        <Image
-          src={logo}
-          alt="Logo HKJ"
-          layout="fill"
-          objectFit="contain"
-          className="py-2 px-1"
-        />
-      </div>
+      {/* <div className=" relative w-full h-20 aspect-video"> */}
+      <Image src={logo} alt="Logo HKJ" fill className="p-1 object-contain" />
+      {/* </div> */}
     </Link>
   );
 };

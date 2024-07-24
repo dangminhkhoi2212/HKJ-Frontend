@@ -1,13 +1,7 @@
 "use client";
 import React from "react";
-import {
-  UploadOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
-} from "@ant-design/icons";
 import { Divider, Layout, Menu, MenuProps } from "antd";
-import { cn } from "@/utils/cn";
-import Logo from "../logo";
+import Logo from "../Logo";
 import {
   LayoutDashboard,
   LineChart,
@@ -15,7 +9,8 @@ import {
   PackageSearch,
   Truck,
 } from "lucide-react";
-import TrackProductCard from "./track-product-card";
+import TrackProductCard from "@/shares/Sidebar/TrackProductCard";
+import useStyleStore from "@/stores/stype";
 
 const { Sider, Header } = Layout;
 const menuItems: MenuProps["items"] = [
@@ -45,11 +40,13 @@ const menuItems: MenuProps["items"] = [
     label: "Nhắn tin",
   },
 ];
-
-const Sidebar: React.FC<{ collapsed: boolean }> = ({ collapsed }) => {
+const Sidebar: React.FC = () => {
+  const collapsed: boolean = useStyleStore((state) => state.collapsed);
   return (
     <Sider trigger={null} collapsible theme="light" collapsed={collapsed}>
-      <Logo className="m-3" />
+      <div className="flex justify-center items-center h-[64px]">
+        <Logo />
+      </div>
       <Divider />
       <Menu
         theme="light"

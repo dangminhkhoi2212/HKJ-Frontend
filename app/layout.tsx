@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { Roboto } from "next/font/google";
-
+import { AntdRegistry } from "@ant-design/nextjs-registry";
+import LayoutConfig from "@/shares/LayoutConfig";
+import NextTopLoader from "nextjs-toploader";
 const roboto = Roboto({
   weight: "400",
   subsets: ["latin"],
@@ -13,11 +14,18 @@ export const metadata: Metadata = {
   description: "Đặt trang sức trực tuyến",
 };
 
-export default function RootLayout({ children }: React.PropsWithChildren) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en">
       <body className={roboto.className}>
-        <AntdRegistry>{children}</AntdRegistry>
+        <NextTopLoader />
+        <AntdRegistry>
+          <LayoutConfig>{children}</LayoutConfig>
+        </AntdRegistry>
       </body>
     </html>
   );

@@ -3,14 +3,14 @@ import colors from "./config/colors";
 const config: Config = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./shares/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+
   theme: {
     important: true,
-    colors: colors,
-
     extend: {
+      colors: colors,
       fontFamily: {
         sans: ["Roboto", "Helvetica", "Arial", "sans-serif"],
       },
