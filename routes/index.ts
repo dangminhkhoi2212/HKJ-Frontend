@@ -3,17 +3,19 @@ interface CommonRoutes {
   signIn: string;
   signUp: string;
   resetPassword: string;
+  resetPasswordFinish: string;
+  profile: string;
+  verifyAccount: string;
 }
 
-interface Routes extends CommonRoutes {
-  [key: string]: string;
-}
-
-const routes: Routes = {
+const routes: CommonRoutes = {
   home: "/",
-  signIn: "/sign-in",
-  signUp: "/sign-up",
-  resetPassword: "/reset-password",
+  signIn: "/account/sign-in",
+  signUp: "/account/sign-up",
+  resetPassword: "/account/reset-password",
+  resetPasswordFinish: "/account/reset-password/finish",
+  profile: "/account/profile",
+  verifyAccount: "/account/verify-account",
 };
 
 export default routes;

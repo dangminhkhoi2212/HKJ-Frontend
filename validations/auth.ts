@@ -1,20 +1,22 @@
 import * as yup from "yup";
+const regexPhoneNumber = /(84|0[3|5|7|8|9])+([0-9]{8})\b/g;
 
 export const EMAIL_MAX_LENGTH = 254;
 export const PHONE_LENGTH = 10;
-export const USERNAME_MIN_LENGTH = 1;
-export const USERNAME_MAX_LENGTH = 50;
+export const LOGIN_MIN_LENGTH = 1;
+export const LOGIN_MAX_LENGTH = 50;
 export const PASSWORD_MIN_LENGTH = 6;
 export const FIRSTNAME_MIN_LENGTH = 1;
 export const FIRSTNAME_MAX_LENGTH = 25;
 export const LASTNAME_MIN_LENGTH = 1;
 export const LASTNAME_MAX_LENGTH = 10;
 // =============================================================================
-const username = yup
+const login = yup
   .string()
   .required("Tên đăng nhập được yêu cầu")
-  .min(USERNAME_MIN_LENGTH, "Phải có ít nhất một kí tự")
-  .max(USERNAME_MAX_LENGTH, "Tối đa là 50 kí tự");
+  .min(LOGIN_MIN_LENGTH, "Phải có ít nhất một kí tự")
+  .max(LOGIN_MAX_LENGTH, "Tối đa là 50 kí tự");
+const username = login;
 const email = yup
   .string()
   .email("Email không đúng định dạnh")
@@ -22,7 +24,7 @@ const email = yup
   .required("Email được yêu cầu");
 const phone = yup
   .string()
-  .matches(/^[0-9]{10}$/, "Số điện thoại phải là 10 số")
+  .matches(regexPhoneNumber, "Số điện thoại không hợp lệ")
   .required("Số điện thoại được yêu cầu");
 const firstName = yup
   .string()
@@ -55,7 +57,7 @@ export const signUpSchema = yup
   .object({
     firstName,
     lastName,
-    username,
+    login,
     email,
     phone,
     password,
@@ -68,3 +70,7 @@ export const resetPasswordSchema = yup
     email,
   })
   .required();
+export const changePasswordSchema = yup.object({
+  password,
+  confirmPassword,
+});

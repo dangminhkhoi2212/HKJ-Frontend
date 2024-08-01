@@ -1,13 +1,23 @@
-import { Button } from "antd";
-import Image from "next/image";
-import logo from "@/public/images/ring-logo.svg";
-import Logo from "@/shares/Logo";
+"use client";
+import Logo from "@/shared/Logo";
+import useAccountStore from "@/stores/account";
+import { message } from "@/stores/antd";
+import { App, Button, Space } from "antd";
 
-export default function Home() {
+export default function HomePage() {
+  const account = useAccountStore((state) => state.account);
+  const { message } = App.useApp();
+
+  const show = () => {
+    message.warning({
+      content: "some messages...some messages...",
+    });
+  };
   return (
-    <main className="flex gap-2">
-      <Logo />
-      <p className="text-red-500 ring w-20">main</p>
-    </main>
+    <Space>
+      <Button type="primary" color="error" onClick={show}>
+        Open message
+      </Button>
+    </Space>
   );
 }

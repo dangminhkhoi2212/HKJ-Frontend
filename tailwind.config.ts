@@ -3,12 +3,11 @@ import colors from "./config/colors";
 const config: Config = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./shares/**/*.{js,ts,jsx,tsx,mdx}",
+    "./shared/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-
+  important: true,
   theme: {
-    important: true,
     extend: {
       colors: colors,
       fontFamily: {
