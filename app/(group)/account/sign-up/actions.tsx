@@ -2,13 +2,12 @@ import { signUp } from "@/services/account.service";
 import { UseFormReset } from "react-hook-form";
 import { useMutation } from "react-query";
 import { App } from "antd";
-import { TSignUp, TSignUpForm } from "@/types/account.type";
 
 const useSignUpActions = () => {
   const { message, modal } = App.useApp();
 
   const signUpMutation = useMutation({
-    mutationFn: async (data: TSignUp) => {
+    mutationFn: async (data) => {
       await signUp(data);
     },
     onSuccess: (data, variables, context) => {

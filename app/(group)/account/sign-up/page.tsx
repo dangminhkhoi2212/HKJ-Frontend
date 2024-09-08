@@ -1,5 +1,5 @@
 "use client";
-import routes from "@/routes";
+import { routes } from "@/routes";
 import InputCustom from "@/shared/InputCustom";
 import {
   EMAIL_MAX_LENGTH,

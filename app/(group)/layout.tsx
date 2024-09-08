@@ -1,6 +1,6 @@
 import MainLayout from "@/shared/MainLayout";
 
-export default function RootLayout({
+export default function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;

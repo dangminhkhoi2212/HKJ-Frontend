@@ -1,7 +1,16 @@
 "use client";
-import routes from "@/routes";
+import { routesUser } from "@/routes";
 import useAccountStore, { TAccountInfo } from "@/stores/account";
-import { Avatar, Button, Divider, Dropdown, Space, theme, Tooltip } from "antd";
+import {
+  Avatar,
+  Button,
+  Divider,
+  Dropdown,
+  Space,
+  Spin,
+  theme,
+  Tooltip,
+} from "antd";
 import { MenuProps } from "antd/lib";
 import Link from "next/link";
 import React from "react";
@@ -13,13 +22,15 @@ const AccountButton: React.FC = () => {
   const account: TAccountInfo | null = useAccountStore(
     (state) => state.account
   );
-  const { signOut } = useAccountButtonActions();
+  const isLoading: boolean = useAccountStore((state) => state.isLoading);
+  console.log("🚀 ~ account:", account);
+  const { signOutAll } = useAccountButtonActions();
   const items: MenuProps["items"] = [
     {
       key: "1",
       label: (
         <Link
-          href={routes.profile}
+          href={routesUser.profile}
           className="flex flex-col gap-2 justify-start items-center m-0"
         >
           <AvatarAccount />
@@ -38,9 +49,12 @@ const AccountButton: React.FC = () => {
     borderRadius: token.borderRadiusLG,
     boxShadow: token.boxShadowSecondary,
   };
+  if (isLoading) {
+    return <Spin />;
+  }
   return (
     <>
-      {account && (
+      {account ? (
         <Dropdown
           trigger={["click"]}
           placement="bottomRight"
@@ -56,7 +70,7 @@ const AccountButton: React.FC = () => {
                 <Button
                   htmlType="button"
                   className="w-full "
-                  onClick={() => signOut()}
+                  onClick={() => signOutAll()}
                   icon={<LogOut size={18} />}
                 >
                   Đăng xuất
@@ -73,6 +87,10 @@ const AccountButton: React.FC = () => {
             </Tooltip>
           </div>
         </Dropdown>
+      ) : (
+        <AvatarAccount>
+          <Spin />
+        </AvatarAccount>
       )}
     </>
   );

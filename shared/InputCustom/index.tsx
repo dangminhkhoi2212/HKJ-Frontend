@@ -49,6 +49,7 @@ const InputCustom: React.FC<InputCustomProps> = ({
             <Input.Password
               type={type}
               {...field}
+              value={field.value}
               size="large"
               placeholder={placeholder}
               {...props}

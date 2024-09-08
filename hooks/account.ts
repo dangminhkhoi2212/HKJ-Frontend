@@ -4,14 +4,17 @@ import useAccountStore, { TAccountInfo } from "@/stores/account";
 import { App } from "antd";
 
 export const useAccount = () => {
-  const setAccount = useAccountStore((state) => state.setAccount);
+  const { setAccount, setIsLoading } = useAccountStore((state) => state);
   const { message } = App.useApp();
   return useQuery("account", getAccount, {
     onSuccess: (data) => {
       const account = data as TAccountInfo;
+      setIsLoading(false);
       setAccount(account);
     },
     onError: (error) => {
+      console.log(error);
+
       message.error("Không thể lấy thông tin tài khoản người dùng");
     },
     enabled: false,

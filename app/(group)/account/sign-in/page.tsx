@@ -3,7 +3,7 @@ import React from "react";
 import { Button, Form } from "antd";
 import { cn } from "@/utils/cn";
 import { ArrowRight } from "lucide-react";
-import routes from "@/routes";
+import { routes } from "@/routes";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -54,11 +54,7 @@ const SignInPage: React.FC<{ className?: string }> = ({ className }) => {
           placeholder="Mật khẩu"
         />
         <div className="flex justify-center flex-col gap-2 mt-2">
-          <button
-            className="text-accent"
-            type="button"
-            onClick={() => router.push(routes.resetPassword)}
-          >
+          <button className="text-accent" type="button">
             Quên mật khẩu
           </button>
           <Button
@@ -78,7 +74,6 @@ const SignInPage: React.FC<{ className?: string }> = ({ className }) => {
             iconPosition="end"
             className="!bg-secondary-900 
           !font-medium m-0"
-            onClick={() => router.push(routes.signUp)}
           >
             Đăng ký ngay
           </Button>

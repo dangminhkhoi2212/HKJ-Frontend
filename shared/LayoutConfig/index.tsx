@@ -8,6 +8,7 @@ import {
   legacyLogicalPropertiesTransformer,
 } from "@ant-design/cssinjs";
 import themeConfig from "@/config/theme";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
 
 const queryClient = new QueryClient();
 
@@ -18,15 +19,15 @@ const LayoutConfig = ({ children }: React.PropsWithChildren) => {
 
   const setToken = useStyleStore((state) => state.setToken);
 
-  useEffect(() => {
-    setToken(colorBgContainer, borderRadiusLG);
-  }, [colorBgContainer, borderRadiusLG, setToken]);
+  setToken(colorBgContainer, borderRadiusLG);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ConfigProvider theme={themeConfig}>
-        <AppAntd>{children}</AppAntd>
-      </ConfigProvider>
+      <AntdRegistry>
+        <ConfigProvider theme={themeConfig}>
+          <AppAntd>{children}</AppAntd>
+        </ConfigProvider>
+      </AntdRegistry>
     </QueryClientProvider>
   );
 };

@@ -8,16 +8,17 @@ const { Content } = Layout;
 const AppContent: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { colorBgContainer, borderRadiusLG } = useStyleStore((state) => state);
   return (
-    <Layout>
+    <Layout className="min-h-screen">
       <AppHeader />
       <Content
         style={{
           margin: "24px 16px",
           padding: 24,
           minHeight: 280,
-          background: colorBgContainer,
-          borderRadius: borderRadiusLG,
+          // background: colorBgContainer,
+          // borderRadius: borderRadiusLG,
         }}
+        className="overflow-auto"
       >
         {children}
       </Content>

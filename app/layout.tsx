@@ -6,6 +6,8 @@ import { AntdRegistry } from "@ant-design/nextjs-registry";
 import LayoutConfig from "@/shared/LayoutConfig";
 import NextTopLoader from "nextjs-toploader";
 import Security from "@/shared/Security";
+import Providers from "@/providers";
+import MainLayout from "@/shared/MainLayout";
 const roboto = Roboto({
   weight: "400",
   subsets: ["latin"],
@@ -18,15 +20,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: React.PropsWithChildren) {
   return (
-    <html lang="en">
-      <body className={roboto.className}>
-        <NextTopLoader showSpinner={false} />
-        <AntdRegistry>
+    <Providers>
+      <html lang="en">
+        <body className={roboto.className}>
           <LayoutConfig>
-            <Security>{children}</Security>
+            <Security>
+              <NextTopLoader showSpinner={false} />
+              {children}
+            </Security>
           </LayoutConfig>
-        </AntdRegistry>
-      </body>
-    </html>
+        </body>
+      </html>
+    </Providers>
   );
 }

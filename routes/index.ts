@@ -1,6 +1,9 @@
+import { AUTHORIZATIONS } from "@/const";
+
 interface CommonRoutes {
   home: string;
   signIn: string;
+  signOut: string;
   signUp: string;
   resetPassword: string;
   resetPasswordFinish: string;
@@ -8,14 +11,28 @@ interface CommonRoutes {
   verifyAccount: string;
 }
 
-const routes: CommonRoutes = {
+export const routesUser: CommonRoutes = {
   home: "/",
-  signIn: "/account/sign-in",
-  signUp: "/account/sign-up",
+  signIn: "/api/auth/sign-in",
+  signOut: "/api/auth/logout",
+  signUp: "/api/auth/logout",
   resetPassword: "/account/reset-password",
   resetPasswordFinish: "/account/reset-password/finish",
-  profile: "/account/profile",
   verifyAccount: "/account/verify-account",
+  profile: "/profile",
 };
 
-export default routes;
+export const routesEmpoloyee = {
+  home: "/",
+};
+
+export const routesManager = {
+  home: "/",
+  employees: "/employees",
+  order: "/order",
+};
+export const routes = {
+  home: "/",
+  signIn: "/sign-in",
+  signOut: "/api/auth/logout",
+};

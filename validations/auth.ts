@@ -74,3 +74,22 @@ export const changePasswordSchema = yup.object({
   password,
   confirmPassword,
 });
+export const formBasicSchema = yup
+  .object({
+    id: yup.string().required('"ID" phải định dạnh'),
+    firstName,
+    lastName,
+    phone,
+  })
+  .required();
+export const formEmailSchema = yup
+  .object({
+    email,
+  })
+  .required();
+export const formPasswordSchema = yup
+  .object({
+    password,
+    confirmPassword,
+  })
+  .required();

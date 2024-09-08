@@ -1,37 +1,55 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-import { AUTH_TOKEN_KEY } from "./config/key";
-import routes from "./routes";
+import { NextRequest, NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
+import { AUTHORIZATIONS, ROLE_PREFIXES } from "./const";
+import { withAuth } from "next-auth/middleware";
+import { routes } from "./routes";
 
-// Paths that should not trigger the middleware
-export const excludedPaths = [
-  routes.signIn,
-  routes.signUp,
-  routes.resetPassword,
-  routes.resetPasswordFinish,
-  routes.verifyAccount,
-];
+// Define a secret to verify the token (make sure to keep it secure)
+const secret = process.env.NEXTAUTH_SECRET;
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+// Middleware function to handle custom role-based URL prefixing
+async function customMiddleware(req: NextRequest) {
+  const url = new URL(req.url);
+  const token = await getToken({ req, secret });
 
-  // If the path is excluded, let the request pass
-  if (excludedPaths.includes(pathname)) {
-    return NextResponse.next();
+  // If user is not authenticated and the request is not for the sign-in page, redirect to sign-in
+  if (!token) {
+    if (!url.pathname.startsWith(routes.signIn)) {
+      return NextResponse.redirect(new URL(routes.signIn, req.url));
+    }
+  } else if (token.role) {
+    // Role-based URL prefix logic
+    const prefix = ROLE_PREFIXES[token.role as keyof typeof ROLE_PREFIXES];
+
+    if (prefix) {
+      // Avoid adding prefix if the URL already starts with the prefix
+      if (
+        !url.pathname.startsWith(prefix) &&
+        !url.pathname.startsWith("/_next")
+      ) {
+        url.pathname = `${prefix}${url.pathname}`;
+        return NextResponse.redirect(url);
+      }
+    }
   }
 
-  // Check for the authentication cookie
-  const authToken = request.cookies.get(AUTH_TOKEN_KEY);
-
-  // If the token is not present, redirect to the sign-in page
-  if (!authToken) {
-    return NextResponse.redirect(new URL(routes.signIn, request.url));
-  }
-
-  // Allow the request to proceed
-  return NextResponse.next();
+  // Default response if no redirection is needed
+  return NextResponse.next(); // Proceed with the request without redirect
 }
 
+// Export the middleware with authentication and custom logic
+export default withAuth(customMiddleware, {
+  // Define the authorized callback to allow access
+  callbacks: {
+    authorized({ token }) {
+      return !!token; // Ensure the user is authenticated
+    },
+  },
+});
+
+// Middleware configuration
 export const config = {
-  matcher: "/((?!_next|favicon.ico).*)", // Exclude Next.js internals and favicon
+  matcher: [
+    "/((?!sign-in|api|static|_next|favicon.ico).*)", // Apply middleware to all routes except API routes, static assets, and Next.js internal paths
+  ],
 };

@@ -1,20 +1,19 @@
 "use client";
-import { AUTH_TOKEN_KEY } from "@/config/key";
-import routes from "@/routes";
-import { get, remove } from "local-storage";
-import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
+import { routes } from "@/routes";
+import { signOut } from "next-auth/react";
 const useAccountButtonActions = () => {
-  const router = useRouter();
-  const clearAuthToken = () => {
-    if (Cookies.get(AUTH_TOKEN_KEY)) {
-      Cookies.remove(AUTH_TOKEN_KEY);
+  async function keycloakSessionLogOut() {
+    try {
+      await fetch(routes.signOut, { method: "GET" });
+    } catch (err) {
+      console.error(err);
     }
+  }
+  const signOutAll = async () => {
+    await keycloakSessionLogOut().then(() =>
+      signOut({ callbackUrl: routes.signIn })
+    );
   };
-  const signOut = () => {
-    clearAuthToken();
-    router.push(routes.signIn);
-  };
-  return { signOut, clearAuthToken };
+  return { signOutAll };
 };
 export default useAccountButtonActions;

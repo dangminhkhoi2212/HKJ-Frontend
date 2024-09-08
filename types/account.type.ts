@@ -7,20 +7,19 @@ type TConfirmPassword = {
 export type TSignIn = {
   username: string;
 } & TPassword;
-export type TSignUp = {
+export type TFirstName = {
   firstName: string;
+};
+export type TLastName = {
   lastName: string;
+};
+export type TEmail = {
+  email: string;
+};
+export type TPhone = {
   phone: string;
-  email: string;
-  login: string;
-} & TConfirmPassword;
-export type TSignUpForm = TSignUp & TConfirmPassword;
-export type TResetPassword = {
-  email: string;
 };
 
-export type TResetPasswordForm = TPassword & TConfirmPassword;
-export type TResetPasswordFormApi = {
-  key: string;
-  newPassword: string;
-};
+export type TFormBasic = { id: string } & TFirstName & TLastName & TPhone;
+export type TFormEmail = TEmail;
+export type TFormPassword = TPassword & TConfirmPassword;

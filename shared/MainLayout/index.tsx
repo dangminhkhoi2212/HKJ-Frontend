@@ -5,13 +5,13 @@ import { Layout, ConfigProvider } from "antd";
 import { theme } from "antd";
 
 import { cn } from "@/utils/cn";
-import colors from "@/config/colors";
+import colors from "@/const/colors";
 import Sidebar from "../Sidebar";
 import AppContent from "../Content";
 import useStyleStore from "@/stores/stype";
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <Layout className={cn("h-screen ")}>
+    <Layout className={cn("min-h-screen")}>
       <Sidebar />
       <AppContent>{children}</AppContent>
     </Layout>
