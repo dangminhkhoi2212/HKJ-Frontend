@@ -1,7 +1,8 @@
-import { routesManager, routesUser } from "@/routes";
+import { routes, routesManager, routesUser } from "@/routes";
 import { MenuProps } from "antd";
 
 import {
+  Gem,
   LayoutDashboard,
   LineChart,
   ListOrdered,
@@ -45,6 +46,11 @@ export const menuEmployee: MenuProps["items"] = [
   },
 ];
 export const menuManager: MenuProps["items"] = [
+  {
+    key: routes.home,
+    icon: <Gem size={18} />,
+    label: "Dự án",
+  },
   {
     key: routesManager.employees,
     icon: <User size={18} />,

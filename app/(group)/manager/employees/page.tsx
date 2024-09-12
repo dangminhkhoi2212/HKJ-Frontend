@@ -1,134 +1,89 @@
 "use client";
-import React, { useState } from "react";
-import { Radio, Space, Table, Tag } from "antd";
-import type { TableProps } from "antd";
+import React from "react";
+import { Button, Dropdown, Space, Table, Tag, Tooltip } from "antd";
+import { RotateCcw, Menu as MenuIcon } from "lucide-react";
+import { useEmployeesAction } from "./action";
+import { MenuProps } from "antd/lib";
 
-type ColumnsType<T extends object> = TableProps<T>["columns"];
-type TableRowSelection<T extends object = object> =
-  TableProps<T>["rowSelection"];
+const EmployeesPage: React.FC = () => {
+  const { data, isLoading, selectedRowKeys, onSelectChange, refreshEmployees } =
+    useEmployeesAction();
+  const items: MenuProps["items"] = [
+    {
+      label: "Tạo dự án mới",
+      key: "0",
+      onClick: () => {
+        console.log("click");
+      },
+    },
+    {
+      label: "Thêm vào dự án",
+      key: "1",
+    },
+  ];
+  const columns = [
+    {
+      title: "Họ",
+      dataIndex: "firstName",
+      key: "firstName",
+    },
+    {
+      title: "Tên",
+      dataIndex: "lastName",
+      key: "lastName",
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: "Số điện thoại",
+      dataIndex: "phone",
+      key: "phone",
+    },
+    {
+      title: "Đã kích hoạt",
+      dataIndex: "activated",
+      key: "activated",
+      render: (value: boolean) =>
+        value ? (
+          <Tag color="green">Đã kích hoạt</Tag>
+        ) : (
+          <Tag color="red">Chưa kích hoạt</Tag>
+        ),
+    },
+    {
+      title: "Tùy chọn",
+      dataIndex: "actions",
+      key: "actions",
+      render: () => (
+        <Dropdown menu={{ items }} trigger={["click"]} arrow>
+          <Button icon={<MenuIcon />}></Button>
+        </Dropdown>
+      ),
+    },
+  ];
 
-type TablePagination<T extends object> = NonNullable<
-  Exclude<TableProps<T>["pagination"], boolean>
->;
-type TablePaginationPosition = NonNullable<
-  TablePagination<any>["position"]
->[number];
-
-interface DataType {
-  key: string;
-  name: string;
-  age: number;
-  address: string;
-  tags: string[];
-}
-
-const topOptions = [
-  { label: "topLeft", value: "topLeft" },
-  { label: "topCenter", value: "topCenter" },
-  { label: "topRight", value: "topRight" },
-  { label: "none", value: "none" },
-];
-
-const bottomOptions = [
-  { label: "bottomLeft", value: "bottomLeft" },
-  { label: "bottomCenter", value: "bottomCenter" },
-  { label: "bottomRight", value: "bottomRight" },
-  { label: "none", value: "none" },
-];
-
-const columns: ColumnsType<DataType> = [
-  {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-    render: (text) => <a>{text}</a>,
-  },
-  {
-    title: "Age",
-    dataIndex: "age",
-    key: "age",
-  },
-  {
-    title: "Address",
-    dataIndex: "address",
-    key: "address",
-  },
-  {
-    title: "Tags",
-    key: "tags",
-    dataIndex: "tags",
-    render: (tags: string[]) => (
-      <span>
-        {tags.map((tag) => {
-          let color = tag.length > 5 ? "geekblue" : "green";
-          if (tag === "loser") {
-            color = "volcano";
-          }
-          return (
-            <Tag color={color} key={tag}>
-              {tag.toUpperCase()}
-            </Tag>
-          );
-        })}
-      </span>
-    ),
-  },
-  {
-    title: "Action",
-    key: "action",
-    render: (_, record) => (
-      <Space size="middle">
-        <a>Invite {record.name}</a>
-        <a>Delete</a>
-      </Space>
-    ),
-  },
-];
-
-const data: DataType[] = [
-  {
-    key: "1",
-    name: "John Brown",
-    age: 32,
-    address: "New York No. 1 Lake Park",
-    tags: ["nice", "developer"],
-  },
-  {
-    key: "2",
-    name: "Jim Green",
-    age: 42,
-    address: "London No. 1 Lake Park",
-    tags: ["loser"],
-  },
-  {
-    key: "3",
-    name: "Joe Black",
-    age: 32,
-    address: "Sydney No. 1 Lake Park",
-    tags: ["cool", "teacher"],
-  },
-];
-
-const App: React.FC = () => {
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
-  const rowSelection: TableRowSelection<DataType> = {
+  const rowSelection = {
     selectedRowKeys,
     onChange: onSelectChange,
   };
+
   return (
-    <div>
+    <div className="flex flex-col gap-3 justify-items-start">
+      <Tooltip title="Làm mới">
+        <Button onClick={() => refreshEmployees()} icon={<RotateCcw />} />
+      </Tooltip>
       <Table
         columns={columns}
         rowSelection={rowSelection}
-        pagination={{ position: ["bottomRight"] }}
         dataSource={data}
+        rowKey="id"
+        loading={isLoading}
       />
     </div>
   );
 };
 
-export default App;
+export default EmployeesPage;

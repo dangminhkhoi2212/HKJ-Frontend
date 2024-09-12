@@ -11,7 +11,7 @@ import AppContent from "../Content";
 import useStyleStore from "@/stores/stype";
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <Layout className={cn("min-h-screen")}>
+    <Layout className={cn("min-h-screen")} hasSider>
       <Sidebar />
       <AppContent>{children}</AppContent>
     </Layout>

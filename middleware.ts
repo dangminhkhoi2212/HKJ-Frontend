@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { AUTHORIZATIONS, ROLE_PREFIXES } from "./const";
+import { AUTHORIZATIONS, ROLE_PREFIXES } from "./const/authorities";
 import { withAuth } from "next-auth/middleware";
 import { routes } from "./routes";
 

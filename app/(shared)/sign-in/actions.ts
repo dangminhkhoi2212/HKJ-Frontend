@@ -6,7 +6,7 @@ import { useMutation } from "react-query";
 import { signIn } from "@/services/account.service";
 import { useAccount } from "@/hooks/account";
 import Cookies from "js-cookie";
-import { AUTH_TOKEN_KEY } from "@/config/key";
+import { AUTH_TOKEN_KEY } from "@/const/key";
 import { useEffect, useState } from "react";
 import { TSignIn } from "@/types/account.type";
 import { App } from "antd";

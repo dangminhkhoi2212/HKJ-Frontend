@@ -5,7 +5,7 @@ import TrackProductCard from "@/shared/Sidebar/TrackProductCard";
 import useStyleStore from "@/stores/stype";
 import { menuUser, menuEmployee, menuManager } from "./menus";
 import { useSession } from "next-auth/react";
-import { AUTHORIZATIONS, ROLE_PREFIXES } from "@/const";
+import { AUTHORIZATIONS, ROLE_PREFIXES } from "@/const/authorities";
 import { usePathname, useRouter } from "next/navigation";
 import { MenuProps } from "antd/lib";
 import { ItemType, MenuItemType } from "antd/es/menu/interface";

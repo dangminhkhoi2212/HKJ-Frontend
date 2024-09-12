@@ -3,7 +3,7 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import KeycloakProvider from "next-auth/providers/keycloak";
 import { jwtDecode } from "jwt-decode";
 import { encrypt } from "@/utils/encryption";
-import { AUTHORIZATIONS } from "@/const";
+import { AUTHORIZATIONS } from "@/const/authorities";
 
 const convertReamlRoles = (roles: string[] | undefined) => {
   return Object.values(AUTHORIZATIONS).filter((role) => roles?.includes(role));

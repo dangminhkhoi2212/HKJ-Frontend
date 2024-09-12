@@ -6,9 +6,11 @@ import SearchHeader from "./SearchHeader";
 import useStypeStore from "@/stores/stype";
 import UserMenu from "./UserMenu";
 const { Header } = Layout;
-
 const AppHeader: React.FC = () => {
-  const { collapsed, colorBgContainer } = useStypeStore((state) => state);
+  const {
+    token: { colorBgContainer },
+  } = theme.useToken();
+  const { collapsed } = useStypeStore((state) => state);
   const toggleCollapsed = useStypeStore((state) => state.toggleCollapsed);
 
   return (

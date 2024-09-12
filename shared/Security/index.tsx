@@ -5,7 +5,7 @@ import useAccountStore, { TAccountInfo } from "@/stores/account";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
-import { AUTHORIZATIONS } from "@/const";
+import { AUTHORIZATIONS } from "@/const/authorities";
 const Security: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -14,21 +14,13 @@ const Security: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
   const { refetch: getAccount } = useAccount();
   const { data: session } = useSession();
-  // if (session?.error == "RefreshAccessTokenError") {
-  //   signOut({ callbackUrl: "/" });
-  // }
+  if (session?.error == "RefreshAccessTokenError") {
+    signOut({ callbackUrl: "/" });
+  }
   console.log("🚀 ~ session:", session);
   useEffect(() => {
     if (!account && session) getAccount();
-    const userRoles = session?.user.role; // Assuming the role is stored in session.user.role
-    // if (
-    //   userRoles &&
-    //   !userRoles.includes(AUTHORIZATIONS.EMPLOYEE) &&
-    //   pathname.includes("/employee")
-    // ) {
-    //   router.push("/error"); // Or another route that indicates an unauthorized access
-    // }
-  }, [account, getAccount, pathname, router, session]);
+  }, [account, getAccount, pathname, session]);
 
   return <>{children}</>;
 };

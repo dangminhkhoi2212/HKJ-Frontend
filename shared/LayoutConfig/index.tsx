@@ -17,10 +17,6 @@ const LayoutConfig = ({ children }: React.PropsWithChildren) => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  const setToken = useStyleStore((state) => state.setToken);
-
-  setToken(colorBgContainer, borderRadiusLG);
-
   return (
     <QueryClientProvider client={queryClient}>
       <AntdRegistry>

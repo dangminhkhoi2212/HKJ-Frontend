@@ -1,5 +1,5 @@
 "use client";
-import { routesUser } from "@/routes";
+import { routes } from "@/routes";
 import useAccountStore, { TAccountInfo } from "@/stores/account";
 import {
   Avatar,
@@ -19,18 +19,17 @@ import AvatarAccount from "@/shared/Account/AvatarAccount";
 import { LogOut } from "lucide-react";
 
 const AccountButton: React.FC = () => {
-  const account: TAccountInfo | null = useAccountStore(
+  const account: TAccountInfo | null | undefined = useAccountStore(
     (state) => state.account
   );
   const isLoading: boolean = useAccountStore((state) => state.isLoading);
-  console.log("🚀 ~ account:", account);
   const { signOutAll } = useAccountButtonActions();
   const items: MenuProps["items"] = [
     {
       key: "1",
       label: (
         <Link
-          href={routesUser.profile}
+          href={routes.profile}
           className="flex flex-col gap-2 justify-start items-center m-0"
         >
           <AvatarAccount />

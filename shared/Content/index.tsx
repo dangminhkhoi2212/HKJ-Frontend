@@ -1,12 +1,12 @@
 import React from "react";
-import { Layout } from "antd";
+import { Layout, theme } from "antd";
 import AppHeader from "@/shared/Content/Header";
-import useStyleStore from "@/stores/stype";
 
 const { Content } = Layout;
-
 const AppContent: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { colorBgContainer, borderRadiusLG } = useStyleStore((state) => state);
+  const {
+    token: { colorBgContainer, borderRadiusLG },
+  } = theme.useToken();
   return (
     <Layout className="min-h-screen">
       <AppHeader />
@@ -15,8 +15,8 @@ const AppContent: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           margin: "24px 16px",
           padding: 24,
           minHeight: 280,
-          // background: colorBgContainer,
-          // borderRadius: borderRadiusLG,
+          background: colorBgContainer,
+          borderRadius: borderRadiusLG,
         }}
         className="overflow-auto"
       >

@@ -10,7 +10,7 @@ const AvatarAccount: React.FC<AvatarProps> = ({
   children,
   ...props
 }) => {
-  const account: TAccountInfo | null = useAccountStore(
+  const account: TAccountInfo | null | undefined = useAccountStore(
     (state) => state.account
   );
 

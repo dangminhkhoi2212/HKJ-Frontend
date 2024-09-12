@@ -8,6 +8,7 @@ export const useAccount = () => {
   const { message } = App.useApp();
   return useQuery("account", getAccount, {
     onSuccess: (data) => {
+      console.log("🚀 ~ useAccount ~ data:", data);
       const account = data as TAccountInfo;
       setIsLoading(false);
       setAccount(account);
