@@ -1,68 +1,92 @@
-import { Form, Input, Typography } from "antd";
+import { Form, Input, InputNumber } from "antd";
+import { TextAreaProps } from "antd/es/input";
+import type { InputProps } from "antd/lib/input";
 import React from "react";
 import { Control, Controller } from "react-hook-form";
-import type { InputProps } from "antd/lib/input";
+import LabelCustom from "./LabelCustom";
+
 type InputCustomProps = {
   name: string;
-  label: string;
-  type?: string;
-  isRule?: boolean;
+  label?: string;
+  required?: boolean;
   allowClear?: InputProps["allowClear"];
   showCount?: InputProps["showCount"];
   placeholder?: string;
   control: Control<any>;
   errorMessage?: string;
   tooltip?: string;
+  type?: "text" | "password" | "textarea" | "number" | "price";
+  extra?: React.ReactNode;
+  formItemClassName?: string;
 } & InputProps;
+
 const InputCustom: React.FC<InputCustomProps> = ({
   name,
   label,
-  isRule = true,
-  placeholder,
+  required = true,
   control,
   errorMessage,
-  type = "text",
+  extra,
+  formItemClassName,
   ...props
 }) => {
+  const { Password, TextArea } = Input;
+  // Filter out unsupported props for TextArea
+  const getTextAreaProps = (): TextAreaProps => {
+    const { prefix, suffix, addonBefore, addonAfter, ...textAreaProps } = props;
+    return textAreaProps as TextAreaProps; // Return only applicable props for TextArea
+  };
+  const renderInput = (field: any) => {
+    switch (props.type) {
+      case "number":
+        return <Input {...field} {...props} size="large" type="number" />;
+      case "password":
+        return <Password {...field} {...props} size="large" />;
+      case "textarea":
+        return (
+          <TextArea
+            {...field}
+            {...getTextAreaProps()}
+            rows={4}
+            maxLength={200}
+          />
+        );
+      case "price":
+        return (
+          <InputNumber<number>
+            {...field}
+            {...props}
+            className="w-60"
+            suffix="VND"
+            size="large"
+            value={Number.parseInt(field.value)}
+            formatter={(value) =>
+              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+            parser={(value) =>
+              value?.replace(/\$\s?|(,*)/g, "") as unknown as number
+            }
+          />
+        );
+      default:
+        return <Input {...field} {...props} size="large" type="text" />;
+    }
+  };
+
   return (
     <Controller
       name={name}
       control={control}
-      rules={{ required: isRule }}
+      rules={{ required: required }}
       render={({ field, fieldState }) => (
         <Form.Item
-          name={name}
-          label={
-            <Typography.Title level={5} className="m-0">
-              {label}
-            </Typography.Title>
-          }
-          rules={[
-            {
-              required: isRule,
-            },
-          ]}
-          help={<span className="text-red-400">{errorMessage}</span>}
-          tooltip={props.tooltip}
+          label={<LabelCustom label={label} required={required} />}
+          validateStatus={fieldState.invalid ? "error" : ""}
+          help={fieldState.invalid ? errorMessage : null}
+          className={formItemClassName}
+          extra={extra}
         >
-          {type === "password" ? (
-            <Input.Password
-              type={type}
-              {...field}
-              value={field.value}
-              size="large"
-              placeholder={placeholder}
-              {...props}
-            />
-          ) : (
-            <Input
-              type={type}
-              {...field}
-              size="large"
-              placeholder={placeholder}
-              {...props}
-            />
-          )}
+          {renderInput(field)}
         </Form.Item>
       )}
     />

@@ -1,12 +1,20 @@
 "use client";
-import React from "react";
-import { Button } from "antd";
-import { signIn } from "next-auth/react";
 import { routes } from "@/routes";
-import { Diamond, Gem, BellRing, Star } from "lucide-react"; // Importing Lucide icons
 import Logo from "@/shared/Logo";
+import { Button } from "antd";
+import { BellRing, Diamond, Gem, Star } from "lucide-react"; // Importing Lucide icons
+import { signIn } from "next-auth/react";
+import React from "react";
 
 const SignInPage: React.FC<{ className?: string }> = ({ className }) => {
+  // const { signOutAll } = useAccountButtonActions();
+  // const { data: session } = useSession();
+  // useEffect(() => {
+  //   if (session) {
+  //     signOutAll();
+  //   }
+  // }, [session]);
+
   return (
     <div
       className={` flex items-center justify-center bg-gradient-to-b from-white to-gray-200 ${className} rounded-md`}

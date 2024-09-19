@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { Frown } from "lucide-react"; // Import the Frown icon from Lucide
 
-export default function Error({
+export default function GlobalError({
   error,
   reset,
 }: {

@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import useStypeStore from "@/stores/stype";
+import { cn } from "@/utils/cn";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { Button, Layout, theme } from "antd";
-import { cn } from "@/utils/cn";
+import React from "react";
+import RoleTag from "./RoleTag";
 import SearchHeader from "./SearchHeader";
-import useStypeStore from "@/stores/stype";
 import UserMenu from "./UserMenu";
 const { Header } = Layout;
 const AppHeader: React.FC = () => {
@@ -35,7 +36,10 @@ const AppHeader: React.FC = () => {
         }}
       />
       <SearchHeader />
-      <UserMenu />
+      <div className="flex justify-center items-center gap-4">
+        <RoleTag />
+        <UserMenu />
+      </div>
     </Header>
   );
 };

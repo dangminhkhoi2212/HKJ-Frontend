@@ -1,13 +1,14 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import "antd/dist/reset.css";
-import { Roboto } from "next/font/google";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
+import ReactQueryProvider from "@/providers/QueryClientProvider";
+import SessionProvoider from "@/providers/SessionProvider";
 import LayoutConfig from "@/shared/LayoutConfig";
-import NextTopLoader from "nextjs-toploader";
 import Security from "@/shared/Security";
-import Providers from "@/providers";
-import MainLayout from "@/shared/MainLayout";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
+import "antd/dist/reset.css";
+import type { Metadata } from "next";
+import { getServerSession } from "next-auth";
+import { Roboto } from "next/font/google";
+import NextTopLoader from "nextjs-toploader";
+import "./globals.css";
 const roboto = Roboto({
   weight: "400",
   subsets: ["latin"],
@@ -18,19 +19,28 @@ export const metadata: Metadata = {
   description: "Đặt trang sức trực tuyến",
 };
 
-export default function RootLayout({ children }: React.PropsWithChildren) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session: any = getServerSession();
   return (
-    <Providers>
-      <html lang="en">
-        <body className={roboto.className}>
-          <LayoutConfig>
-            <Security>
-              <NextTopLoader showSpinner={false} />
-              {children}
-            </Security>
-          </LayoutConfig>
-        </body>
-      </html>
-    </Providers>
+    <html lang="en">
+      <body className={roboto.className} suppressHydrationWarning={true}>
+        <SessionProvoider session={session}>
+          <ReactQueryProvider>
+            <LayoutConfig>
+              <AntdRegistry>
+                <Security>
+                  <NextTopLoader showSpinner={false} />
+                  {children}
+                </Security>
+              </AntdRegistry>
+            </LayoutConfig>
+          </ReactQueryProvider>
+        </SessionProvoider>
+      </body>
+    </html>
   );
 }

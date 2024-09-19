@@ -1,3 +1,4 @@
+"use client";
 import { useQuery } from "react-query";
 import { getAccount } from "@/services/account.service";
 import useAccountStore, { TAccountInfo } from "@/stores/account";

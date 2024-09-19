@@ -4,15 +4,20 @@ import { signOut } from "next-auth/react";
 const useAccountButtonActions = () => {
   async function keycloakSessionLogOut() {
     try {
-      await fetch(routes.signOut, { method: "GET" });
+      const res = await fetch(routes.signOut, { method: "GET" });
+      console.log("🚀 ~ keycloakSessionLogOut ~ res:", res);
     } catch (err) {
-      console.error(err);
+      console.log("🚀 ~ keycloakSessionLogOut ~ err:", err);
     }
   }
   const signOutAll = async () => {
-    await keycloakSessionLogOut().then(() =>
-      signOut({ callbackUrl: routes.signIn })
-    );
+    try {
+      await keycloakSessionLogOut();
+      await signOut({ callbackUrl: routes.signIn });
+      console.log("🚀 ~ signOutAll ~ ok");
+    } catch (error) {
+      console.log("🚀 ~ signOutAll ~ error:", error);
+    }
   };
   return { signOutAll };
 };

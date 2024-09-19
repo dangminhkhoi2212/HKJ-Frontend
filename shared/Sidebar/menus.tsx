@@ -1,4 +1,4 @@
-import { routes, routesManager, routesUser } from "@/routes";
+import { routes, routesAdmin, routesManager, routesUser } from "@/routes";
 import { MenuProps } from "antd";
 
 import {
@@ -8,8 +8,11 @@ import {
   ListOrdered,
   MessageCircle,
   PackageSearch,
+  SquareUser,
   Truck,
   User,
+  UserCog,
+  Users,
 } from "lucide-react";
 export const menuUser: MenuProps["items"] = [
   {
@@ -60,5 +63,22 @@ export const menuManager: MenuProps["items"] = [
     key: routesManager.order,
     icon: <ListOrdered size={18} />,
     label: "Đơn đặt hàng",
+  },
+];
+export const menuAdmin: MenuProps["items"] = [
+  {
+    key: routesAdmin.accounts,
+    icon: <Users size={18} />,
+    label: "Quản lí tài khoản",
+  },
+  {
+    key: routesAdmin.positions,
+    icon: <SquareUser size={18} />,
+    label: "Vị trí nhân viên",
+  },
+  {
+    key: routesAdmin.hire,
+    icon: <UserCog size={18} />,
+    label: "Thuê nhân viên",
   },
 ];

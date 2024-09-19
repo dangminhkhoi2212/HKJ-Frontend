@@ -1,22 +1,13 @@
 "use client";
 import { routes } from "@/routes";
+import AvatarAccount from "@/shared/Account/AvatarAccount";
 import useAccountStore, { TAccountInfo } from "@/stores/account";
-import {
-  Avatar,
-  Button,
-  Divider,
-  Dropdown,
-  Space,
-  Spin,
-  theme,
-  Tooltip,
-} from "antd";
+import { Button, Divider, Dropdown, Spin, Tag, theme, Tooltip } from "antd";
 import { MenuProps } from "antd/lib";
+import { LogOut } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import useAccountButtonActions from "./actions";
-import AvatarAccount from "@/shared/Account/AvatarAccount";
-import { LogOut } from "lucide-react";
 
 const AccountButton: React.FC = () => {
   const account: TAccountInfo | null | undefined = useAccountStore(
@@ -78,13 +69,17 @@ const AccountButton: React.FC = () => {
             </div>
           )}
         >
-          <div>
-            <Tooltip title="Tài khoản" className=" cursor-pointer ">
-              <div>
-                <AvatarAccount />
-              </div>
-            </Tooltip>
-          </div>
+          <Tooltip
+            title="Tài khoản"
+            className=" cursor-pointer flex flex-col justify-center items-center"
+          >
+            <Tag
+              className="text-sm font-semibold p-0 text-center align-middle"
+              bordered={false}
+            >
+              {account.firstName + " " + account.lastName}
+            </Tag>
+          </Tooltip>
         </Dropdown>
       ) : (
         <AvatarAccount>

@@ -1,9 +1,9 @@
-import { routes } from "./../../../../routes/index";
+import { AUTHORIZATIONS } from "@/const/authorities";
+import { encrypt } from "@/utils/encryption";
+import { jwtDecode } from "jwt-decode";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import KeycloakProvider from "next-auth/providers/keycloak";
-import { jwtDecode } from "jwt-decode";
-import { encrypt } from "@/utils/encryption";
-import { AUTHORIZATIONS } from "@/const/authorities";
+import { routes } from "./../../../../routes/index";
 
 const convertReamlRoles = (roles: string[] | undefined) => {
   return Object.values(AUTHORIZATIONS).filter((role) => roles?.includes(role));

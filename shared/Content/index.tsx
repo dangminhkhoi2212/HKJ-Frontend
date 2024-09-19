@@ -1,6 +1,6 @@
-import React from "react";
-import { Layout, theme } from "antd";
 import AppHeader from "@/shared/Content/Header";
+import { Layout, theme } from "antd";
+import React from "react";
 
 const { Content } = Layout;
 const AppContent: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -8,17 +8,16 @@ const AppContent: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   return (
-    <Layout className="min-h-screen">
+    <Layout className="max-h-screen">
       <AppHeader />
       <Content
         style={{
-          margin: "24px 16px",
-          padding: 24,
+          margin: "16px",
           minHeight: 280,
           background: colorBgContainer,
           borderRadius: borderRadiusLG,
         }}
-        className="overflow-auto"
+        className="overflow-auto p-5"
       >
         {children}
       </Content>

@@ -16,6 +16,7 @@ export type TAccountInfo = {
   lastModifiedBy: string | null | undefined;
   lastModifiedDate: string | null | undefined;
   authorities: string[] | null | undefined;
+  address: string | null | undefined;
 };
 type TAccountStore = {
   account: TAccountInfo | null | undefined;

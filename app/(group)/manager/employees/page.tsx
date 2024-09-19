@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
-import { Button, Dropdown, Space, Table, Tag, Tooltip } from "antd";
+import { Button, Dropdown, Space, Table, TableProps, Tag, Tooltip } from "antd";
 import { RotateCcw, Menu as MenuIcon } from "lucide-react";
-import { useEmployeesAction } from "./action";
+import { TEmployees, useEmployeesAction } from "./action";
 import { MenuProps } from "antd/lib";
 
 const EmployeesPage: React.FC = () => {
@@ -21,7 +21,7 @@ const EmployeesPage: React.FC = () => {
       key: "1",
     },
   ];
-  const columns = [
+  const columns: TableProps<TEmployees>["columns"] = [
     {
       title: "Họ",
       dataIndex: "firstName",

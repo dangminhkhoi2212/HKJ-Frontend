@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "react-query";
-import { getUsersByRole } from "@/services/user.service";
+import userService from "@/services/user.service";
 import { App } from "antd";
 export type TEmployees = {
   id: string;
@@ -17,7 +17,7 @@ export const useEmployeesAction = () => {
 
   const getEmployeesQuery = useQuery({
     queryKey: ["employees"],
-    queryFn: () => getUsersByRole(),
+    queryFn: () => userService.getUsersByRole(),
     onSuccess: (data) => {
       setData(data.data);
     },

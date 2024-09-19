@@ -1,12 +1,15 @@
-import { AUTHORIZATIONS } from "@/const/authorities";
-
 export const routesUser = {};
+export const routesAdmin = {
+  positions: "/admin/positions",
+  accounts: "/admin/accounts",
+  hire: "/admin/hire",
+};
 
 export const routesEmpoloyee = {};
 
 export const routesManager = {
-  employees: "/employees",
-  order: "/order",
+  employees: "/manager/employees",
+  order: "/manager/order",
 };
 export const routes = {
   home: "/",

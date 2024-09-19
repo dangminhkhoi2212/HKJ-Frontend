@@ -1,17 +1,16 @@
 "use client";
 import { useAccount } from "@/hooks/account";
-import { routesUser } from "@/routes";
 import useAccountStore, { TAccountInfo } from "@/stores/account";
-import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
-import { AUTHORIZATIONS } from "@/const/authorities";
+import { usePathname } from "next/navigation";
+import React, { useEffect } from "react";
+import useAccountButtonActions from "../Content/Header/UserMenu/AccountButton/actions";
 const Security: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const router = useRouter();
   const pathname = usePathname();
   const account: TAccountInfo | null | undefined = useAccountStore(
     (state) => state.account
   );
+  const { signOutAll } = useAccountButtonActions();
   const { refetch: getAccount } = useAccount();
   const { data: session } = useSession();
   if (session?.error == "RefreshAccessTokenError") {
@@ -19,8 +18,12 @@ const Security: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   }
   console.log("🚀 ~ session:", session);
   useEffect(() => {
-    if (!account && session) getAccount();
-  }, [account, getAccount, pathname, session]);
+    try {
+      if (!account && session) getAccount();
+    } catch (error) {
+      signOutAll();
+    }
+  }, [account, getAccount, pathname, session, signOutAll]);
 
   return <>{children}</>;
 };
