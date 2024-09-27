@@ -1,9 +1,11 @@
 "use client";
 
-import { QueryClient, QueryClientProvider } from "react-query";
 import { useState } from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
-const ReactQueryClientProvider = ({
+
+type Props = { children: React.ReactNode };
+const ReactQueryClientProvider: React.FC<Props> = ({
   children,
 }: {
   children: React.ReactNode;

@@ -1,10 +1,11 @@
-import InputCustom from "@/shared/InputCustom";
-import { TResetPasswordForm } from "@/types/account.type";
-import { changePasswordSchema } from "@/validations/auth";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { Button, Form, Space } from "antd";
+import { Button, Form } from "antd";
 import React from "react";
 import { useForm } from "react-hook-form";
+
+import InputCustom from "@/shared/FormCustom/InputCustom";
+import { TResetPasswordForm } from "@/types/accountType";
+import { changePasswordSchema } from "@/validations/auth";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 const ChangePasswordForm: React.FC<{
   label1: string;

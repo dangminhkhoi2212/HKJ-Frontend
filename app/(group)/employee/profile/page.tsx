@@ -1,5 +1,4 @@
-import Profile from "@/shared/Account/Profile";
-import React from "react";
+import { Profile } from "@/shared/Account/Profile";
 
 const EmployeeProfilePage = () => {
   return (

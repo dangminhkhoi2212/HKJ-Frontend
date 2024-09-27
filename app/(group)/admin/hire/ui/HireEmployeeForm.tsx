@@ -1,15 +1,23 @@
-import { DATE_FORMAT } from "@/const/key";
-import InputCustom from "@/shared/InputCustom";
-import LabelCustom from "@/shared/InputCustom/LabelCustom";
-import { TPosition } from "@/types/postion.type";
-import { hireEmployeeSchema } from "@/validations/hireEmployee.validation";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { Button, DatePicker, Empty, Form, Modal } from "antd";
+import { App, Button, DatePicker, Empty, Form, Modal } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import EmployeeInfo from "./EmployeeInfo";
-import PositoinOption from "./PositoinOption";
+import { useMutation } from "react-query";
+
+import { DATE_FORMAT } from "@/const/key";
+import { hireService } from "@/services";
+import { InputCustom, LabelCustom } from "@/shared/FormCustom/InputCustom";
+import SelectAccountForm from "@/shared/FormSelect/AccountForm/SelectAccountForm";
+import { SelectePositionForm } from "@/shared/FormSelect/SelectePositionForm";
+import { TAccountInfo } from "@/types";
+import { THire } from "@/types/hireType";
+import { TPosition } from "@/types/postionType";
+import { cn } from "@/utils";
+import { hireEmployeeSchema } from "@/validations/hireEmployee";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+import EmployeeInfo from "../../../../../shared/FormSelect/AccountForm/AccountDisplay";
+
 const { RangePicker } = DatePicker;
 
 const defaultSalary: number = 0;
@@ -27,34 +35,80 @@ export type TSelectedEmployeeHire = {
 const initSelectedEmployeeHire: TSelectedEmployeeHire = {
   show: false,
 };
+
 const HireEmployeeForm = () => {
   const [form] = Form.useForm();
+
   const [selectedPosition, setSeletedPosition] =
     useState<TSelectedPositionHire>(initSelectedPositionHire);
+
   const [selectedEmployee, setSelectedEmployee] =
     useState<TSelectedEmployeeHire>(initSelectedEmployeeHire);
-  console.log("🚀 ~ HireEmployeeForm ~ selectedPosition:", selectedPosition);
+
   const {
     handleSubmit,
     control,
+    reset,
     setValue,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(hireEmployeeSchema),
     reValidateMode: "onChange",
+    defaultValues: {
+      beginSalary: defaultSalary.toString(),
+    },
   });
-  console.log("🚀 ~ HireEmployeeForm ~ errors:", errors);
 
+  const { message } = App.useApp();
   const handleHireEmployee = (data: any) => {
-    console.log("🚀 ~ data:", data);
+    const dataMapper: THire = {
+      ...data,
+      beginDate: dayjs(data.beginDate).format(),
+      endDate: dayjs(data.endDate).format(),
+      position: {
+        id: parseInt(data.position),
+      },
+      employee: {
+        id: data.employee,
+      },
+    } as THire;
+    createHireMutation.mutate(dataMapper);
   };
-
+  const createHireMutation = useMutation({
+    mutationFn: (data: THire) => {
+      return hireService.create(data);
+    },
+    onSuccess(data, variables, context) {
+      resetForm();
+      message.success("Đã tạo dữ liệu thuê thành công");
+    },
+    onError: (error) => {
+      console.log("🚀 ~ createHireMutation ~ error:", error);
+      message.success("Đã có lỗi xảy ra xin vui lòng thử lại");
+    },
+  });
+  const resetForm = () => {
+    setSeletedPosition(initSelectedPositionHire);
+    setSelectedEmployee(initSelectedEmployeeHire);
+    reset();
+  };
   useEffect(() => {
     if (selectedPosition?.record)
-      setValue("position", selectedPosition?.record?.id.toString()!, {
+      setValue("position", selectedPosition?.record?.id!.toString()!, {
         shouldValidate: true,
       });
   }, [selectedPosition, setValue]);
+  useEffect(() => {
+    if (selectedEmployee?.record)
+      setValue("employee", selectedEmployee?.record?.id.toString()!, {
+        shouldValidate: true,
+      });
+  }, [selectedEmployee, setValue]);
+
+  const handleSelectEmployee = () => {
+    setSelectedEmployee({ show: true, record: null });
+  };
+
   return (
     <div>
       <Modal
@@ -64,15 +118,25 @@ const HireEmployeeForm = () => {
         onCancel={() => setSeletedPosition(initSelectedPositionHire)}
         footer={null}
       >
-        <PositoinOption setSeletedPosition={setSeletedPosition} />
+        <SelectePositionForm
+          onChange={(data: TPosition) =>
+            setSeletedPosition({ show: false, record: data })
+          }
+        />
       </Modal>
-      {/* <Modal
+      <Modal
         open={selectedEmployee.show}
         title="Danh sách nhân viên"
         closable
         onCancel={() => setSelectedEmployee(initSelectedEmployeeHire)}
         footer={null}
-      ></Modal> */}
+      >
+        <SelectAccountForm
+          onChange={(data: TAccountInfo) => {
+            setSelectedEmployee({ show: false, record: data });
+          }}
+        />
+      </Modal>
       {/* ############################## */}
       <Form
         onFinish={handleSubmit(handleHireEmployee)}
@@ -155,24 +219,44 @@ const HireEmployeeForm = () => {
             <InputCustom
               label="Mức lương khởi điểm"
               name="beginSalary"
+              className="w-full"
               control={control}
               errorMessage={errors?.beginSalary?.message}
-              defaultValue={defaultSalary}
               type="price"
             />
           </div>
 
           <div className="col-span-3">
             <LabelCustom label="Tài khoản nhân viên" classname="" required />
-            {selectedEmployee.show ? (
+            {selectedEmployee.record ? (
               <div>
-                <Button className="my-2">Thay đổi</Button>
-                <EmployeeInfo />
+                <Button
+                  className="my-2"
+                  onClick={() =>
+                    setSelectedEmployee({ show: true, record: null })
+                  }
+                >
+                  Thay đổi
+                </Button>
+                {selectedEmployee.record && (
+                  <EmployeeInfo account={selectedEmployee.record} />
+                )}
               </div>
             ) : (
-              <div className="ring-1 rounded-md p-2 h-full flex flex-col justify-center">
-                <Empty>
-                  <Button onClick={() => setSelectedEmployee({ show: true })}>
+              <div
+                className={cn(
+                  "ring-1 ring-gray-300 rounded-md p-2 h-full flex flex-col justify-center",
+                  errors?.employee?.message ? "ring-rose-400" : ""
+                )}
+              >
+                <Empty
+                  description={
+                    errors?.employee?.message && (
+                      <span className="text-red-400">Không bỏ trống ô này</span>
+                    )
+                  }
+                >
+                  <Button onClick={() => handleSelectEmployee()}>
                     Chọn tài khoản
                   </Button>
                 </Empty>
@@ -193,7 +277,11 @@ const HireEmployeeForm = () => {
           count={{ max: 300 }}
         />
         <div className="flex justify-end mt-4">
-          <Button type="primary" htmlType="submit">
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={createHireMutation.isLoading}
+          >
             Bắt đầu thuê
           </Button>
         </div>

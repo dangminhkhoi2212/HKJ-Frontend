@@ -1,25 +1,20 @@
-import { useEffect, useState } from "react";
-import { useMutation, useQuery } from "react-query";
-import userService from "@/services/user.service";
 import { App } from "antd";
-export type TEmployees = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  activated: boolean;
-  phone: number;
-};
+import { useEffect, useState } from "react";
+import { useQuery } from "react-query";
+
+import userService from "@/services/userService";
+import { TAccountInfo } from "@/stores";
+
 export const useEmployeesAction = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [data, setData] = useState<TEmployees[]>([]);
+  const [data, setData] = useState<TAccountInfo[]>([]);
   const { message } = App.useApp();
 
   const getEmployeesQuery = useQuery({
     queryKey: ["employees"],
     queryFn: () => userService.getUsersByRole(),
     onSuccess: (data) => {
-      setData(data.data);
+      setData(data);
     },
     onError: (error) => {
       message.error("Có lỗi xảy ra khi lấy thông tin nhân viên");

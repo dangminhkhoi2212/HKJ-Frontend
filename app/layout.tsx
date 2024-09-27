@@ -1,14 +1,17 @@
-import ReactQueryProvider from "@/providers/QueryClientProvider";
-import SessionProvoider from "@/providers/SessionProvider";
-import LayoutConfig from "@/shared/LayoutConfig";
-import Security from "@/shared/Security";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
 import "antd/dist/reset.css";
-import type { Metadata } from "next";
+import "./globals.css";
+
 import { getServerSession } from "next-auth";
 import { Roboto } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
-import "./globals.css";
+
+import ReactQueryProvider from "@/providers/QueryClientProvider";
+import SessionProvoider from "@/providers/SessionProvider";
+import { LayoutConfig } from "@/shared/LayoutConfig";
+import { Security } from "@/shared/Security";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
+
+import type { Metadata } from "next";
 const roboto = Roboto({
   weight: "400",
   subsets: ["latin"],

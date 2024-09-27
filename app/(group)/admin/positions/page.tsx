@@ -1,11 +1,5 @@
 "use client";
 import {
-  TPosition,
-  TPositionQuery,
-  TSelectedPosition,
-} from "@/types/postion.type";
-import { formatDate } from "@/utils/format";
-import {
   Button,
   Divider,
   Modal,
@@ -13,20 +7,29 @@ import {
   TablePaginationConfig,
   TableProps,
 } from "antd";
+import cleanDeep from "clean-deep";
 import { Pencil, Plus, RefreshCcw, Trash } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import AddPositionForm from "./ui/AddPositionForm";
+import { useQueries } from "react-query";
 
 import { initPagination } from "@/const/params";
-import { useRouterCustom } from "@/hooks/router.hook";
-import positionService from "@/services/position.service";
-import InputSearchCustom from "@/shared/InputSearchCustom";
-import { FormStatus } from "@/types/form.type";
+import { useRouterCustom } from "@/hooks/router";
+import positionService from "@/services/positionService";
+import { InputSearchCustom } from "@/shared/FormCustom/InputSearchCustom";
+import { TQuery } from "@/types";
+import { FormStatus } from "@/types/formType";
+import {
+  TPosition,
+  TPositionQuery,
+  TSelectedPosition,
+} from "@/types/postionType";
+import { formatDate } from "@/utils/format";
 import { sortDate, sortName } from "@/utils/sorter";
-import cleanDeep from "clean-deep";
-import { useQueries } from "react-query";
+
+import AddPositionForm from "./ui/AddPositionForm";
 import DeletePositionForm from "./ui/DeletePositionForm";
-export const initPositionQuery: TPositionQuery = {
+
+export const initPositionQuery: TQuery<TPositionQuery> = {
   "name.contains": undefined,
   sort: "lastModifiedDate,desc",
   page: 0,
@@ -40,14 +43,13 @@ const PostiionsPage: React.FC = () => {
     status: FormStatus.ADD,
     record: {} as TPosition,
   });
-  const [query, setQuery] = useState<TPositionQuery>(initPositionQuery);
+  const [query, setQuery] = useState<TQuery<TPositionQuery>>(initPositionQuery);
   console.log("🚀 ~ query:", query);
 
   const [pagination, setPagination] =
     useState<TablePaginationConfig>(initPagination);
   const [data, setData] = useState<TPosition[]>([]);
 
-  console.log("🚀 ~ pagination:", pagination);
   const [getPositionsQuery, getPositionsCountQuery] = useQueries([
     {
       queryKey: ["positions", { ...query }],
@@ -98,8 +100,9 @@ const PostiionsPage: React.FC = () => {
       Number.parseInt(searchParams.get("page")! ?? initPagination.current) - 1,
       0
     );
-    const pageSize: number | undefined =
-      Number.parseInt(searchParams.get("size")!) ?? initPagination.pageSize;
+    const pageSize: number = Number.parseInt(
+      searchParams.get("size") ?? initPagination.pageSize!.toString()
+    );
     const textSearch: string = searchParams.get("textSearch") ?? "";
 
     setQuery((pre) =>
@@ -213,7 +216,10 @@ const PostiionsPage: React.FC = () => {
           (selectedPosition.status === FormStatus.ADD ||
             selectedPosition.status === FormStatus.UPDATE)
         }
-        onCancel={() => setSelectedPosition({ show: false })}
+        onCancel={() =>
+          setSelectedPosition({ show: false, record: {} as TPosition })
+        }
+        closable
         footer={null}
       >
         <AddPositionForm
@@ -229,7 +235,9 @@ const PostiionsPage: React.FC = () => {
           selectedPosition.show && selectedPosition.status === FormStatus.DELETE
         }
         okType="danger"
-        onCancel={() => setSelectedPosition({ show: false })}
+        onCancel={() =>
+          setSelectedPosition({ show: false, record: {} as TPosition })
+        }
         footer={null}
       >
         <DeletePositionForm
@@ -269,7 +277,6 @@ const PostiionsPage: React.FC = () => {
         }}
         pagination={pagination}
         onChange={handleTableChange}
-        sticky={{ offsetHeader: 0 }}
       />
     </div>
   );

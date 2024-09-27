@@ -1,7 +1,8 @@
-import { signOut } from "@/services/account.service";
-import { getIdToken } from "@/utils/sessionTokenAccessor";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../[...nextauth]/route";
+import { getServerSession } from 'next-auth';
+
+import { getIdToken } from '@/utils/sessionTokenAccessor';
+
+import { authOptions } from '../[...nextauth]/route';
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -18,7 +19,6 @@ export async function GET() {
 
     try {
       const resp = await fetch(url, { method: "GET" });
-      await signOut();
     } catch (err) {
       console.error(err);
       return new Response(null, { status: 500 });

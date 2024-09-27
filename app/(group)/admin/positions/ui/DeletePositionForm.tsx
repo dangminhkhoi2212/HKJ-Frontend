@@ -1,9 +1,9 @@
-import positionService from "@/services/position.service";
-import { TPosition, TSelectedPosition } from "@/types/postion.type";
 import { App, Button, Form } from "antd";
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import React from "react";
 import { useMutation } from "react-query";
+
+import positionService from "@/services/positionService";
+import { TPosition, TSelectedPosition } from "@/types/postionType";
 
 type TDeletePositionForm = {
   data?: TPosition;

@@ -1,4 +1,4 @@
-import MainLayout from "@/shared/MainLayout";
+import { MainLayout } from "@/shared/MainLayout";
 
 export default function Layout({
   children,

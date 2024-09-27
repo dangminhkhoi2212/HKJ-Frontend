@@ -1,16 +1,18 @@
-import { AUTHORIZATIONS } from "@/const/authorities";
-import { encrypt } from "@/utils/encryption";
 import { jwtDecode } from "jwt-decode";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import KeycloakProvider from "next-auth/providers/keycloak";
-import { routes } from "./../../../../routes/index";
+
+import { AUTHORIZATIONS } from "@/const/authorities";
+import { encrypt } from "@/utils/encryption";
+
+import { routes } from "../../../../routes/index";
 
 const convertReamlRoles = (roles: string[] | undefined) => {
   return Object.values(AUTHORIZATIONS).filter((role) => roles?.includes(role));
 };
 // this will refresh an expired access token, when needed
 async function refreshAccessToken(token: any) {
-  const resp = await fetch(`${process.env.REFRESH_TOKEN_URL}`, {
+  const resp = await fetch(`${process.env.NEXT_PUBLIC_REFRESH_TOKEN_URL}`, {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       client_id: process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID,

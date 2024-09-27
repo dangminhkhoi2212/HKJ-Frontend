@@ -1,38 +1,43 @@
-import InputCustom from "@/shared/InputCustom";
 import { App, Button, Form } from "antd";
-import React, { BaseSyntheticEvent, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import {
-  TPosition,
-  TPositionCreate,
-  TSelectedPosition,
-} from "@/types/postion.type";
-import { FormInstance } from "antd/lib";
 import { useMutation } from "react-query";
-import positionService from "@/services/position.service";
-import { FormStatus } from "@/types/form.type";
 
+import positionService from "@/services/positionService";
+import { InputCustom } from "@/shared/FormCustom/InputCustom";
+import { FormStatus } from "@/types/formType";
+import { TPosition, TSelectedPosition } from "@/types/postionType";
+
+const initValue: TSelectedPosition = {
+  show: false,
+  status: FormStatus.ADD,
+  record: {
+    name: "",
+  },
+};
 const AddPositionForm: React.FC<{
   data?: TSelectedPosition;
   refreshPositionsData: () => void;
   setSelectedPosition: React.Dispatch<TSelectedPosition>;
 }> = ({ setSelectedPosition, refreshPositionsData, data }) => {
+  console.log("🚀 AddPositionForm~ data:", data);
   const {
     control,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<TPosition>({
-    defaultValues: data?.record,
+    defaultValues: data?.record || initValue.record,
   });
 
   const { message } = App.useApp();
   const [form] = Form.useForm();
   const addPositionMutation = useMutation({
-    mutationFn: (data: TPositionCreate) => positionService.create(data),
+    mutationFn: (data: TPosition) => positionService.create(data),
     onSuccess: () => {
       message.success("Đã thêm vị trí");
-      form.resetFields();
+      reset();
       setSelectedPosition({ show: false });
       refreshPositionsData();
     },
@@ -44,7 +49,7 @@ const AddPositionForm: React.FC<{
     mutationFn: (data: TPosition) => positionService.update(data),
     onSuccess: () => {
       message.success("Đã cập nhật thành công");
-      form.resetFields();
+      reset();
       setSelectedPosition({ show: false });
       refreshPositionsData();
     },
@@ -54,6 +59,7 @@ const AddPositionForm: React.FC<{
   });
 
   const handleFormSubmit = async (position: TPosition) => {
+    console.log("🚀 ~ handleFormSubmit ~ position:", position);
     if (data?.status === FormStatus.UPDATE) {
       updatePositionMutation.mutate(position);
     } else {
@@ -62,19 +68,19 @@ const AddPositionForm: React.FC<{
   };
 
   useEffect(() => {
-    form.resetFields();
-    if (data?.record?.id) {
-      form.setFieldsValue({ ...data.record });
+    if (data?.record?.name) {
       setValue("id", data?.record?.id);
       setValue("name", data?.record?.name);
     }
-  }, [form, data, setValue]);
+    return () => {
+      reset(initValue.record);
+    };
+  }, [form, data, setValue, reset]);
   return (
     <Form
       form={form}
       layout="vertical"
       size="large"
-      initialValues={{ name: data?.record?.name, id: data?.record?.id }}
       onFinish={handleSubmit(handleFormSubmit)}
     >
       <InputCustom
@@ -85,10 +91,7 @@ const AddPositionForm: React.FC<{
         errorMessage={errors?.name?.message?.toString()}
       />
       <div className="flex gap-2 justify-end">
-        <Button
-          size="middle"
-          onClick={() => setSelectedPosition({ show: false })}
-        >
+        <Button size="middle" onClick={() => setSelectedPosition(initValue)}>
           Hủy
         </Button>
         <Button

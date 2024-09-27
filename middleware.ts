@@ -1,8 +1,9 @@
-import { getToken } from "next-auth/jwt";
-import { withAuth } from "next-auth/middleware";
-import { NextRequest, NextResponse } from "next/server";
-import { ROLE_PREFIXES } from "./const/authorities";
-import { routes } from "./routes";
+import { getToken } from 'next-auth/jwt';
+import { withAuth } from 'next-auth/middleware';
+import { NextRequest, NextResponse } from 'next/server';
+
+import { ROLE_PREFIXES } from './const/authorities';
+import { routes } from './routes';
 
 // Define a secret to verify the token (make sure to keep it secure)
 const secret = process.env.NEXTAUTH_SECRET;
