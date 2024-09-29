@@ -11,7 +11,7 @@ const AdminPage = () => {
       router.push(routesAdmin.accounts);
     }
   }, []);
-  return <></>;
+  return <div></div>;
 };
 
 export default AdminPage;

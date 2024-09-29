@@ -5,7 +5,7 @@ import { RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 
-import { AUTHORIZATIONS, initPagination } from "@/const";
+import { AUTHORIZATIONS_CONST, QUERY_CONST } from "@/const";
 import { keyCloakService, userExtraService } from "@/services";
 import { TAccountSync } from "@/types";
 
@@ -93,8 +93,9 @@ const AccountList = () => {
   const [keyCloakData, setKeyCloakData] = useState<TAccountKeyCloak>([]);
   console.log("🚀 ~ AccountList ~ keyCloakData:", keyCloakData);
 
-  const [pagination, setPagination] =
-    useState<TablePaginationConfig>(initPagination);
+  const [pagination, setPagination] = useState<TablePaginationConfig>(
+    QUERY_CONST.initPagination
+  );
 
   const [query, setQuery] = useState({ page: 0 });
 
@@ -156,7 +157,9 @@ const AccountList = () => {
         data.map(async (account) => {
           const roles = await getRoleUseMutation.mutateAsync(account.id);
           const roleUser = roles.filter((role: any) =>
-            Object.values(AUTHORIZATIONS).includes(role.name)
+            Object.values(AUTHORIZATIONS_CONST.AUTHORIZATIONS).includes(
+              role.name
+            )
           );
           return { ...account, authorities: roleUser.map((r: any) => r.name) };
         })

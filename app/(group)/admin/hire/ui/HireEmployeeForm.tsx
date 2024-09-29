@@ -4,9 +4,15 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 
-import { DATE_FORMAT } from "@/const/key";
+import { KEY_CONST } from "@/const";
 import { hireService } from "@/services";
-import { InputCustom, LabelCustom } from "@/shared/FormCustom/InputCustom";
+import {
+  InputCustom,
+  InputNumberCustom,
+  LabelCustom,
+} from "@/shared/FormCustom/InputCustom";
+import NumberToWords from "@/shared/FormCustom/InputNumToWords/InputNumToWords";
+import { AccountDisplay } from "@/shared/FormSelect/AccountForm";
 import SelectAccountForm from "@/shared/FormSelect/AccountForm/SelectAccountForm";
 import { SelectePositionForm } from "@/shared/FormSelect/SelectePositionForm";
 import { TAccountInfo } from "@/types";
@@ -15,8 +21,6 @@ import { TPosition } from "@/types/postionType";
 import { cn } from "@/utils";
 import { hireEmployeeSchema } from "@/validations/hireEmployee";
 import { yupResolver } from "@hookform/resolvers/yup";
-
-import EmployeeInfo from "../../../../../shared/FormSelect/AccountForm/AccountDisplay";
 
 const { RangePicker } = DatePicker;
 
@@ -50,6 +54,7 @@ const HireEmployeeForm = () => {
     control,
     reset,
     setValue,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(hireEmployeeSchema),
@@ -58,6 +63,7 @@ const HireEmployeeForm = () => {
       beginSalary: defaultSalary.toString(),
     },
   });
+  console.log("🚀 ~ HireEmployeeForm ~ errors:", errors);
 
   const { message } = App.useApp();
   const handleHireEmployee = (data: any) => {
@@ -143,8 +149,9 @@ const HireEmployeeForm = () => {
         form={form}
         layout="vertical"
         validateTrigger="onChange"
+        className="flex flex-col gap-4"
       >
-        <div className="grid grid-cols-1 md:gird-cols-5 lg:grid-cols-5 xl:grid-cols-5 gap-4 place-items-stretch ">
+        <div className="grid grid-cols-1 md:gird-cols-5 lg:grid-cols-5 xl:grid-cols-5 gap-4 ">
           <div className="col-span-2 grid grid-cos-1 gap-4 place-self-start">
             <Controller
               name="date"
@@ -185,7 +192,7 @@ const HireEmployeeForm = () => {
                       size="large"
                       className="w-80"
                       placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
-                      format={DATE_FORMAT}
+                      format={KEY_CONST.DATE_FORMAT}
                     />
                   </Form.Item>
                 );
@@ -215,15 +222,27 @@ const HireEmployeeForm = () => {
                 }
               />
             </div>
-
-            <InputCustom
+            <div>
+              <InputNumberCustom
+                label="Mức lương khởi điểm"
+                name="beginSalary"
+                control={control}
+                className="max-w-80"
+                defaultValue={defaultSalary}
+                errorMessage={errors?.beginSalary?.message}
+                suffix=" VND"
+                min={1000}
+              />
+              <NumberToWords number={Number.parseInt(watch("beginSalary"))} />
+            </div>
+            {/* <InputCustom
               label="Mức lương khởi điểm"
               name="beginSalary"
               className="w-full"
               control={control}
               errorMessage={errors?.beginSalary?.message}
               type="price"
-            />
+            /> */}
           </div>
 
           <div className="col-span-3">
@@ -232,6 +251,7 @@ const HireEmployeeForm = () => {
               <div>
                 <Button
                   className="my-2"
+                  size="small"
                   onClick={() =>
                     setSelectedEmployee({ show: true, record: null })
                   }
@@ -239,17 +259,18 @@ const HireEmployeeForm = () => {
                   Thay đổi
                 </Button>
                 {selectedEmployee.record && (
-                  <EmployeeInfo account={selectedEmployee.record} />
+                  <AccountDisplay account={selectedEmployee.record} />
                 )}
               </div>
             ) : (
               <div
                 className={cn(
-                  "ring-1 ring-gray-300 rounded-md p-2 h-full flex flex-col justify-center",
+                  "ring-1 ring-gray-300 rounded-md p-2 flex flex-col justify-center",
                   errors?.employee?.message ? "ring-rose-400" : ""
                 )}
               >
                 <Empty
+                  className="py-5"
                   description={
                     errors?.employee?.message && (
                       <span className="text-red-400">Không bỏ trống ô này</span>
@@ -266,7 +287,7 @@ const HireEmployeeForm = () => {
         </div>
 
         {/* Notes */}
-        <InputCustom
+        {/* <InputCustom
           label="Ghi chú"
           name="note"
           formItemClassName="mt-4"
@@ -275,8 +296,8 @@ const HireEmployeeForm = () => {
           control={control}
           type="textarea"
           count={{ max: 300 }}
-        />
-        <div className="flex justify-end mt-4">
+        /> */}
+        <div className="flex justify-end">
           <Button
             type="primary"
             htmlType="submit"

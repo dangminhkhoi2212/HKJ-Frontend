@@ -2,12 +2,15 @@
 import { App } from "antd";
 import { signOut, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 
+import Loading from "@/app/loading";
 import { useAccount } from "@/hooks/account";
 import { routes } from "@/routes";
 import useAccountStore from "@/stores/account";
 import { TAccountInfo } from "@/types";
+
+import LoadingIntro from "../Loading/LoadingIntro";
 
 const Security: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
@@ -22,16 +25,18 @@ const Security: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   if (session?.error == "RefreshAccessTokenError") {
     signOut({ callbackUrl: routes.signIn });
   }
-  console.log("🚀 ~ session:", session);
+
   useEffect(() => {
     if (count > 4) return;
-    if (!account && session?.access_token) {
+    if (!account && session?.access_token && pathname !== routes.signIn) {
       getAccount.refetch();
       setCount((pre) => pre + 1);
     }
   }, [account, count, getAccount, session?.access_token]);
-
-  return <>{children}</>;
+  if (!account && pathname !== routes.signIn) {
+    return <LoadingIntro />;
+  }
+  return <Suspense fallback={<Loading />}>{children}</Suspense>;
 };
 
 export default Security;

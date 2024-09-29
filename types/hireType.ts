@@ -1,16 +1,51 @@
-import { TPosition } from "./postionType";
-import { TUserExtra } from "./userExtraType";
+import { TFilter } from "./filterType";
 
-export type THire = {
+export interface THire {
   id: number;
   beginDate: string;
   endDate: string;
   beginSalary: number;
-  isDeleted: boolean;
+  isDeleted: any;
   createdBy: string;
   createdDate: string;
   lastModifiedBy: string;
   lastModifiedDate: string;
-  position: TPosition;
-  employee: TUserExtra;
+  position: Position;
+  employee: Employee;
+}
+
+export interface Position {
+  id: number;
+  name: string;
+  isDeleted: any;
+  createdBy: string;
+  createdDate: string;
+  lastModifiedBy: string;
+  lastModifiedDate: string;
+}
+
+export interface Employee {
+  id: number;
+  phone: string;
+  address: any;
+  isDeleted: any;
+  active: any;
+  createdBy: string;
+  createdDate: string;
+  lastModifiedBy: string;
+  lastModifiedDate: string;
+  user: User;
+}
+
+export interface User {
+  id: string;
+  login: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+}
+
+export type THireQuery = {
+  positionName?: TFilter;
+  employeeName?: TFilter;
 };

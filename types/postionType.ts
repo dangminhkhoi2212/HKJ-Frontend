@@ -1,4 +1,5 @@
 import { TAudit } from "./auditType";
+import { TFilter } from "./filterType";
 import { FormStatus } from "./formType";
 
 export type TPositionCreate = {
@@ -16,5 +17,5 @@ export type TSelectedPosition = {
 };
 
 export type TPositionQuery = {
-  "name.contains"?: string;
+  name?: TFilter;
 };

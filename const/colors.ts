@@ -45,5 +45,7 @@ const colors = {
     DEFAULT: "#2e83cb",
   },
 };
-
-export default colors;
+const colorConst = {
+  colors,
+};
+export default colorConst;

@@ -1,8 +1,10 @@
 import { ThemeConfig } from "antd";
-import colors from "../const/colors";
+
+import { COLORS_CONST } from "../const";
+
 const themeConfig: ThemeConfig | undefined = {
   token: {
-    colorPrimary: colors.accent.DEFAULT,
+    colorPrimary: COLORS_CONST.colors.accent.DEFAULT,
   },
 };
 export default themeConfig;

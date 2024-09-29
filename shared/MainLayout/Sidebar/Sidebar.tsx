@@ -5,10 +5,11 @@ import { MenuProps } from "antd/lib";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
-import { AUTHORIZATIONS } from "@/const/authorities";
-import Logo from "@/shared/Logo";
-import useAccountStore, { TAccountInfo } from "@/stores/account";
+import { AUTHORIZATIONS_CONST } from "@/const";
+import { Logo } from "@/shared/Logo";
+import useAccountStore from "@/stores/account";
 import useStyleStore from "@/stores/style";
+import { TAccountInfo } from "@/types";
 
 import { menuAdmin, menuEmployee, menuManager, menuUser } from "./menus";
 
@@ -18,13 +19,13 @@ const renderMenu = (
   role: string | null | undefined
 ): ItemType<MenuItemType>[] | undefined => {
   switch (role) {
-    case AUTHORIZATIONS.USER:
+    case AUTHORIZATIONS_CONST.AUTHORIZATIONS.USER:
       return menuUser;
-    case AUTHORIZATIONS.EMPLOYEE:
+    case AUTHORIZATIONS_CONST.AUTHORIZATIONS.EMPLOYEE:
       return menuEmployee;
-    case AUTHORIZATIONS.MANAGER:
+    case AUTHORIZATIONS_CONST.AUTHORIZATIONS.MANAGER:
       return menuManager;
-    case AUTHORIZATIONS.ADMIN:
+    case AUTHORIZATIONS_CONST.AUTHORIZATIONS.ADMIN:
       return menuAdmin;
     default:
       return [];

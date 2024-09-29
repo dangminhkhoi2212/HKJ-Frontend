@@ -1,5 +1,7 @@
+import { COLORS_CONST } from "./const";
+
 import type { Config } from "tailwindcss";
-import colors from "./const/colors";
+
 const config: Config = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -9,7 +11,7 @@ const config: Config = {
   important: true,
   theme: {
     extend: {
-      colors: colors,
+      colors: COLORS_CONST.colors,
       fontFamily: {
         sans: ["Roboto", "Helvetica", "Arial", "sans-serif"],
       },

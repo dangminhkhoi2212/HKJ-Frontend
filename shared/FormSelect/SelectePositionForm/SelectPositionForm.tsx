@@ -3,30 +3,30 @@ import React, { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useQueries } from "react-query";
 
-import { initPositionQuery } from "@/app/(group)/admin/positions/page";
 import positionService from "@/services/positionService";
 import { InputSearchCustom } from "@/shared/FormCustom/InputSearchCustom";
 import { TQuery } from "@/types";
 import { TPosition, TPositionQuery } from "@/types/postionType";
+import { queryUtil } from "@/utils";
 
 type TPros = {
   onChange: (selectedPosition: TPosition) => void;
 };
-
+const initPositionQuery: TQuery<TPositionQuery> = {
+  sort: queryUtil.createSortOption("lastModifiedDate").desc,
+  size: 8,
+  page: 0,
+};
 const SelectPositionForm: React.FC<TPros> = ({ onChange }) => {
   const [data, setData] = useState<TPosition[]>([]);
   const [pageCount, setPageCount] = useState<number>(99999);
-  const [query, setQuery] = useState<TQuery<TPositionQuery>>({
-    ...initPositionQuery,
-    size: 8,
-  });
+  const [query, setQuery] = useState<TQuery<TPositionQuery>>(initPositionQuery);
 
   const [getPositionsQuery, getPositionsCountQuery] = useQueries([
     {
       queryKey: ["positions", { ...query }],
       queryFn: () => positionService.get(query),
       onSuccess: (dataRepsonse: TPosition[]) => {
-        console.log("🚀 ~ useAdminPositionsAction ~ data:", data);
         setData([...data, ...dataRepsonse]);
       },
       onError: (error: any) => {
@@ -40,17 +40,11 @@ const SelectPositionForm: React.FC<TPros> = ({ onChange }) => {
         // setPagination((pre) => ({ ...pre, total: data }));
         setPageCount(data);
       },
-      onError: (error: any) => {
-        console.log("🚀 ~ useAdminPositionsAction ~ error:", error);
-      },
     },
   ]);
 
   const loadMoreData = () => {
     setQuery((pre) => ({ ...pre, page: pre.page! + 1 }));
-    console.log("🚀 ~ loadMoreData ~ query:", query);
-
-    // refreshPositionsData();
   };
 
   const refreshPositionsData = async () => {
@@ -62,7 +56,7 @@ const SelectPositionForm: React.FC<TPros> = ({ onChange }) => {
     refreshPositionsData();
   }, []);
   const handleSearch = (value: string) => {
-    setQuery((pre) => ({ ...pre, "name.contains": value, page: 0 }));
+    setQuery((pre) => ({ ...pre, name: { contains: value }, page: 0 }));
     setData([]);
   };
   const handleOnchange = (data: TPosition) => {
@@ -87,7 +81,7 @@ const SelectPositionForm: React.FC<TPros> = ({ onChange }) => {
         >
           <List
             dataSource={data}
-            renderItem={(item) => (
+            renderItem={(item, index) => (
               <List.Item
                 key={item.id}
                 actions={[
@@ -99,7 +93,13 @@ const SelectPositionForm: React.FC<TPros> = ({ onChange }) => {
                   </Button>,
                 ]}
               >
-                <List.Item.Meta title={<p>{item.name}</p>} />
+                <List.Item.Meta
+                  title={
+                    <p>
+                      {index + 1}. {item.name}
+                    </p>
+                  }
+                />
               </List.Item>
             )}
           />

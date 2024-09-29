@@ -12,7 +12,7 @@ import { Pencil, Plus, RefreshCcw, Trash } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useQueries } from "react-query";
 
-import { initPagination } from "@/const/params";
+import { QUERY_CONST } from "@/const";
 import { useRouterCustom } from "@/hooks/router";
 import positionService from "@/services/positionService";
 import { InputSearchCustom } from "@/shared/FormCustom/InputSearchCustom";
@@ -23,17 +23,15 @@ import {
   TPositionQuery,
   TSelectedPosition,
 } from "@/types/postionType";
-import { formatDate } from "@/utils/format";
-import { sortDate, sortName } from "@/utils/sorter";
+import { formatUtil, queryUtil, sortUitl } from "@/utils";
 
 import AddPositionForm from "./ui/AddPositionForm";
 import DeletePositionForm from "./ui/DeletePositionForm";
 
-export const initPositionQuery: TQuery<TPositionQuery> = {
-  "name.contains": undefined,
-  sort: "lastModifiedDate,desc",
+const initPositionQuery: TQuery<TPositionQuery> = {
   page: 0,
   size: 5,
+  sort: queryUtil.createSortOption("lastModifiedDate").desc,
 };
 
 const PostiionsPage: React.FC = () => {
@@ -46,8 +44,9 @@ const PostiionsPage: React.FC = () => {
   const [query, setQuery] = useState<TQuery<TPositionQuery>>(initPositionQuery);
   console.log("🚀 ~ query:", query);
 
-  const [pagination, setPagination] =
-    useState<TablePaginationConfig>(initPagination);
+  const [pagination, setPagination] = useState<TablePaginationConfig>(
+    QUERY_CONST.initPagination
+  );
   const [data, setData] = useState<TPosition[]>([]);
 
   const [getPositionsQuery, getPositionsCountQuery] = useQueries([
@@ -76,6 +75,7 @@ const PostiionsPage: React.FC = () => {
   const refreshPositionsData = async () => {
     getPositionsQuery.refetch();
     getPositionsCountQuery.refetch();
+    setQuery({ ...initPositionQuery });
   };
 
   //get first data
@@ -97,11 +97,14 @@ const PostiionsPage: React.FC = () => {
 
   useEffect(() => {
     const page: number = Math.max(
-      Number.parseInt(searchParams.get("page")! ?? initPagination.current) - 1,
+      Number.parseInt(
+        searchParams.get("page")! ?? QUERY_CONST.initPagination.current
+      ) - 1,
       0
     );
     const pageSize: number = Number.parseInt(
-      searchParams.get("size") ?? initPagination.pageSize!.toString()
+      searchParams.get("size") ??
+        QUERY_CONST.initPagination.pageSize!.toString()
     );
     const textSearch: string = searchParams.get("textSearch") ?? "";
 
@@ -142,7 +145,7 @@ const PostiionsPage: React.FC = () => {
     {
       title: "Vị trí",
       dataIndex: "name",
-      sorter: (a, b) => sortName(a.name, b.name),
+      sorter: (a, b) => sortUitl.sortName(a.name, b.name),
 
       key: "name",
     },
@@ -155,18 +158,18 @@ const PostiionsPage: React.FC = () => {
       title: "Ngày tạo",
       dataIndex: "createdDate",
       key: "createdDate",
-      sorter: (a, b) => sortDate(a.createdDate, b.createdDate),
+      sorter: (a, b) => sortUitl.sortDate(a.createdDate, b.createdDate),
       render(value, record, index) {
-        return formatDate(value);
+        return formatUtil.formatDate(value);
       },
     },
     {
       title: "Ngày chỉnh sửa",
       dataIndex: "lastModifiedDate",
-      sorter: (a, b) => sortDate(a.createdDate, b.createdDate),
+      sorter: (a, b) => sortUitl.sortDate(a.createdDate, b.createdDate),
       key: "lastModifiedDate",
       render(value, record, index) {
-        return formatDate(value);
+        return formatUtil.formatDate(value);
       },
     },
     {

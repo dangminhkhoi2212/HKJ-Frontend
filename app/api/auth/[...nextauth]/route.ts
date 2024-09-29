@@ -2,11 +2,12 @@ import { jwtDecode } from "jwt-decode";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import KeycloakProvider from "next-auth/providers/keycloak";
 
-import { AUTHORIZATIONS } from "@/const/authorities";
+import { AUTHORIZATIONS_CONST } from "@/const";
 import { encrypt } from "@/utils/encryption";
 
 import { routes } from "../../../../routes/index";
 
+const AUTHORIZATIONS = AUTHORIZATIONS_CONST.AUTHORIZATIONS;
 const convertReamlRoles = (roles: string[] | undefined) => {
   return Object.values(AUTHORIZATIONS).filter((role) => roles?.includes(role));
 };

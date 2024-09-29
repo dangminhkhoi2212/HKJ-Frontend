@@ -20,7 +20,6 @@ const AddPositionForm: React.FC<{
   refreshPositionsData: () => void;
   setSelectedPosition: React.Dispatch<TSelectedPosition>;
 }> = ({ setSelectedPosition, refreshPositionsData, data }) => {
-  console.log("🚀 AddPositionForm~ data:", data);
   const {
     control,
     handleSubmit,

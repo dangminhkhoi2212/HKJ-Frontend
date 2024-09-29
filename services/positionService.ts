@@ -1,17 +1,24 @@
 import axiosInterceptor from "@/config/axiosInterceptor";
+import { TQuery } from "@/types";
 import { TPageType } from "@/types/pageType";
-import { TPosition } from "@/types/postionType";
+import { TPosition, TPositionQuery } from "@/types/postionType";
+import { formatUtil } from "@/utils";
 
 const create = async (data: TPosition) => {
   return (await axiosInterceptor().post("/hkj-positions", data)).data;
 };
-const get = async (query?: TPageType) => {
-  return (await axiosInterceptor().get("/hkj-positions", { params: query }))
-    .data;
-};
-const getCount = async (query?: TPageType) => {
+const get = async (query: TQuery<TPositionQuery>) => {
   return (
-    await axiosInterceptor().get("/hkj-positions/count", { params: query })
+    await axiosInterceptor().get("/hkj-positions", {
+      params: formatUtil.objectOneDegree(query),
+    })
+  ).data;
+};
+const getCount = async (query: TPageType) => {
+  return (
+    await axiosInterceptor().get("/hkj-positions/count", {
+      params: formatUtil.objectOneDegree(query),
+    })
   ).data;
 };
 const deletePosition = async (id: number) => {

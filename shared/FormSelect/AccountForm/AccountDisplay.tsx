@@ -2,7 +2,7 @@ import { Descriptions } from "antd";
 import React from "react";
 
 import { TAccountInfo } from "@/types";
-import { formatDate } from "@/utils";
+import { formatUtil } from "@/utils";
 
 import type { DescriptionsProps } from "antd";
 type Props = {
@@ -38,14 +38,14 @@ const AccountDisplay: React.FC<Props> = ({ account }) => {
     {
       key: "5",
       label: "Ngày tạo tài khoản",
-      children: formatDate(account?.createdDate!),
+      children: formatUtil.formatDate(account?.createdDate!),
       span: 2,
     },
 
     {
       key: "10",
       label: "Địa chỉ",
-      children: account?.address,
+      children: account?.address || "Không tìm thấy",
       span: 2,
     },
   ];

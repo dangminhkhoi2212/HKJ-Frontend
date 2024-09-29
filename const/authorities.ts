@@ -1,13 +1,15 @@
-export enum AUTHORIZATIONS {
+enum AUTHORIZATIONS {
   ADMIN = "ROLE_ADMIN",
   USER = "ROLE_USER",
   ANONYMOUS = "ROLE_ANONYMOUS",
   EMPLOYEE = "ROLE_EMPLOYEE",
   MANAGER = "ROLE_MANAGER",
 }
-export const ROLE_PREFIXES = {
+const ROLE_PREFIXES = {
   [AUTHORIZATIONS.MANAGER]: "/manager",
   [AUTHORIZATIONS.ADMIN]: "/admin",
   [AUTHORIZATIONS.EMPLOYEE]: "/employee",
   [AUTHORIZATIONS.USER]: "/user",
 };
+const authorityConst = { AUTHORIZATIONS, ROLE_PREFIXES };
+export default authorityConst;

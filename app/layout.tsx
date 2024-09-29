@@ -9,6 +9,7 @@ import ReactQueryProvider from "@/providers/QueryClientProvider";
 import SessionProvoider from "@/providers/SessionProvider";
 import { LayoutConfig } from "@/shared/LayoutConfig";
 import { Security } from "@/shared/Security";
+import { cn } from "@/utils";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 
 import type { Metadata } from "next";
@@ -30,7 +31,10 @@ export default function RootLayout({
   const session: any = getServerSession();
   return (
     <html lang="en">
-      <body className={roboto.className} suppressHydrationWarning={true}>
+      <body
+        className={cn(roboto.className, "bg-slate-50")}
+        suppressHydrationWarning={true}
+      >
         <SessionProvoider session={session}>
           <ReactQueryProvider>
             <LayoutConfig>

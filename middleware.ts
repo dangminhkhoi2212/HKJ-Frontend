@@ -1,9 +1,10 @@
-import { getToken } from 'next-auth/jwt';
-import { withAuth } from 'next-auth/middleware';
-import { NextRequest, NextResponse } from 'next/server';
+import { getToken } from "next-auth/jwt";
+import { withAuth } from "next-auth/middleware";
+import { NextRequest, NextResponse } from "next/server";
 
-import { ROLE_PREFIXES } from './const/authorities';
-import { routes } from './routes';
+import { AUTHORIZATIONS_CONST } from "@/const/";
+
+import { routes } from "./routes";
 
 // Define a secret to verify the token (make sure to keep it secure)
 const secret = process.env.NEXTAUTH_SECRET;
@@ -20,7 +21,10 @@ async function customMiddleware(req: NextRequest) {
     }
   } else if (token.role) {
     // Role-based URL prefix logic
-    const prefix = ROLE_PREFIXES[token.role as keyof typeof ROLE_PREFIXES];
+    const prefix =
+      AUTHORIZATIONS_CONST.ROLE_PREFIXES[
+        token.role as keyof typeof AUTHORIZATIONS_CONST.ROLE_PREFIXES
+      ];
 
     if (prefix) {
       // Avoid adding prefix if the URL already starts with the prefix

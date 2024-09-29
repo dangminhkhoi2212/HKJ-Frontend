@@ -1,10 +1,11 @@
 "use client";
-import { routes } from "@/routes";
-import Logo from "@/shared/Logo";
 import { Button } from "antd";
 import { BellRing, Diamond, Gem, Star } from "lucide-react"; // Importing Lucide icons
 import { signIn } from "next-auth/react";
 import React from "react";
+
+import { routes } from "@/routes";
+import { Logo } from "@/shared/Logo";
 
 const SignInPage: React.FC<{ className?: string }> = ({ className }) => {
   // const { signOutAll } = useAccountButtonActions();

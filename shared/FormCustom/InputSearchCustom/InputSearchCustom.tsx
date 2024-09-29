@@ -1,18 +1,21 @@
 "use client";
 import { Input } from "antd";
-import { SearchProps } from "antd/es/input";
+import { InputRef, SearchProps } from "antd/es/input";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
+
+import { cn } from "@/utils";
+
 const { Search } = Input;
 
 type TInputSearchFormProps = {
-  handleSearch: (value: string) => void;
-};
+  handleSearch: SearchProps["onSearch"];
+} & SearchProps &
+  React.RefAttributes<InputRef>;
 const InputSearchCustom: React.FC<TInputSearchFormProps> = ({
   handleSearch,
+  ...props
 }) => {
-  const onSearch: SearchProps["onSearch"] = (value, _e, info) =>
-    handleSearch(value);
   const searchParams = useSearchParams();
   const [text, setText] = useState<string>("");
   useEffect(() => {
@@ -23,16 +26,15 @@ const InputSearchCustom: React.FC<TInputSearchFormProps> = ({
   }, [searchParams]);
 
   return (
-    <div>
-      <Search
-        placeholder="Tìm kiếm"
-        allowClear
-        value={text}
-        onSearch={onSearch}
-        className="w-60"
-        onChange={(e) => setText(e.target.value)}
-      />
-    </div>
+    <Search
+      placeholder="Tìm kiếm"
+      allowClear
+      {...props}
+      value={text}
+      onSearch={handleSearch}
+      className={cn("w-72", props.className)}
+      onChange={(e) => setText(e.target.value)}
+    />
   );
 };
 

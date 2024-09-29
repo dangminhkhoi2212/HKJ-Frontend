@@ -11,7 +11,7 @@ const HirePage: React.FC = () => {
   return (
     <div className="grid grid-cols-1 gap-4">
       <Frame title="Cập nhật thông tin thuê nhân viên">
-        <HireEmployeeForm />,
+        <HireEmployeeForm />
       </Frame>
       <Divider />
       <ListHire />

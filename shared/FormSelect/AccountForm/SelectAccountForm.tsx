@@ -3,11 +3,12 @@ import React, { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useQueries } from "react-query";
 
-import { AUTHORIZATIONS } from "@/const";
+import { AUTHORIZATIONS_CONST } from "@/const";
 import { userService } from "@/services";
 import { InputSearchCustom } from "@/shared/FormCustom/InputSearchCustom";
 import { TAccontQuery, TAccountInfo, TQuery } from "@/types";
 
+const { AUTHORIZATIONS } = AUTHORIZATIONS_CONST;
 type TPros = {
   onChange: (selectedPosition: TAccountInfo) => void;
 };

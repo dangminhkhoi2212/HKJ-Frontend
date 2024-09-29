@@ -1,8 +1,11 @@
-import { AUTHORIZATIONS } from "@/const/authorities";
-import useAccountStore, { TAccountInfo } from "@/stores/account";
 import { Tag } from "antd";
 import React from "react";
 
+import { AUTHORIZATIONS_CONST } from "@/const";
+import useAccountStore from "@/stores/account";
+import { TAccountInfo } from "@/types";
+
+const AUTHORIZATIONS = AUTHORIZATIONS_CONST.AUTHORIZATIONS;
 const RoleTag: React.FC = () => {
   const account: TAccountInfo | null | undefined = useAccountStore(
     (state) => state.account

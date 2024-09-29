@@ -36,6 +36,7 @@
     "react-dom": "^18",
     "react-hook-form": "^7.52.1",
     "react-infinite-scroll-component": "^6.1.0",
+    "react-number-format": "^5.4.2",
     "react-query": "^3.39.3",
     "tailwind-merge": "^2.4.0",
     "use-debounce": "^10.0.3",

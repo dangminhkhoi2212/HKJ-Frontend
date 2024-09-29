@@ -1,4 +1,4 @@
-import { Form, Input, InputNumber } from "antd";
+import { Form, Input } from "antd";
 import { TextAreaProps } from "antd/es/input";
 import React from "react";
 import { Control, Controller } from "react-hook-form";
@@ -52,22 +52,7 @@ const InputCustom: React.FC<InputCustomProps> = ({
             maxLength={200}
           />
         );
-      case "price":
-        return (
-          <InputNumber<number>
-            {...field}
-            {...props}
-            suffix="VND"
-            size="large"
-            value={Number.parseInt(field.value)}
-            formatter={(value) =>
-              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-            }
-            parser={(value) =>
-              value?.replace(/\$\s?|(,*)/g, "") as unknown as number
-            }
-          />
-        );
+
       default:
         return <Input {...field} {...props} size="large" type="text" />;
     }
