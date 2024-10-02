@@ -1,7 +1,8 @@
-import { AUTHORIZATIONS } from "@/const/authorities";
+import { AUTHORIZATIONS_CONST } from "@/const";
 
 import { TAudit } from "./auditType";
 
+const AUTHORIZATIONS = AUTHORIZATIONS_CONST.AUTHORIZATIONS;
 type TPassword = {
   password: string;
 };
@@ -25,7 +26,7 @@ export type TPhone = {
 };
 
 export type TAccontQuery = {
-  role: AUTHORIZATIONS;
+  role: keyof typeof AUTHORIZATIONS;
 };
 
 export type TAccountInfo = {

@@ -29,6 +29,7 @@ const Logo: React.FC<Props> = ({
         <Image
           src={logo}
           alt="Logo HKJ"
+          priority
           fill
           className={cn("p-1 object-contain", classNameImage)}
         />

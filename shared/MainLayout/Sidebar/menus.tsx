@@ -1,7 +1,6 @@
-import { routes, routesAdmin, routesManager, routesUser } from "@/routes";
 import { MenuProps } from "antd";
-
 import {
+  Atom,
   Gem,
   LayoutDashboard,
   LineChart,
@@ -14,6 +13,9 @@ import {
   UserCog,
   Users,
 } from "lucide-react";
+
+import { routes, routesAdmin, routesManager } from "@/routes";
+
 export const menuUser: MenuProps["items"] = [
   {
     key: "1",
@@ -63,6 +65,11 @@ export const menuManager: MenuProps["items"] = [
     key: routesManager.order,
     icon: <ListOrdered size={18} />,
     label: "Đơn đặt hàng",
+  },
+  {
+    key: routesManager.material,
+    icon: <Atom size={18} />,
+    label: "Chất liệu",
   },
 ];
 export const menuAdmin: MenuProps["items"] = [

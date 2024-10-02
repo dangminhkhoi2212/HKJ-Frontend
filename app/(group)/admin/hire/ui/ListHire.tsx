@@ -21,7 +21,9 @@ type TSelectHire = {
   record?: THire;
 };
 const ListHire = () => {
-  const [query, setQuery] = useState<TQuery<THireQuery>>(QUERY_CONST.initQuery);
+  const [query, setQuery] = useState<TQuery<THireQuery>>(
+    QUERY_CONST.defaultQuery
+  );
 
   const [data, setData] = useState<THire[]>([]);
 
@@ -134,7 +136,7 @@ const ListHire = () => {
   };
   const handleSearch: SearchProps["onSearch"] = (value) => {
     console.log("🚀 ~ handleSearch ~ value:", value);
-    const newQuery: TQuery<THireQuery> = { ...QUERY_CONST.initQuery };
+    const newQuery: TQuery<THireQuery> = { ...QUERY_CONST.defaultQuery };
     if (!value || value === "") {
       refresh();
       return;
@@ -153,7 +155,7 @@ const ListHire = () => {
   const refresh = () => {
     getHires.refetch();
     getHiresCount.refetch();
-    setQuery({ ...QUERY_CONST.initQuery });
+    setQuery({ ...QUERY_CONST.defaultQuery });
   };
 
   useEffect(() => {

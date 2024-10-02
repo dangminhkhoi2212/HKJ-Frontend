@@ -70,6 +70,7 @@ const InputCustom: React.FC<InputCustomProps> = ({
           help={fieldState.invalid ? errorMessage : null}
           className={formItemClassName}
           extra={extra}
+          rootClassName="m-0"
         >
           {renderInput(field)}
         </Form.Item>

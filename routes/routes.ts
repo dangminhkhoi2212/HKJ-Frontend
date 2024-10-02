@@ -10,6 +10,9 @@ export const routesEmpoloyee = {};
 export const routesManager = {
   employees: "/manager/employees",
   order: "/manager/order",
+  material: "/manager/material",
+  addMaterial: "/manager/material/add",
+  updateMaterial: (id: string) => `/manager/material/update/${id}`,
 };
 export const routes = {
   home: "/",

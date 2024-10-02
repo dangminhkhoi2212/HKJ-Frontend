@@ -9,7 +9,7 @@ import { routes } from "../../../../routes/index";
 
 const AUTHORIZATIONS = AUTHORIZATIONS_CONST.AUTHORIZATIONS;
 const convertReamlRoles = (roles: string[] | undefined) => {
-  return Object.values(AUTHORIZATIONS).filter((role) => roles?.includes(role));
+  return Object.keys(AUTHORIZATIONS).filter((role) => roles?.includes(role));
 };
 // this will refresh an expired access token, when needed
 async function refreshAccessToken(token: any) {

@@ -14,18 +14,21 @@ import { TAccountInfo } from "@/types";
 import { menuAdmin, menuEmployee, menuManager, menuUser } from "./menus";
 
 const { Sider } = Layout;
-
+const AUTHORIZATIONS = AUTHORIZATIONS_CONST.AUTHORIZATIONS;
 const renderMenu = (
   role: string | null | undefined
 ): ItemType<MenuItemType>[] | undefined => {
+  console.log("🚀 ~ role:", role);
+  console.log(AUTHORIZATIONS.ROLE_EMPLOYEE.toString());
+
   switch (role) {
-    case AUTHORIZATIONS_CONST.AUTHORIZATIONS.USER:
+    case AUTHORIZATIONS.ROLE_USER.toString():
       return menuUser;
-    case AUTHORIZATIONS_CONST.AUTHORIZATIONS.EMPLOYEE:
+    case AUTHORIZATIONS.ROLE_EMPLOYEE.toString():
       return menuEmployee;
-    case AUTHORIZATIONS_CONST.AUTHORIZATIONS.MANAGER:
+    case AUTHORIZATIONS.ROLE_MANAGER.toString():
       return menuManager;
-    case AUTHORIZATIONS_CONST.AUTHORIZATIONS.ADMIN:
+    case AUTHORIZATIONS.ROLE_ADMIN.toString():
       return menuAdmin;
     default:
       return [];

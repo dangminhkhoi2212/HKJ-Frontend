@@ -1,9 +1,12 @@
 "use client";
-import React from "react";
-import { Button, Dropdown, Space, Table, TableProps, Tag, Tooltip } from "antd";
-import { RotateCcw, Menu as MenuIcon } from "lucide-react";
-import { TEmployees, useEmployeesAction } from "./action";
+import { Button, Dropdown, Space, Table, TableProps, Tag } from "antd";
 import { MenuProps } from "antd/lib";
+import { Menu as MenuIcon, RotateCcw } from "lucide-react";
+import React from "react";
+
+import { TEmployee } from "@/types";
+
+import { useEmployeesAction } from "./action";
 
 const EmployeesPage: React.FC = () => {
   const { data, isLoading, selectedRowKeys, onSelectChange, refreshEmployees } =
@@ -21,7 +24,7 @@ const EmployeesPage: React.FC = () => {
       key: "1",
     },
   ];
-  const columns: TableProps<TEmployees>["columns"] = [
+  const columns: TableProps<TEmployee>["columns"] = [
     {
       title: "Họ",
       dataIndex: "firstName",
@@ -71,10 +74,15 @@ const EmployeesPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-3 justify-items-start">
-      <Tooltip title="Làm mới">
-        <Button onClick={() => refreshEmployees()} icon={<RotateCcw />} />
-      </Tooltip>
+    <Space direction="vertical" className="flex">
+      <div>
+        <Button
+          onClick={() => refreshEmployees()}
+          icon={<RotateCcw size={18} />}
+        >
+          Làm mới
+        </Button>
+      </div>
       <Table
         columns={columns}
         rowSelection={rowSelection}
@@ -82,7 +90,7 @@ const EmployeesPage: React.FC = () => {
         rowKey="id"
         loading={isLoading}
       />
-    </div>
+    </Space>
   );
 };
 

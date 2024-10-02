@@ -11,12 +11,13 @@ const initPagination: TablePaginationConfig = {
   current: DEFAULT_CURRENT_PAGE,
 };
 
-const initQuery: TQuery = {
+const defaultQuery: TQuery = {
   page: PAGE,
   size: PAGE_SIZE,
+  isDeleted: false,
 };
 const queryConst = {
   initPagination,
-  initQuery,
+  defaultQuery,
 };
 export default queryConst;

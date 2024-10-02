@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 
 import userService from "@/services/userService";
-import { TAccountInfo } from "@/stores";
+import { TAccountInfo } from "@/types";
 
 export const useEmployeesAction = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);

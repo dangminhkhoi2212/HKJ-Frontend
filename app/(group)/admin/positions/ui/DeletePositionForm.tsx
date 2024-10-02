@@ -1,9 +1,9 @@
-import { App, Button, Form } from "antd";
-import React from "react";
-import { useMutation } from "react-query";
+import { App, Button, Form } from 'antd';
+import React from 'react';
+import { useMutation } from 'react-query';
 
-import positionService from "@/services/positionService";
-import { TPosition, TSelectedPosition } from "@/types/postionType";
+import positionService from '@/services/positionService';
+import { TPosition, TSelectedPosition } from '@/types/postionType';
 
 type TDeletePositionForm = {
   data?: TPosition;
@@ -37,7 +37,7 @@ const DeletePositionForm: React.FC<TDeletePositionForm> = ({
   return (
     <Form
       form={form}
-      onFinish={() => deletePositionMutation.mutate(data.id)}
+      onFinish={() => deletePositionMutation.mutate(data.id!)}
       initialValues={{ id: data?.id, name: data?.name }} // Set initial form values
     >
       <p>

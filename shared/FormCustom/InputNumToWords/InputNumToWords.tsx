@@ -104,7 +104,9 @@ const NumberToWords: React.FC<NumberToWordsProps> = ({
   if (!number || number === 0) return <></>;
   const result = `${numberToVietnameseWords(number)} ${suffix}`;
   return (
-    <span className="text-xs italic text-wrap">{result.toUpperCase()}</span>
+    <span className="text-xs italic text-wrap m-0 p-0">
+      {result.toUpperCase()}
+    </span>
   );
 };
 export default NumberToWords;

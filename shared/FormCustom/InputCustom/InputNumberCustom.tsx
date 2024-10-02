@@ -16,6 +16,7 @@ type InputNumberCustomProps = {
   defaultValue?: number;
   errorMessage?: string;
   suffix?: string;
+  extra?: React.ReactNode;
 } & NumericFormatProps;
 
 const InputNumberCustom = React.forwardRef<
@@ -23,7 +24,16 @@ const InputNumberCustom = React.forwardRef<
   InputNumberCustomProps
 >(
   (
-    { name, label, control, defaultValue, errorMessage, suffix, ...props },
+    {
+      name,
+      label,
+      control,
+      defaultValue,
+      errorMessage,
+      suffix,
+      extra,
+      ...props
+    },
     ref
   ) => {
     return (
@@ -36,11 +46,15 @@ const InputNumberCustom = React.forwardRef<
             label={<LabelCustom label={label} required={true} />}
             validateStatus={fieldState.invalid ? "error" : ""}
             help={errorMessage}
+            extra={extra}
+            rootClassName="m-0"
           >
             <NumericFormat
               {...props}
               size="large"
               thousandSeparator=","
+              min={props.min || MIN}
+              max={props.max || MAX}
               className={cn("text-right ", props.className)}
               suffix={suffix}
               customInput={Input}
