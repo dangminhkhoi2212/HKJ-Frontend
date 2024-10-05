@@ -1,11 +1,12 @@
 "use client";
 import { App, Button, Divider, Form, Space } from "antd";
 import { UploadFile } from "antd/lib";
-import React, { useEffect, useId, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery } from "react-query";
 
 import { materialImageService, materialService } from "@/services";
+import supabaseService from "@/services/supabaseService";
 import {
   InputCustom,
   InputNumberCustom,
@@ -13,270 +14,290 @@ import {
 } from "@/shared/FormCustom/InputCustom";
 import { InputImage } from "@/shared/FormCustom/InputImage";
 import NumberToWords from "@/shared/FormCustom/InputNumToWords/InputNumToWords";
-import {
-  TImageUpload,
-  TMaterial,
-  TMaterialImage,
-  TMaterialUpadate,
-} from "@/types";
+import { TMaterial, TMaterialImage } from "@/types";
+import { imageUtil } from "@/utils";
 import materialValidation from "@/validations/materialValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
-
-import { extraUnitPrice } from "../../../add/ui/AddMaterialForm";
 
 type Props = {
   id: number;
 };
-type TForm = TMaterialUpadate & { images: TImageUpload[] };
-const defaultValue: TForm = {
-  id: 0,
+
+type TForm = Omit<TMaterial, "coverImage"> & {
+  coverImage: UploadFile[];
+  images: UploadFile[];
+};
+
+const DEFAULT_VALUES: TForm = {
+  id: -1,
   name: "",
   quantity: 0,
   unit: "",
   unitPrice: 0,
   supplier: "",
-  coverImage: "",
+  coverImage: [],
   images: [],
 };
+
+const ExtraUnitPrice: React.FC<{
+  unitPrice: number;
+  unit: string;
+}> = ({ unitPrice, unit }) => {
+  if (!unitPrice || !unit) return null;
+  return (
+    <Space direction="vertical">
+      <span>Ví dụ: 500,000/ gam</span>
+      <span>{`${unitPrice.toLocaleString("vi-VN")} VND/${unit}`}</span>
+    </Space>
+  );
+};
+
 const UpdateMaterialForm: React.FC<Props> = ({ id }) => {
+  const { message } = App.useApp();
+  const [form] = Form.useForm();
+  const { convertToUploadFile, updateImageMapper } = imageUtil;
   const {
     control,
     handleSubmit,
     getValues,
+    watch,
     setValue,
     formState: { errors },
+    reset,
   } = useForm<TForm>({
-    defaultValues: defaultValue,
-    resolver: yupResolver(materialValidation.materialUpdateSchema),
+    defaultValues: DEFAULT_VALUES,
+    resolver: yupResolver(materialValidation.materialSchema),
   });
-  const [form] = Form.useForm();
-  const [images, setImages] = useState<UploadFile<TMaterialImage>[]>([]);
-  console.log("🚀 ~ images:", images);
-  const [coverImage, setCoverImage] = useState<UploadFile<TMaterialImage>[]>(
-    []
-  );
-  const [oldData, setOldData] = useState<TMaterial>({} as TMaterial);
-  const uid = useId();
-  const { message } = App.useApp();
 
-  const getMaterialQuery = useQuery({
-    queryKey: ["getMaterial", id],
+  console.log("🚀 ~ errors:", errors);
+  const { data: currentMaterial, refetch: refetchMaterial } = useQuery({
+    queryKey: ["getMaterial", { id }],
     queryFn: () => materialService.getOne({ id }),
-    onSuccess(data: TMaterial) {
-      console.log("🚀 ~ onSuccess ~ data:", data);
-      setOldData(data);
-      setValue("id", data.id);
-      setValue("unitPrice", data.unitPrice);
-      setValue("coverImage", data.coverImage);
-      setValue("supplier", data.supplier);
-      setValue("unit", data.unit);
-      setValue("name", data.name);
-      setValue("quantity", data.quantity);
-      setValue("images", data.images);
-      setValue("unitPrice", data.unitPrice);
-      setImages(
-        data.images.map(
-          (image) =>
-            ({
-              uid: image.id?.toString() || uid,
-              url: image.url,
-              name: "images",
-            } as UploadFile)
-        )
-      );
-      setCoverImage([{ url: data.coverImage, uid: uid, name: "coverImage" }]);
+    onSuccess: (data: TMaterial) => {
+      const dataMapper: TForm = {
+        ...data,
+        coverImage: data.coverImage
+          ? [convertToUploadFile({ url: data.coverImage })]
+          : [],
+        images: [],
+      };
+      reset(dataMapper);
     },
   });
-  const onChangeInputImage = (newFileList: UploadFile[], file: UploadFile) => {
-    console.log("🚀 ~ onChangeInputImage ~ newFileList:", newFileList);
-    const imagesForm: TImageUpload[] = newFileList.map((item) => {
-      return { url: item.url! };
-    });
-    setImages(newFileList);
-    setValue("images", imagesForm, { shouldValidate: true });
-  };
-  const onChangeInputCoverImage = async (
-    newFileList: UploadFile[],
-    file: UploadFile
-  ) => {
-    setCoverImage(newFileList);
-    const imagesForm: TImageUpload[] = newFileList?.map((item) => {
-      return { url: item.url! };
-    });
-    console.log("🚀 ~ onChangeInputCoverImage ~ imagesForm:", imagesForm);
-    setValue("coverImage", imagesForm[0]?.url!, { shouldValidate: true });
-  };
+  const { data: currenImages, refetch: refretchImages } = useQuery({
+    queryKey: ["getMaterialImages", { id }],
+    queryFn: () =>
+      materialImageService.get({ materialId: { equals: id.toString() } }),
+    onSuccess: (data: TMaterialImage[]) => {
+      console.log("🚀getMaterialImages ~ data:", data);
+      setValue(
+        "images",
+        data.map((image) => convertToUploadFile(image))
+      );
+    },
+  });
 
-  const handleUpdateMaterialImages = async (
-    newImages: TImageUpload[]
-  ): Promise<TMaterialImage[]> => {
-    try {
-      // Check if imagesCreate is defined and has items
-      if (images && images.length > 0) {
-        //delete old images
-        const imagesDelete: TMaterialImage[] = oldData.images.filter(
-          (item) => !newImages.some((oldData) => oldData.url === item.url)
-        );
-        console.log("🚀 ~ imagesDelete:", imagesDelete);
+  const handleUpdateImage = async () => {
+    const folderImage = supabaseService.createImagesFolder(
+      "materials",
+      currentMaterial?.id!
+    );
+    const changedImages = getValues("images");
+    const { keepImages, newImagesUpdate, imagesDelete } = updateImageMapper(
+      changedImages,
+      currenImages! || []
+    );
 
-        const deleteOldImages = await Promise.all(
-          imagesDelete.map(async (item) => {
-            return await materialImageService.deleteOne(item?.id!);
-          })
+    const promise = [];
+    //upload image in cloud
+    if (newImagesUpdate.length) {
+      const uploadedNewImageUrls = await supabaseService.uploadAnDelete(
+        keepImages.map((image) => image.url),
+        newImagesUpdate.map((file) => supabaseService.convertFile(file)),
+        folderImage
+      );
+      if (uploadedNewImageUrls.length) {
+        //create new images in db
+        promise.push(
+          materialImageService.createMultiple(
+            uploadedNewImageUrls.map((url) => ({
+              url,
+              material: { id: currentMaterial?.id },
+            }))
+          )
         );
-        // //create new images
-        const newImagesNeedUpdate: TImageUpload[] = newImages.filter(
-          (item) => !oldData.images.some((oldData) => oldData.url === item.url)
-        );
-        console.log("🚀 ~ newImagesNeedUpdate:", newImagesNeedUpdate);
-        const createNewImages = await Promise.all(
-          newImagesNeedUpdate.map(async (item) => {
-            return await materialImageService.create({
-              url: item?.url!,
-              material: { id: oldData.id },
-            });
-          })
-        );
-        // return createNewImages;
       }
-      return [];
-    } catch (error) {
-      console.error("Error in handleCreateMaterial:", error);
-      return [];
     }
+
+    if (imagesDelete.length) {
+      //delete old images in db
+      promise.push(
+        materialImageService.deleteMultiple(imagesDelete.map((item) => item.id))
+      );
+    }
+
+    await Promise.all(promise);
   };
 
-  useEffect(() => {
-    getMaterialQuery.refetch();
-  }, []);
+  const handleUpdateCoverImage = async (): Promise<string | null> => {
+    const coverImage: UploadFile | undefined = getValues("coverImage")[0];
+    if (!coverImage?.url) {
+      // if cover have not url => new cover image file
+      const folder = supabaseService.createCoverFolder(
+        "materials",
+        currentMaterial?.id!
+      );
+
+      const coverImageUrl: string[] = await supabaseService.uploadAnDelete(
+        [],
+        [supabaseService.convertFile(coverImage!)],
+        folder
+      );
+      return coverImageUrl[0];
+    }
+
+    return null;
+  };
 
   const updateMaterialMutation = useMutation({
-    mutationFn: (data: TMaterialUpadate) => {
-      return materialService.update(data);
+    mutationFn: async (data: TForm) => {
+      if (!currentMaterial) return;
+
+      const [newCoverImage, newImages] = await Promise.all([
+        handleUpdateCoverImage(),
+        handleUpdateImage(),
+      ]);
+      // Handle multiple images
+      // // Update material
+
+      const { coverImage, images, ...rest } = data;
+
+      return materialService.update({
+        ...rest,
+        coverImage: newCoverImage || currentMaterial.coverImage,
+      });
+    },
+    onSuccess: () => {
+      message.success("Đã cập nhật thành công");
+      refreshData();
+    },
+    onError: (error) => {
+      console.error("Update failed:", error);
+      message.error("Cập nhật thất bại");
     },
   });
-  const handleUpdate = async (data: TForm) => {
-    console.log("🚀 ~ handleUpdate ~ data:", data);
-    const { images, ...rest } = data;
 
-    updateMaterialMutation.mutate({
-      ...rest,
-    });
-    await handleUpdateMaterialImages(images);
+  const handleImageChange = (
+    newFileList: UploadFile[],
+    file: UploadFile,
+    fieldName: "images" | "coverImage"
+  ) => {
+    setValue(fieldName, newFileList, { shouldValidate: true });
   };
 
-  const updateMutation = useMutation({
-    mutationFn: (data: TForm) => {
-      return handleUpdate(data);
-    },
-    onSuccess(data) {
-      message.success("Đã cập nhật");
-    },
-    onError() {
-      message.error("Cập nhật thất bại");
-    },
-  });
+  const refreshData = useCallback(() => {
+    refetchMaterial();
+    refretchImages();
+  }, []);
+
+  useEffect(() => {
+    refreshData();
+  }, [refreshData]);
+
   return (
-    <div>
-      <Form
-        form={form}
-        layout="vertical"
-        className=""
-        onFinish={handleSubmit((data) => updateMutation.mutate(data))}
-      >
-        <div className="grid grid-cols-2 gap-8">
-          <Space direction="vertical" size={"middle"}>
-            <InputCustom
-              control={control}
-              name="name"
-              label="Tên loại nguyên liệu"
-              errorMessage={errors.name?.message}
-            />
+    <Form
+      form={form}
+      layout="vertical"
+      onFinish={handleSubmit((data) => updateMaterialMutation.mutate(data))}
+    >
+      <div className="grid grid-cols-2 gap-8">
+        <Space direction="vertical" size="middle">
+          <InputCustom
+            control={control}
+            name="name"
+            label="Tên loại nguyên liệu"
+            errorMessage={errors.name?.message}
+          />
+          <InputNumberCustom
+            control={control}
+            name="quantity"
+            label="Số lượng nhập"
+            max={1000000}
+            min={0}
+            errorMessage={errors.quantity?.message}
+          />
+          <InputCustom
+            control={control}
+            name="unit"
+            label="Đơn vị"
+            errorMessage={errors.unit?.message}
+          />
+        </Space>
+        <Space direction="vertical" size="middle">
+          <div>
             <InputNumberCustom
               control={control}
-              name="quantity"
-              label="Số lượng nhập"
-              max={1000000}
-              min={0}
-              errorMessage={errors.quantity?.message}
+              name="unitPrice"
+              suffix=" VND"
+              label="Giá mỗi đơn vị"
+              defaultValue={0}
+              extra={
+                <ExtraUnitPrice
+                  unitPrice={getValues("unitPrice")}
+                  unit={getValues("unit")}
+                />
+              }
+              errorMessage={errors.unitPrice?.message}
             />
-            <InputCustom
-              control={control}
-              name="unit"
-              label="Đơn vị"
-              errorMessage={errors.unit?.message}
-            />
-          </Space>
-
-          <Space direction="vertical" size={"middle"}>
-            <div>
-              <InputNumberCustom
-                control={control}
-                name="unitPrice"
-                suffix=" VND"
-                label="Giá mỗi đơn vị"
-                defaultValue={0}
-                extra={
-                  <Space direction="vertical">
-                    <span>Ví dụ: 500,000/ gam</span>
-                    {extraUnitPrice({
-                      unitPrice: getValues("unitPrice"),
-                      unit: getValues("unit"),
-                    })}
-                  </Space>
-                }
-                errorMessage={errors.unitPrice?.message}
-              />
-              <NumberToWords number={getValues("unitPrice")} />
-            </div>
-            <InputCustom
-              control={control}
-              name="supplier"
-              label="Nhà cung cấp"
-              errorMessage={errors.supplier?.message}
-            />
-          </Space>
-          <div className="">
-            <Space direction="vertical">
-              <LabelCustom label="Ảnh bìa" required />
-              <InputImage
-                onChange={async (fileList, file) =>
-                  await onChangeInputCoverImage(fileList, file)
-                }
-                images={coverImage}
-                maxCount={1}
-              />
-              <span className="text-red-500">
-                {errors?.coverImage?.message ?? ""}
-              </span>
-            </Space>
-            <Divider className="my-2" />
-            <Space direction="vertical">
-              <LabelCustom label="Hình ảnh" required />
-              <InputImage
-                onChange={onChangeInputImage}
-                images={images}
-                maxCount={30}
-              />
-              <span className="text-red-500">
-                {errors?.images?.message ??
-                  errors?.images?.[0]?.url?.message ??
-                  ""}
-              </span>
-            </Space>
+            <NumberToWords number={getValues("unitPrice")} />
           </div>
+          <InputCustom
+            control={control}
+            name="supplier"
+            label="Nhà cung cấp"
+            errorMessage={errors.supplier?.message}
+          />
+        </Space>
+        <div>
+          <Space direction="vertical">
+            <LabelCustom label="Ảnh bìa" required />
+            <InputImage
+              onChange={(fileList, file) =>
+                handleImageChange(fileList, file, "coverImage")
+              }
+              images={watch("coverImage") || []}
+              maxCount={1}
+            />
+            <span className="text-red-500">
+              {errors?.coverImage?.message?.toString()}
+            </span>
+          </Space>
+          <Divider className="my-2" />
+          <Space direction="vertical">
+            <LabelCustom label="Hình ảnh" required />
+            <InputImage
+              onChange={(fileList, file) =>
+                handleImageChange(fileList, file, "images")
+              }
+              images={watch("images") || []}
+              maxCount={30}
+            />{" "}
+            <span className="text-red-500">
+              {errors?.images?.message?.toString()}
+            </span>
+          </Space>
         </div>
-        <div className="flex justify-end">
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={updateMutation.isLoading}
-          >
-            Cập nhật
-          </Button>
-        </div>
-      </Form>
-    </div>
+      </div>
+      <div className="flex justify-end">
+        <Button
+          type="primary"
+          htmlType="submit"
+          loading={updateMaterialMutation.isLoading}
+        >
+          Cập nhật
+        </Button>
+      </div>
+    </Form>
   );
 };
 

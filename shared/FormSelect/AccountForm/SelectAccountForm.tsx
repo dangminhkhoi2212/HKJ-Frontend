@@ -17,7 +17,7 @@ const SelectAccountForm: React.FC<TPros> = ({ onChange }) => {
   const [data, setData] = useState<TAccountInfo[]>([]);
   const [pageCount, setPageCount] = useState<number>(99999);
   const [query, setQuery] = useState<TQuery<TAccontQuery>>({
-    role: AUTHORIZATIONS.EMPLOYEE,
+    role: AUTHORIZATIONS.ROLE_EMPLOYEE,
     page: 0,
     size: 8,
   });

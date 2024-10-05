@@ -1,8 +1,9 @@
 import { TAudit } from "./auditType";
+import { TFilter } from "./filterType";
+import { TImage } from "./imageType";
 
-export type TMaterialImage = {
+export type TMaterialImage = TImage & {
   id: number;
-  url: string;
 } & TAudit;
 export type TMaterialImageAdd = Pick<TMaterialImage, "url"> &
   TAudit & {
@@ -10,4 +11,4 @@ export type TMaterialImageAdd = Pick<TMaterialImage, "url"> &
   };
 
 export type TMaterialImageUpdate = TMaterialImageAdd;
-export type TMaterialImageQuery = { id?: number };
+export type TMaterialImageQuery = { id?: number; materialId?: TFilter };

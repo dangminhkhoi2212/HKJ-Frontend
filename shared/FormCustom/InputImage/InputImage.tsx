@@ -6,6 +6,7 @@ import { useMutation } from "react-query";
 
 import { imageService } from "@/services";
 import { TImageResponse } from "@/services/imageService";
+import supabseService from "@/services/supabaseService";
 import { PlusOutlined } from "@ant-design/icons";
 
 import type { GetProp, UploadFile, UploadProps } from "antd";
@@ -16,6 +17,7 @@ export type UploadRequestOption<T = any> = Parameters<
 type TProps = {
   images?: UploadFile[];
   maxCount?: number;
+  minCount?: number;
   onChange?: (newFileList: UploadFile[], file: UploadFile<any>) => void;
   onRemove?: (file: UploadFile<any>) => void;
 };
@@ -32,9 +34,10 @@ const InputImages: React.FC<TProps> = ({
   onChange,
   onRemove,
   maxCount = 8,
+  minCount = 1,
 }) => {
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   useEffect(() => {
@@ -42,7 +45,11 @@ const InputImages: React.FC<TProps> = ({
   }, [images]);
   const handlePreview = async (file: UploadFile) => {
     if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj as FileType);
+      try {
+        file.preview = await getBase64(file.originFileObj as FileType);
+      } catch (error) {
+        console.error("Error occurred while generating base64:", error);
+      }
     }
 
     setPreviewImage(file.url || (file.preview as string));
@@ -54,7 +61,6 @@ const InputImages: React.FC<TProps> = ({
     file,
     event,
   }) => {
-    console.log("🚀 ~ event:", event);
     setFileList(newFileList);
     if (onChange) onChange(newFileList, file);
   };
@@ -76,6 +82,7 @@ const InputImages: React.FC<TProps> = ({
         updateFileStatus(file, "done");
       }
     } catch (error) {
+      console.error("Error occurred while deleting images:", error);
       updateFileStatus(file, "error");
     }
   };
@@ -88,7 +95,7 @@ const InputImages: React.FC<TProps> = ({
   );
 
   const updaloadImageMutation = useMutation({
-    mutationFn: (file: File) => imageService.upload(file),
+    mutationFn: (file: File) => supabseService.uploadFile(file, ""),
   });
   const customRequest = async (options: UploadRequestOption) => {
     const { onSuccess, onError, file, onProgress, method, action } = options;
@@ -97,23 +104,26 @@ const InputImages: React.FC<TProps> = ({
       const response: TImageResponse = await updaloadImageMutation.mutateAsync(
         file as File
       );
-      (file as UploadFile).url = response.url;
-      onSuccess && onSuccess({ url: response.url });
+      (file as UploadFile).url = response.publicUrl;
+      onSuccess && onSuccess({ url: response.publicUrl });
     } catch (error) {
+      console.error("Error occurred while uploading images:", error);
       onError && onError(error as any);
     }
   };
 
   return (
     <div>
+      <p>
+        Tối thiểu {minCount} - Tối đa {maxCount}
+      </p>
       <ImgCrop rotationSlider zoomSlider aspectSlider showReset>
         <Upload
           listType="picture-card"
           fileList={fileList}
           onPreview={handlePreview}
           onChange={handleChange}
-          onRemove={handleOnRemove}
-          customRequest={customRequest}
+          onRemove={onRemove ? onRemove : undefined}
         >
           {fileList?.length >= maxCount ? null : uploadButton}
         </Upload>
@@ -124,7 +134,7 @@ const InputImages: React.FC<TProps> = ({
           preview={{
             visible: previewOpen,
             onVisibleChange: (visible) => setPreviewOpen(visible),
-            afterOpenChange: (visible) => !visible && setPreviewImage(""),
+            afterOpenChange: (visible) => !visible && setPreviewImage(null),
           }}
           src={previewImage}
           alt={previewImage}

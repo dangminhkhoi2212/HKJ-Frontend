@@ -1,11 +1,11 @@
-import axiosInterceptor from "@/config/axiosInterceptor";
-import { AUTHORIZATIONS_CONST } from "@/const";
-import { TAccontQuery, TAccountInfo } from "@/types";
+import axiosInterceptor from '@/config/axiosInterceptor';
+import { AUTHORIZATIONS_CONST } from '@/const';
+import { TAccontQuery, TAccountInfo } from '@/types';
 
-import { TQuery } from "../types/queryType";
+import { TQuery } from '../types/queryType';
 
 const { AUTHORIZATIONS } = AUTHORIZATIONS_CONST;
-const defaultRole = AUTHORIZATIONS.ROLE_USER.toString();
+const defaultRole = AUTHORIZATIONS.ROLE_EMPLOYEE.toString();
 const getUsersByRole = async (
   query?: TQuery<TAccontQuery>
 ): Promise<TAccountInfo[]> => {

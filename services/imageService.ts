@@ -1,12 +1,13 @@
-import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
-import { getSession } from "next-auth/react";
+import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import { getSession } from 'next-auth/react';
 
 const TIMEOUT = 1 * 60 * 1000;
 axios.defaults.timeout = TIMEOUT;
 export type TImageResponse = {
-  url: string;
-  success: boolean;
-  message: string;
+  id: string;
+  path: string;
+  fullPath: string;
+  publicUrl: string;
 };
 const headers = {
   Accept: "application/json",

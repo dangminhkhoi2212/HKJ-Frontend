@@ -1,7 +1,7 @@
 import "../../shared/ImagePreview/ImagePreview.css";
 
-import { Image, Space } from "antd";
-import React from "react";
+import { Empty, Image, Space } from "antd";
+import React, { useEffect } from "react";
 
 import {
   LeftOutlined,
@@ -35,13 +35,18 @@ type TProps = {
 };
 const ImagePreview: React.FC<TProps> = ({ images, width = 100 }) => {
   const [current, setCurrent] = React.useState(0);
-
-  //   if (!images || !images.length)
-  //     return (
-  //       <div className="flex justify-center items-center w-full">
-  //         <Empty />
-  //       </div>
-  //     );
+  const [imageList, setImageList] = React.useState<string[]>([]);
+  useEffect(() => {
+    if (images?.length) {
+      setImageList(images);
+    }
+  }, [images]);
+  if (!images || !images.length)
+    return (
+      <div className="flex justify-center items-center w-full">
+        <Empty />
+      </div>
+    );
   return (
     <Image.PreviewGroup
       preview={{

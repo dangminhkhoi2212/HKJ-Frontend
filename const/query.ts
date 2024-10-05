@@ -14,7 +14,7 @@ const initPagination: TablePaginationConfig = {
 const defaultQuery: TQuery = {
   page: PAGE,
   size: PAGE_SIZE,
-  isDeleted: false,
+  // isDeleted: false,
 };
 const queryConst = {
   initPagination,

@@ -7,15 +7,10 @@ import React from "react";
 import { routes } from "@/routes";
 import { Logo } from "@/shared/Logo";
 
-const SignInPage: React.FC<{ className?: string }> = ({ className }) => {
-  // const { signOutAll } = useAccountButtonActions();
-  // const { data: session } = useSession();
-  // useEffect(() => {
-  //   if (session) {
-  //     signOutAll();
-  //   }
-  // }, [session]);
-
+type TProps = {
+  className?: string;
+};
+const SignInPage: React.FC<TProps> = ({ className }) => {
   return (
     <div
       className={` flex items-center justify-center bg-gradient-to-b from-white to-gray-200 ${className} rounded-md`}

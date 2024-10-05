@@ -1,4 +1,4 @@
-import { TAudit } from "./auditType";
+import { TAuditFilter } from "./auditType";
 import { TPageType } from "./pageType";
 
-export type TQuery<T = any> = TPageType & TAudit & T;
+export type TQuery<T = any> = TPageType & TAuditFilter & T;

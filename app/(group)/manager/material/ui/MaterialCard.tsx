@@ -1,4 +1,4 @@
-import { Card, Image } from "antd";
+import { Card, Image, Skeleton } from "antd";
 import React from "react";
 import { NumericFormat } from "react-number-format";
 
@@ -35,19 +35,22 @@ const MaterialCard: React.FC<Props> = ({ data }) => {
   };
   return (
     <Card
-      style={{ width: 300 }}
-      className="overflow-hidden"
+      className="overflow-hidden w-full min-w-40 min-h-28 max-w-60 "
       cover={
         <Image
           alt="example"
           src={data.coverImage}
           preview={false}
-          className="min-h-28"
+          placeholder={
+            <Skeleton.Image active={true} className="w-full h-full" />
+          }
+          className="min-h-full "
         />
       }
       actions={[
         <EditOutlined
           key="edit"
+          className="w-full"
           onClick={() =>
             router.push(routesManager.updateMaterial(data?.id!.toString()))
           }

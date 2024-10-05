@@ -1,5 +1,5 @@
 "use client";
-import { Button, Divider, Empty, Space, TablePaginationConfig } from "antd";
+import { Button, Divider, Space, TablePaginationConfig } from "antd";
 import { TableProps } from "antd/lib";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -9,6 +9,7 @@ import { QUERY_CONST } from "@/const";
 import { useRouterCustom } from "@/hooks";
 import { routesManager } from "@/routes";
 import { materialService } from "@/services";
+import useAccountStore from "@/stores/account";
 import { TMaterial, TMaterialQuery, TQuery } from "@/types";
 import { formatUtil, sortUitl } from "@/utils";
 
@@ -19,10 +20,13 @@ type TSelectMaterial = {
   record?: any;
 };
 
-const initPositionQuery: TQuery<TMaterialQuery> = {};
 const MaterialPage = () => {
+  const { account } = useAccountStore();
+  const [initMaterialQuery, setInitMaterialQuery] = useState<
+    TQuery<TMaterialQuery>
+  >({ ...QUERY_CONST.defaultQuery, createdBy: { equals: account?.login } });
   const { router, updatePathname } = useRouterCustom();
-  const [query, setQuery] = useState<TQuery<TMaterialQuery>>(initPositionQuery);
+  const [query, setQuery] = useState<TQuery<TMaterialQuery>>(initMaterialQuery);
   console.log("🚀 ~ query:", query);
 
   const [pagination, setPagination] = useState<TablePaginationConfig>(
@@ -115,7 +119,7 @@ const MaterialPage = () => {
   const refreshData = async () => {
     getMaterialQuery.refetch();
     getMaterialCountQuery.refetch();
-    setQuery({ ...initPositionQuery });
+    setQuery({ ...initMaterialQuery });
   };
   const handleTableChange: TableProps<TMaterial>["onChange"] = (
     pagination,
@@ -130,6 +134,7 @@ const MaterialPage = () => {
   useEffect(() => {
     refreshData();
   }, []);
+
   return (
     <Space direction="vertical" className="flex">
       <Button
@@ -140,11 +145,8 @@ const MaterialPage = () => {
         Thêm chất liệu
       </Button>
       <Divider />
-      {data.length ? (
-        <MaterialList data={data} />
-      ) : (
-        <Empty description="Không có dữ liệu" />
-      )}
+
+      <MaterialList data={data} isLoading={getMaterialQuery.isLoading} />
     </Space>
   );
 };

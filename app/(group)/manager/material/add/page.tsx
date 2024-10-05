@@ -1,6 +1,7 @@
-import { Frame } from "@/shared/Frame";
+"use client";
+import { Frame } from '@/shared/Frame';
 
-import AddMaterialForm from "./ui/AddMaterialForm";
+import AddMaterialForm from './ui/AddMaterialForm';
 
 const AddMaterialPage = () => {
   return (

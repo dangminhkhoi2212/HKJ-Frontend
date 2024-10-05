@@ -1,6 +1,15 @@
 "use client";
-import { Button, Divider, Form, Result, Space, Steps, UploadFile } from "antd";
-import { useState } from "react";
+import {
+  App,
+  Button,
+  Divider,
+  Form,
+  Result,
+  Space,
+  Steps,
+  UploadFile,
+} from "antd";
+import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
 import { useMutation } from "react-query";
@@ -8,6 +17,7 @@ import { useMutation } from "react-query";
 import { useRouterCustom } from "@/hooks";
 import { routesManager } from "@/routes";
 import { materialImageService, materialService } from "@/services";
+import supabaseService from "@/services/supabaseService";
 import {
   InputCustom,
   InputNumberCustom,
@@ -15,8 +25,7 @@ import {
 } from "@/shared/FormCustom/InputCustom";
 import { InputImage } from "@/shared/FormCustom/InputImage";
 import NumberToWords from "@/shared/FormCustom/InputNumToWords/InputNumToWords";
-import { TImageUpload, TMaterial, TMaterialAdd } from "@/types";
-import { TMaterialImage, TMaterialImageAdd } from "@/types/materialImageType";
+import { TMaterial } from "@/types";
 import materialValidation from "@/validations/materialValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
 
@@ -31,8 +40,9 @@ const items = [
     title: "Kết quả",
   },
 ];
-type TForm = TMaterialAdd & {
-  images: TImageUpload[];
+type TForm = Omit<TMaterial, "coverImage" | "id"> & {
+  coverImage: UploadFile[];
+  images: UploadFile[];
 };
 const initValueForm: TForm = {
   name: "",
@@ -40,8 +50,7 @@ const initValueForm: TForm = {
   unitPrice: 0,
   quantity: 0,
   supplier: "",
-  coverImage: "",
-  isDeleted: false,
+  coverImage: [],
   images: [],
 };
 export const extraUnitPrice = ({
@@ -68,8 +77,9 @@ export const extraUnitPrice = ({
     )
   );
 };
-
+const excludeIdSchema = materialValidation.materialSchema.omit(["id"]);
 const AddMaterialForm = () => {
+  const { message } = App.useApp();
   const [form] = Form.useForm();
   const [images, setImages] = useState<UploadFile[]>([]);
   const [coverImage, setCoverImage] = useState<UploadFile[]>([]);
@@ -86,7 +96,7 @@ const AddMaterialForm = () => {
     reset,
     formState: { errors },
   } = useForm<TForm>({
-    resolver: yupResolver(materialValidation.materialSchema),
+    resolver: yupResolver(excludeIdSchema),
     mode: "onChange",
     defaultValues: initValueForm,
   });
@@ -102,82 +112,104 @@ const AddMaterialForm = () => {
   const prev = () => {
     setCurrent(current - 1);
   };
-
-  const onChangeInputImage = (newFileList: UploadFile[], file: UploadFile) => {
-    setImages(newFileList);
-    const imagesForm: TImageUpload[] = newFileList.map((item) => {
-      return { url: item.url! };
-    });
-    console.log("🚀 ~ onChangeInputImage ~ imagesForm:", imagesForm);
-    setValue("images", imagesForm, { shouldValidate: true });
+  const createMaterial = async (data: Omit<TMaterial, "images" | "id">) => {
+    return await materialService.create({ ...data });
   };
-  const onChangeInputCoverImage = async (
-    newFileList: UploadFile[],
-    file: UploadFile
+
+  const handleImageChange = useCallback(
+    (fileList: UploadFile[], fieldName: "images" | "coverImage") => {
+      setValue(fieldName, fileList, { shouldValidate: true });
+    },
+    [setValue]
+  );
+
+  const uploadImageToCloud = async (
+    images: UploadFile[],
+    folder: string
+  ): Promise<string[]> => {
+    // upload in storage supabse
+
+    const imagesUploaded = await Promise.all(
+      images.map(async (item) => {
+        const file = new File([item.originFileObj!], item.name, {
+          type: item.type,
+        });
+        return await supabaseService.uploadFile(file, folder);
+      })
+    );
+    return imagesUploaded.map((item) => item.publicUrl);
+  };
+
+  const createImageInDatabase = async (
+    images: string[],
+    materialId: number
   ) => {
-    setCoverImage(newFileList);
-    const imagesForm: TImageUpload[] = newFileList?.map((item) => {
-      return { url: item.url! };
+    const imageConvert: any[] = images.map((item) => {
+      return {
+        url: item,
+        material: { id: materialId },
+      };
     });
-    console.log("🚀 ~ onChangeInputCoverImage ~ imagesForm:", imagesForm);
-    setValue("coverImage", imagesForm[0]?.url!, { shouldValidate: true });
+
+    await Promise.all(
+      imageConvert.map(async (item) => {
+        await materialImageService.create(item);
+      })
+    );
+  };
+  const handleCreateMaterial = async (data: TForm) => {
+    const { images: imagesData, coverImage, ...rest } = data;
+    console.log("🚀 ~ handleCreateMaterial ~ data:", data);
+    // // create material in database
+
+    let material: TMaterial = await createMaterial({
+      ...rest,
+      coverImage: "",
+    });
+    const folderCoverImage = supabaseService.createCoverFolder(
+      "materials",
+      material.id
+    );
+    const folderImage = supabaseService.createImagesFolder(
+      "materials",
+      material.id
+    );
+
+    // upload cover image to cloud
+    const coverImageUrl = (
+      await uploadImageToCloud(coverImage, folderCoverImage)
+    )[0]!;
+
+    // // update material in database
+
+    let materialUpdate: TMaterial = await materialService.update({
+      ...material,
+      coverImage: coverImageUrl,
+    });
+
+    // upload image to cloud to get urls
+    const imageUrls: string[] = await uploadImageToCloud(
+      imagesData,
+      folderImage
+    );
+
+    // // create image in database
+
+    await createImageInDatabase(imageUrls, material.id);
   };
 
   const createMaterialMutation = useMutation({
-    mutationFn: (data: TMaterialAdd) => {
-      return materialService.create(data);
-    },
+    mutationFn: (data: TForm) => handleCreateMaterial(data),
     onSuccess: () => {
+      message.success("Tạo nguyên liệu thành công");
+      resetForm();
       next();
     },
-    onError: (error) => {
-      console.log("🚀 ~ createMaterialMutation ~ error:", error);
+    onError(error) {
+      console.log("🚀 ~ onError ~ error:", error);
+      message.error("Tạo thất bại vui lòng thử lại");
     },
   });
-
-  const handleCreateMaterialImages = async (
-    images: TMaterialImageAdd[]
-  ): Promise<TMaterialImage[]> => {
-    try {
-      // Check if imagesCreate is defined and has items
-      if (images && images.length > 0) {
-        const resultCreateImages = await Promise.all(
-          images.map(async (item) => {
-            return await materialImageService.create({
-              ...item,
-              isDeleted: false,
-              material: { id: item.material?.id },
-            });
-          })
-        );
-        return resultCreateImages;
-      }
-      return [];
-    } catch (error) {
-      console.error("Error in handleCreateMaterial:", error);
-      return [];
-    }
-  };
-  const handleCreateMaterial = async (data: TForm) => {
-    const { images: _, ...rest } = data;
-    let material: TMaterial = await createMaterialMutation.mutateAsync(rest);
-
-    const imageConvert: TMaterialImageAdd[] = data.images.map((item) => {
-      return {
-        ...item,
-        material,
-      };
-    });
-    console.log(
-      "🚀 ~ constimageConvert:TMaterialImage[]=data.images.map ~ imageConvert:",
-      imageConvert
-    );
-    const images: TMaterialImage[] = await handleCreateMaterialImages(
-      imageConvert
-    );
-    console.log("🚀 ~ handleCreateMaterial ~ convertData:", images);
-  };
-
   const resetForm = () => {
     const { images, ...rest } = initValueForm;
     const imagesForm = getValues("images");
@@ -251,27 +283,25 @@ const AddMaterialForm = () => {
           <Space direction="vertical">
             <LabelCustom label="Ảnh bìa" required />
             <InputImage
-              onChange={async (fileList, file) =>
-                await onChangeInputCoverImage(fileList, file)
-              }
+              onChange={(fileList) => handleImageChange(fileList, "coverImage")}
               images={coverImage}
               maxCount={1}
             />
             <span className="text-red-500">
-              {errors?.coverImage?.message ?? ""}
+              {errors?.coverImage?.message?.toString() ?? ""}
             </span>
           </Space>
           <Divider className="my-2" />
           <Space direction="vertical">
             <LabelCustom label="Hình ảnh" required />
             <InputImage
-              onChange={onChangeInputImage}
+              onChange={(fileList) => handleImageChange(fileList, "images")}
               images={images}
               maxCount={5}
             />
             <span className="text-red-500">
-              {errors?.images?.message ??
-                errors?.images?.[0]?.url?.message ??
+              {errors?.images?.message?.toString() ??
+                errors?.images?.message?.toString() ??
                 ""}
             </span>
           </Space>
@@ -313,7 +343,7 @@ const AddMaterialForm = () => {
         form={form}
         layout="vertical"
         className=""
-        onFinish={handleSubmit(handleCreateMaterial)}
+        onFinish={handleSubmit((data) => createMaterialMutation.mutate(data))}
       >
         <div className="my-6">{steps[current].children!}</div>
         <Space className="flex justify-end">

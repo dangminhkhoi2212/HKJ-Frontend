@@ -1,5 +1,4 @@
 import { TAudit } from "./auditType";
-import { TMaterialImage } from "./materialImageType";
 
 export type TMaterial = {
   id: number;
@@ -9,11 +8,10 @@ export type TMaterial = {
   unitPrice: number;
   supplier: string;
   coverImage: string;
-  images: TMaterialImage[];
 } & TAudit;
 
-export type TMaterialAdd = Omit<TMaterial, "id" | "images">;
-export type TMaterialUpadate = Omit<TMaterial, "images">;
+export type TMaterialAdd = TMaterial;
+export type TMaterialUpadate = Partial<TMaterial>;
 
 export type TMaterialQuery = {
   id?: number;

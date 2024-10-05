@@ -1,5 +1,6 @@
 import axiosInterceptor from "@/config/axiosInterceptor";
 import {
+  TMaterial,
   TMaterialAdd,
   TMaterialQuery,
   TMaterialUpadate,
@@ -9,7 +10,7 @@ import { formatUtil } from "@/utils";
 
 const interceptor = axiosInterceptor();
 
-const create = async (data: TMaterialAdd) => {
+const create = async (data: Omit<TMaterialAdd, "images" | "id">) => {
   return (await interceptor.post(`/hkj-materials`, data)).data;
 };
 const get = async (query: TQuery<TMaterialQuery>) => {
@@ -19,7 +20,7 @@ const get = async (query: TQuery<TMaterialQuery>) => {
     })
   ).data;
 };
-const getOne = async (query: TQuery<TMaterialQuery>) => {
+const getOne = async (query: TQuery<TMaterialQuery>): Promise<TMaterial> => {
   return (
     await axiosInterceptor().get(`/hkj-materials/${query.id}`, {
       params: formatUtil.objectOneDegree(query),
@@ -34,7 +35,8 @@ const getCount = async (query: TQuery<TMaterialQuery>) => {
   ).data;
 };
 const update = async (data: TMaterialUpadate) => {
-  return (await axiosInterceptor().put(`/hkj-materials/${data.id}`, data)).data;
+  return (await axiosInterceptor().patch(`/hkj-materials/${data.id}`, data))
+    .data;
 };
 const materialService = {
   create,
