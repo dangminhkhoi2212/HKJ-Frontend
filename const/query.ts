@@ -1,6 +1,7 @@
-import { TablePaginationConfig } from "antd";
+import { TablePaginationConfig } from 'antd';
 
-import { TQuery } from "@/types";
+import { TQuery } from '@/types';
+import queryUtil from '@/utils/queryUtil';
 
 const PAGE: number = 0;
 const PAGE_SIZE: number = 5;
@@ -14,6 +15,7 @@ const initPagination: TablePaginationConfig = {
 const defaultQuery: TQuery = {
   page: PAGE,
   size: PAGE_SIZE,
+  sort:queryUtil.createSortOption("lastModifiedDate").desc,
   // isDeleted: false,
 };
 const queryConst = {

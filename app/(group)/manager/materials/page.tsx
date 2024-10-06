@@ -1,5 +1,5 @@
 "use client";
-import { Button, Divider, Space, TablePaginationConfig } from "antd";
+import { Button, Space, TablePaginationConfig } from "antd";
 import { TableProps } from "antd/lib";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -9,6 +9,7 @@ import { QUERY_CONST } from "@/const";
 import { useRouterCustom } from "@/hooks";
 import { routesManager } from "@/routes";
 import { materialService } from "@/services";
+import { Frame } from "@/shared/Frame";
 import useAccountStore from "@/stores/account";
 import { TMaterial, TMaterialQuery, TQuery } from "@/types";
 import { formatUtil, sortUitl } from "@/utils";
@@ -136,18 +137,22 @@ const MaterialPage = () => {
   }, []);
 
   return (
-    <Space direction="vertical" className="flex">
-      <Button
-        type="primary"
-        onClick={() => router.push(routesManager.addMaterial)}
-        icon={<Plus size={18} />}
-      >
-        Thêm chất liệu
-      </Button>
-      <Divider />
-
-      <MaterialList data={data} isLoading={getMaterialQuery.isLoading} />
-    </Space>
+    <Frame
+      title="Chất liệu làm trang sức"
+      buttons={
+        <Button
+          type="primary"
+          onClick={() => router.push(routesManager.addMaterial)}
+          icon={<Plus size={18} />}
+        >
+          Thêm chất liệu
+        </Button>
+      }
+    >
+      <Space direction="vertical" className="flex">
+        <MaterialList data={data} isLoading={getMaterialQuery.isLoading} />
+      </Space>
+    </Frame>
   );
 };
 

@@ -9,15 +9,19 @@ const Frame: React.FC<{
   discription?: React.ReactNode;
   classsName?: string;
   children?: React.ReactNode;
-}> = ({ title, discription, classsName, children }) => {
+  buttons?: React.ReactNode;
+}> = ({ title, discription, classsName, buttons, children }) => {
   const { Title } = Typography;
   return (
-    <div className=" border  rounded-md flex flex-col gap-4 overflow-hidden">
-      <div className="bg-primary-950 p-5 flex flex-col justify-start">
-        <Title level={4} className="">
-          {title}
-        </Title>
-        {discription}
+    <div className=" border  rounded-md flex flex-col  gap-4 overflow-hidden">
+      <div className=" p-5  bg-primary-950 flex justify-between items-center">
+        <div className="flex flex-col justify-start">
+          <Title level={4} className="">
+            {title}
+          </Title>
+          {discription}
+        </div>
+        {buttons && <div>{buttons}</div>}
       </div>
       <div className={cn("p-5", classsName)}>{children}</div>
     </div>

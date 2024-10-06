@@ -6,6 +6,8 @@ import {
   LineChart,
   ListOrdered,
   MessageCircle,
+  Notebook,
+  NotepadTextDashed,
   PackageSearch,
   SquareUser,
   Truck,
@@ -70,6 +72,16 @@ export const menuManager: MenuProps["items"] = [
     key: routesManager.material,
     icon: <Atom size={18} />,
     label: "Chất liệu",
+  },
+  {
+    key: routesManager.draft,
+    icon: <NotepadTextDashed size={18} />,
+    label: "Bản mẫu dự án",
+  },
+  {
+    key: routesManager.category,
+    icon: <Notebook size={18} />,
+    label: "Loại trang sức",
   },
 ];
 export const menuAdmin: MenuProps["items"] = [
