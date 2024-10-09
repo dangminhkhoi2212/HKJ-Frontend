@@ -7,9 +7,9 @@ import { useMutation } from "react-query";
 import { KEY_CONST } from "@/const";
 import { hireService } from "@/services";
 import {
-  InputCustom,
-  InputNumberCustom,
-  LabelCustom,
+	InputCustom,
+	InputNumberCustom,
+	LabelCustom,
 } from "@/shared/FormCustom/InputCustom";
 import NumberToWords from "@/shared/FormCustom/InputNumToWords/InputNumToWords";
 import { AccountDisplay } from "@/shared/FormSelect/AccountForm";
@@ -26,216 +26,236 @@ const { RangePicker } = DatePicker;
 
 const defaultSalary: number = 0;
 export type TSelectedPositionHire = {
-  show: boolean;
-  record?: TPosition;
+	show: boolean;
+	record?: TPosition;
 };
 const initSelectedPositionHire: TSelectedPositionHire = {
-  show: false,
+	show: false,
 };
 export type TSelectedEmployeeHire = {
-  show: boolean;
-  record?: any;
+	show: boolean;
+	record?: any;
 };
 const initSelectedEmployeeHire: TSelectedEmployeeHire = {
-  show: false,
+	show: false,
 };
 
-const HireEmployeeForm = () => {
-  const [form] = Form.useForm();
+const HireEmployeeForm: React.FC<{}> = () => {
+	const [form] = Form.useForm();
 
-  const [selectedPosition, setSeletedPosition] =
-    useState<TSelectedPositionHire>(initSelectedPositionHire);
+	const [selectedPosition, setSeletedPosition] =
+		useState<TSelectedPositionHire>(initSelectedPositionHire);
 
-  const [selectedEmployee, setSelectedEmployee] =
-    useState<TSelectedEmployeeHire>(initSelectedEmployeeHire);
+	const [selectedEmployee, setSelectedEmployee] =
+		useState<TSelectedEmployeeHire>(initSelectedEmployeeHire);
 
-  const {
-    handleSubmit,
-    control,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(hireEmployeeSchema),
-    reValidateMode: "onChange",
-    defaultValues: {
-      beginSalary: defaultSalary.toString(),
-    },
-  });
-  console.log("🚀 ~ HireEmployeeForm ~ errors:", errors);
+	const {
+		handleSubmit,
+		control,
+		reset,
+		setValue,
+		watch,
+		formState: { errors },
+	} = useForm({
+		resolver: yupResolver(hireEmployeeSchema),
+		reValidateMode: "onChange",
+		defaultValues: {
+			beginSalary: defaultSalary.toString(),
+		},
+	});
+	console.log("🚀 ~ HireEmployeeForm ~ errors:", errors);
 
-  const { message } = App.useApp();
-  const handleHireEmployee = (data: any) => {
-    const dataMapper: THire = {
-      ...data,
-      beginDate: dayjs(data.beginDate).format(),
-      endDate: dayjs(data.endDate).format(),
-      position: {
-        id: parseInt(data.position),
-      },
-      employee: {
-        id: data.employee,
-      },
-    } as THire;
-    createHireMutation.mutate(dataMapper);
-  };
-  const createHireMutation = useMutation({
-    mutationFn: (data: THire) => {
-      return hireService.create(data);
-    },
-    onSuccess(data, variables, context) {
-      resetForm();
-      message.success("Đã tạo dữ liệu thuê thành công");
-    },
-    onError: (error) => {
-      console.log("🚀 ~ createHireMutation ~ error:", error);
-      message.success("Đã có lỗi xảy ra xin vui lòng thử lại");
-    },
-  });
-  const resetForm = () => {
-    setSeletedPosition(initSelectedPositionHire);
-    setSelectedEmployee(initSelectedEmployeeHire);
-    reset();
-  };
-  useEffect(() => {
-    if (selectedPosition?.record)
-      setValue("position", selectedPosition?.record?.id!.toString()!, {
-        shouldValidate: true,
-      });
-  }, [selectedPosition, setValue]);
-  useEffect(() => {
-    if (selectedEmployee?.record)
-      setValue("employee", selectedEmployee?.record?.id.toString()!, {
-        shouldValidate: true,
-      });
-  }, [selectedEmployee, setValue]);
+	const { message } = App.useApp();
+	const handleHireEmployee = (data: any) => {
+		const dataMapper: THire = {
+			...data,
+			beginDate: dayjs(data.beginDate).format(),
+			endDate: dayjs(data.endDate).format(),
+			position: {
+				id: parseInt(data.position),
+			},
+			employee: {
+				id: data.employee,
+			},
+		} as THire;
+		createHireMutation.mutate(dataMapper);
+	};
+	const createHireMutation = useMutation({
+		mutationFn: (data: THire) => {
+			return hireService.create(data);
+		},
+		onSuccess(data, variables, context) {
+			resetForm();
+			message.success("Đã tạo dữ liệu thuê thành công");
+		},
+		onError: (error) => {
+			console.log("🚀 ~ createHireMutation ~ error:", error);
+			message.success("Đã có lỗi xảy ra xin vui lòng thử lại");
+		},
+	});
+	const resetForm = () => {
+		setSeletedPosition(initSelectedPositionHire);
+		setSelectedEmployee(initSelectedEmployeeHire);
+		reset();
+	};
+	useEffect(() => {
+		if (selectedPosition?.record)
+			setValue("position", selectedPosition?.record?.id!.toString()!, {
+				shouldValidate: true,
+			});
+	}, [selectedPosition, setValue]);
+	useEffect(() => {
+		if (selectedEmployee?.record)
+			setValue("employee", selectedEmployee?.record?.id.toString()!, {
+				shouldValidate: true,
+			});
+	}, [selectedEmployee, setValue]);
 
-  const handleSelectEmployee = () => {
-    setSelectedEmployee({ show: true, record: null });
-  };
+	const handleSelectEmployee = () => {
+		setSelectedEmployee({ show: true, record: null });
+	};
 
-  return (
-    <div>
-      <Modal
-        open={selectedPosition.show}
-        title="Danh sách vị trí"
-        closable
-        onCancel={() => setSeletedPosition(initSelectedPositionHire)}
-        footer={null}
-      >
-        <SelectePositionForm
-          onChange={(data: TPosition) =>
-            setSeletedPosition({ show: false, record: data })
-          }
-        />
-      </Modal>
-      <Modal
-        open={selectedEmployee.show}
-        title="Danh sách nhân viên"
-        closable
-        onCancel={() => setSelectedEmployee(initSelectedEmployeeHire)}
-        footer={null}
-      >
-        <SelectAccountForm
-          onChange={(data: TAccountInfo) => {
-            setSelectedEmployee({ show: false, record: data });
-          }}
-        />
-      </Modal>
-      {/* ############################## */}
-      <Form
-        onFinish={handleSubmit(handleHireEmployee)}
-        form={form}
-        layout="vertical"
-        validateTrigger="onChange"
-        className="flex flex-col gap-4"
-      >
-        <div className="grid grid-cols-1 md:gird-cols-5 lg:grid-cols-5 xl:grid-cols-5 gap-4 ">
-          <div className="col-span-2 grid grid-cos-1 gap-4 place-self-start">
-            <Controller
-              name="date"
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => {
-                return (
-                  <Form.Item
-                    label={<LabelCustom label="Thời gian làm việc" required />}
-                    help={
-                      errors?.date?.startDate?.message ||
-                      errors?.date?.endDate?.message
-                    }
-                    validateStatus={
-                      errors?.date?.startDate?.message ||
-                      errors?.date?.endDate?.message
-                        ? "error"
-                        : ""
-                    }
-                  >
-                    <RangePicker
-                      allowClear={false}
-                      value={
-                        field.value
-                          ? [
-                              dayjs(field.value.startDate),
-                              dayjs(field.value.endDate),
-                            ]
-                          : undefined
-                      } // Handle value
-                      onChange={(dates) => {
-                        if (dates)
-                          field.onChange({
-                            startDate: dates![0],
-                            endDate: dates![1],
-                          });
-                      }}
-                      size="large"
-                      className="w-80"
-                      placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
-                      format={KEY_CONST.DATE_FORMAT}
-                    />
-                  </Form.Item>
-                );
-              }}
-            />
+	return (
+		<div>
+			<Modal
+				open={selectedPosition.show}
+				title="Danh sách vị trí"
+				closable
+				onCancel={() => setSeletedPosition(initSelectedPositionHire)}
+				footer={null}
+			>
+				<SelectePositionForm
+					onChange={(data: TPosition) =>
+						setSeletedPosition({ show: false, record: data })
+					}
+				/>
+			</Modal>
+			<Modal
+				open={selectedEmployee.show}
+				title="Danh sách nhân viên"
+				closable
+				onCancel={() => setSelectedEmployee(initSelectedEmployeeHire)}
+				footer={null}
+			>
+				<SelectAccountForm
+					onChange={(data: TAccountInfo) => {
+						setSelectedEmployee({ show: false, record: data });
+					}}
+				/>
+			</Modal>
+			{/* ############################## */}
+			<Form
+				onFinish={handleSubmit(handleHireEmployee)}
+				form={form}
+				layout="vertical"
+				validateTrigger="onChange"
+				className="flex flex-col gap-4"
+			>
+				<div className="grid grid-cols-1 md:gird-cols-5 lg:grid-cols-5 xl:grid-cols-5 gap-4 ">
+					<div className="col-span-2 grid grid-cos-1 gap-4 place-self-start">
+						<Controller
+							name="date"
+							control={control}
+							rules={{ required: true }}
+							render={({ field }) => {
+								return (
+									<Form.Item
+										label={
+											<LabelCustom
+												label="Thời gian làm việc"
+												required
+											/>
+										}
+										help={
+											errors?.date?.startDate?.message ||
+											errors?.date?.endDate?.message
+										}
+										validateStatus={
+											errors?.date?.startDate?.message ||
+											errors?.date?.endDate?.message
+												? "error"
+												: ""
+										}
+									>
+										<RangePicker
+											allowClear={false}
+											value={
+												field.value
+													? [
+															dayjs(
+																field.value
+																	.startDate
+															),
+															dayjs(
+																field.value
+																	.endDate
+															),
+														]
+													: undefined
+											} // Handle value
+											onChange={(dates) => {
+												if (dates)
+													field.onChange({
+														startDate: dates![0],
+														endDate: dates![1],
+													});
+											}}
+											size="large"
+											className="w-80"
+											placeholder={[
+												"Ngày bắt đầu",
+												"Ngày kết thúc",
+											]}
+											format={KEY_CONST.DATE_FORMAT}
+										/>
+									</Form.Item>
+								);
+							}}
+						/>
 
-            <div className="flex flex-col gap-2">
-              <InputCustom
-                label="Lựa chọn vị trí làm việc"
-                required={true}
-                readOnly
-                type="textarea"
-                name="position"
-                value={selectedPosition.record?.name}
-                errorMessage={errors?.position?.message}
-                control={control}
-                placeholder="Ví trí làm việc"
-                className="w-80"
-                extra={
-                  <Button
-                    size="small"
-                    className="mt-2"
-                    onClick={() => setSeletedPosition({ show: true })}
-                  >
-                    {selectedPosition.record ? "Thay đổi" : "Lựa chọn"}
-                  </Button>
-                }
-              />
-            </div>
-            <div>
-              <InputNumberCustom
-                label="Mức lương khởi điểm"
-                name="beginSalary"
-                control={control}
-                className="max-w-80"
-                defaultValue={defaultSalary}
-                errorMessage={errors?.beginSalary?.message}
-                suffix=" VND"
-                min={1000}
-              />
-              <NumberToWords number={Number.parseInt(watch("beginSalary"))} />
-            </div>
-            {/* <InputCustom
+						<div className="flex flex-col gap-2">
+							<InputCustom
+								label="Lựa chọn vị trí làm việc"
+								required={true}
+								readOnly
+								type="textarea"
+								name="position"
+								value={selectedPosition.record?.name}
+								errorMessage={errors?.position?.message}
+								control={control}
+								placeholder="Ví trí làm việc"
+								className="w-80"
+								extra={
+									<Button
+										size="small"
+										className="mt-2"
+										onClick={() =>
+											setSeletedPosition({ show: true })
+										}
+									>
+										{selectedPosition.record
+											? "Thay đổi"
+											: "Lựa chọn"}
+									</Button>
+								}
+							/>
+						</div>
+						<div>
+							<InputNumberCustom
+								label="Mức lương khởi điểm"
+								name="beginSalary"
+								control={control}
+								className="max-w-80"
+								defaultValue={defaultSalary}
+								errorMessage={errors?.beginSalary?.message}
+								suffix=" VND"
+								min={1000}
+							/>
+							<NumberToWords
+								number={Number.parseInt(watch("beginSalary"))}
+							/>
+						</div>
+						{/* <InputCustom
               label="Mức lương khởi điểm"
               name="beginSalary"
               className="w-full"
@@ -243,51 +263,66 @@ const HireEmployeeForm = () => {
               errorMessage={errors?.beginSalary?.message}
               type="price"
             /> */}
-          </div>
+					</div>
 
-          <div className="col-span-3">
-            <LabelCustom label="Tài khoản nhân viên" classname="" required />
-            {selectedEmployee.record ? (
-              <div>
-                <Button
-                  className="my-2"
-                  size="small"
-                  onClick={() =>
-                    setSelectedEmployee({ show: true, record: null })
-                  }
-                >
-                  Thay đổi
-                </Button>
-                {selectedEmployee.record && (
-                  <AccountDisplay account={selectedEmployee.record} />
-                )}
-              </div>
-            ) : (
-              <div
-                className={cn(
-                  "ring-1 ring-gray-300 rounded-md p-2 flex flex-col justify-center",
-                  errors?.employee?.message ? "ring-rose-400" : ""
-                )}
-              >
-                <Empty
-                  className="py-5"
-                  description={
-                    errors?.employee?.message && (
-                      <span className="text-red-400">Không bỏ trống ô này</span>
-                    )
-                  }
-                >
-                  <Button onClick={() => handleSelectEmployee()}>
-                    Chọn tài khoản
-                  </Button>
-                </Empty>
-              </div>
-            )}
-          </div>
-        </div>
+					<div className="col-span-3">
+						<LabelCustom
+							label="Tài khoản nhân viên"
+							classname=""
+							required
+						/>
+						{selectedEmployee.record ? (
+							<div>
+								<Button
+									className="my-2"
+									size="small"
+									onClick={() =>
+										setSelectedEmployee({
+											show: true,
+											record: null,
+										})
+									}
+								>
+									Thay đổi
+								</Button>
+								{selectedEmployee.record && (
+									<AccountDisplay
+										account={selectedEmployee.record}
+									/>
+								)}
+							</div>
+						) : (
+							<div
+								className={cn(
+									"ring-1 ring-gray-300 rounded-md p-2 flex flex-col justify-center",
+									errors?.employee?.message
+										? "ring-rose-400"
+										: ""
+								)}
+							>
+								<Empty
+									className="py-5"
+									description={
+										errors?.employee?.message && (
+											<span className="text-red-400">
+												Không bỏ trống ô này
+											</span>
+										)
+									}
+								>
+									<Button
+										onClick={() => handleSelectEmployee()}
+									>
+										Chọn tài khoản
+									</Button>
+								</Empty>
+							</div>
+						)}
+					</div>
+				</div>
 
-        {/* Notes */}
-        {/* <InputCustom
+				{/* Notes */}
+				{/* <InputCustom
           label="Ghi chú"
           name="note"
           formItemClassName="mt-4"
@@ -297,18 +332,18 @@ const HireEmployeeForm = () => {
           type="textarea"
           count={{ max: 300 }}
         /> */}
-        <div className="flex justify-end">
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={createHireMutation.isLoading}
-          >
-            Bắt đầu thuê
-          </Button>
-        </div>
-      </Form>
-    </div>
-  );
+				<div className="flex justify-end">
+					<Button
+						type="primary"
+						htmlType="submit"
+						loading={createHireMutation.isLoading}
+					>
+						Bắt đầu thuê
+					</Button>
+				</div>
+			</Form>
+		</div>
+	);
 };
 
 export default HireEmployeeForm;

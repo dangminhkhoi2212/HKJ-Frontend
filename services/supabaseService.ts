@@ -1,9 +1,9 @@
-import { UploadFile } from "antd/lib";
+import { UploadFile } from 'antd/lib';
 
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from '@supabase/supabase-js';
 
 // Types
-type FolderName = "materials" | "projects" | "orders" | "tasks";
+type FolderName = "materials" | "projects" | "orders" | "tasks"|'jewelry-models';
 
 interface UploadResult {
   id: string;
@@ -220,6 +220,14 @@ class SupabaseStorageService {
     await this.deleteImages(keepImagesUrl, folder);
     return [...imagesUpload.map((img) => img.publicUrl)];
   }
+    async uploadMultiple(images:UploadFile[], folder: string):Promise<string[]> {
+        const urls= await Promise.all(
+            images.map(async (file) => {
+                return await this.uploadFile(this.convertFile(file), folder);
+            })
+        )
+        return urls.map((img) => img.publicUrl)
+    }
 
   convertFile(file: UploadFile): File {
     return new File([file.originFileObj!], file.name, {

@@ -1,7 +1,7 @@
 import React from "react";
 
-const EmployeePage = () => {
-  return <div>EmployeePage</div>;
+const EmployeePage: React.FC<{}> = () => {
+	return <div>EmployeePage</div>;
 };
 
 export default EmployeePage;

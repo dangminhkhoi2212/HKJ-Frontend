@@ -10,10 +10,12 @@ export const routesEmpoloyee = {};
 export const routesManager = {
   employees: "/manager/employees",
   order: "/manager/orders",
-  draft: "/manager/drafts",
+  template: "/manager/templates",
   category: "/manager/categories",
   material: "/manager/materials",
   addMaterial: "/manager/materials/add",
+  jewelry: "/manager/jewelry-models",
+  createJewelry: "/manager/jewelry-models/create",
   updateMaterial: (id: string) => `/manager/materials/update/${id}`,
 };
 export const routes = {

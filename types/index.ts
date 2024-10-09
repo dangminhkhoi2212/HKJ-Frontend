@@ -11,7 +11,8 @@ export * from "./pageType";
 export * from "./postionType";
 export * from "./queryType";
 export * from "./responseType";
+export * from "./statusType";
+export * from "./templateStepType";
 export * from "./templateType";
 export * from "./userExtraType";
 export * from "./userType";
-

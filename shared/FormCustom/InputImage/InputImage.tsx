@@ -18,6 +18,7 @@ type TProps = {
   images?: UploadFile[];
   maxCount?: number;
   minCount?: number;
+  errorMessage?: string;
   onChange?: (newFileList: UploadFile[], file: UploadFile<any>) => void;
   onRemove?: (file: UploadFile<any>) => void;
 };
@@ -33,6 +34,7 @@ const InputImages: React.FC<TProps> = ({
   images = [],
   onChange,
   onRemove,
+  errorMessage,
   maxCount = 8,
   minCount = 1,
 }) => {
@@ -117,6 +119,7 @@ const InputImages: React.FC<TProps> = ({
       <p>
         Tối thiểu {minCount} - Tối đa {maxCount}
       </p>
+      {errorMessage && <p className="p-0 m-0 text-red-500">{errorMessage}</p>}
       <ImgCrop rotationSlider zoomSlider aspectSlider showReset>
         <Upload
           listType="picture-card"
@@ -124,6 +127,7 @@ const InputImages: React.FC<TProps> = ({
           onPreview={handlePreview}
           onChange={handleChange}
           onRemove={onRemove ? onRemove : undefined}
+          supportServerRender
         >
           {fileList?.length >= maxCount ? null : uploadButton}
         </Upload>

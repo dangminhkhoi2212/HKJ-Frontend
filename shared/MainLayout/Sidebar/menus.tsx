@@ -1,6 +1,7 @@
 import { MenuProps } from "antd";
 import {
   Atom,
+  FolderClosed,
   Gem,
   LayoutDashboard,
   LineChart,
@@ -55,8 +56,13 @@ export const menuEmployee: MenuProps["items"] = [
 export const menuManager: MenuProps["items"] = [
   {
     key: routes.home,
-    icon: <Gem size={18} />,
+    icon: <FolderClosed size={18} />,
     label: "Dự án",
+  },
+  {
+    key: routesManager.jewelry,
+    icon: <Gem size={18} />,
+    label: "Trang sức",
   },
   {
     key: routesManager.employees,
@@ -74,14 +80,14 @@ export const menuManager: MenuProps["items"] = [
     label: "Chất liệu",
   },
   {
-    key: routesManager.draft,
-    icon: <NotepadTextDashed size={18} />,
-    label: "Bản mẫu dự án",
-  },
-  {
     key: routesManager.category,
     icon: <Notebook size={18} />,
     label: "Loại trang sức",
+  },
+  {
+    key: routesManager.template,
+    icon: <NotepadTextDashed size={18} />,
+    label: "Bản mẫu dự án",
   },
 ];
 export const menuAdmin: MenuProps["items"] = [

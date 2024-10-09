@@ -6,21 +6,21 @@ import useAccountStore from "@/stores/account";
 import { TAccountInfo } from "@/types";
 
 const AUTHORIZATIONS = AUTHORIZATIONS_CONST.AUTHORIZATIONS;
-const RoleTag: React.FC = () => {
-  const account: TAccountInfo | null | undefined = useAccountStore(
-    (state) => state.account
-  );
-  if (!account) return <></>;
-  switch (account!.authorities![0]) {
-    case AUTHORIZATIONS.ADMIN:
-      return <Tag color="blue">{AUTHORIZATIONS.ADMIN}</Tag>;
-    case AUTHORIZATIONS.MANAGER:
-      return <Tag color="yellow">{AUTHORIZATIONS.MANAGER}</Tag>;
-    case AUTHORIZATIONS.EMPLOYEE:
-      return <Tag color="green">{AUTHORIZATIONS.EMPLOYEE}</Tag>;
-    default:
-      break;
-  }
+const RoleTag: React.FC<{}> = () => {
+	const account: TAccountInfo | null | undefined = useAccountStore(
+		(state) => state.account
+	);
+	if (!account) return <></>;
+	switch (account!.authorities![0]) {
+		case AUTHORIZATIONS.ROLE_ADMIN:
+			return <Tag color="blue">{AUTHORIZATIONS.ROLE_ADMIN}</Tag>;
+		case AUTHORIZATIONS.ROLE_USER:
+			return <Tag color="yellow">{AUTHORIZATIONS.ROLE_USER}</Tag>;
+		case AUTHORIZATIONS.ROLE_EMPLOYEE:
+			return <Tag color="green">{AUTHORIZATIONS.ROLE_EMPLOYEE}</Tag>;
+		default:
+			break;
+	}
 };
 
 export default RoleTag;

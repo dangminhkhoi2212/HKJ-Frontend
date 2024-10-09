@@ -1,6 +1,6 @@
-import axiosInterceptor from '@/config/axiosInterceptor';
-import { TQuery, TTemplate } from '@/types';
-import { formatUtil } from '@/utils';
+import axiosInterceptor from "@/config/axiosInterceptor";
+import { TQuery, TTemplate, TTemplateCreate, TTemplateUpdate } from "@/types";
+import { formatUtil } from "@/utils";
 
 const interceptor = axiosInterceptor();
 export const get = async (query: TQuery<{}>) => {
@@ -17,15 +17,15 @@ export const getCount = async (query: TQuery<{}>) => {
     })
   ).data;
 };
-export const update = async (data:TTemplate ) => {
+export const update = async (data: TTemplateUpdate) => {
   return (await interceptor.put(`/hkj-templates/${data.id}`, data)).data;
 };
 export const deleteOne = async (id: number) => {
-    return (await interceptor.put(`/hkj-templates/${id}`, {isDeleted:true})).data;
-  };
-export const create = async (
-  data: Omit<TTemplate, "id">
-): Promise<TTemplate> => {
+  return (
+    await interceptor.patch(`/hkj-templates/${id}`, { id, isDeleted: true })
+  ).data;
+};
+export const create = async (data: TTemplateCreate): Promise<TTemplate> => {
   return (
     await interceptor.post("/hkj-templates", { ...data, isDeleted: false })
   ).data;
@@ -35,5 +35,6 @@ const templateService = {
   create,
   getCount,
   update,
+  deleteOne,
 };
 export default templateService;

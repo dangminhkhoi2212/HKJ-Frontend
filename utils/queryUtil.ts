@@ -1,9 +1,17 @@
-const createSortOption = (
-  field: string | "lastModifiedDate" | "createdDate" | "id"
-): { asc: string; desc: string } => ({
-  asc: `${field},asc`,
-  desc: `${field},desc`,
-});
+interface SortOption {
+	asc: string;
+	desc: string;
+}
+type SortField = "lastModifiedDate" | "createdDate" | "id";
+const createSortOption = (field: SortField): SortOption | undefined => {
+	return {
+		asc: `${field},asc`,
+		desc: `${field},desc`,
+	};
+};
 
-const queryUtitl = { createSortOption };
-export default queryUtitl;
+const queryUtil = {
+	createSortOption,
+};
+
+export default queryUtil;

@@ -1,7 +1,7 @@
 export type TFilter = {
   contains?: string;
   doesNotContain?: string;
-  equals?: string;
+  equals?: string | boolean | number;
   notEquals?: string;
   in?: string[];
   notIn?: string[];

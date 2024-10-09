@@ -1,4 +1,4 @@
-import { COLORS_CONST } from "./const";
+import { COLORS_CONST } from './const';
 
 import type { Config } from "tailwindcss";
 

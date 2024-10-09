@@ -1,11 +1,11 @@
 import { Profile } from "@/shared/Account/Profile";
 
-const ManagerProfilePage = () => {
-  return (
-    <div>
-      <Profile />
-    </div>
-  );
+const ManagerProfilePage: React.FC<{}> = () => {
+	return (
+		<div>
+			<Profile />
+		</div>
+	);
 };
 
 export default ManagerProfilePage;

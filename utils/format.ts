@@ -1,6 +1,6 @@
-import { default as dayjs } from "dayjs";
+import { default as dayjs } from 'dayjs';
 
-import { KEY_CONST } from "@/const";
+import { KEY_CONST } from '@/const';
 
 const formatDate = (
   date: number | string,

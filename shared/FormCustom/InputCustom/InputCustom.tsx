@@ -2,6 +2,7 @@ import { Form, Input } from "antd";
 import { TextAreaProps } from "antd/es/input";
 import React from "react";
 import { Control, Controller } from "react-hook-form";
+import { v4 as uuidv4 } from "uuid";
 
 import { LabelCustom } from "./LabelCustom";
 
@@ -19,7 +20,8 @@ type InputCustomProps = {
   type?: "text" | "password" | "textarea" | "number" | "price";
   extra?: React.ReactNode;
   formItemClassName?: string;
-} & InputProps;
+} & InputProps &
+  TextAreaProps;
 
 const InputCustom: React.FC<InputCustomProps> = ({
   name,
@@ -37,24 +39,42 @@ const InputCustom: React.FC<InputCustomProps> = ({
     const { prefix, suffix, addonBefore, addonAfter, ...textAreaProps } = props;
     return textAreaProps as TextAreaProps; // Return only applicable props for TextArea
   };
+  console.log(
+    "🚀 InputCustom~ ",
+
+    errorMessage,
+    name
+  );
+  const inputId = uuidv4();
   const renderInput = (field: any) => {
     switch (props.type) {
       case "number":
-        return <Input {...field} {...props} size="large" type="number" />;
+        return (
+          <Input
+            size="large"
+            {...field}
+            {...props}
+            type="number"
+            id={inputId}
+          />
+        );
       case "password":
-        return <Password {...field} {...props} size="large" />;
+        return <Password size="large" {...field} {...props} id={inputId} />;
       case "textarea":
         return (
           <TextArea
-            {...field}
-            {...getTextAreaProps()}
-            rows={4}
             maxLength={200}
+            rows={4}
+            {...field}
+            {...props}
+            id={inputId}
           />
         );
 
       default:
-        return <Input {...field} {...props} size="large" type="text" />;
+        return (
+          <Input size="large" {...field} {...props} type="text" id={inputId} />
+        );
     }
   };
 
@@ -65,12 +85,16 @@ const InputCustom: React.FC<InputCustomProps> = ({
       rules={{ required: required }}
       render={({ field, fieldState }) => (
         <Form.Item
-          label={<LabelCustom label={label} required={required} />}
+          label={
+            label && (
+              <LabelCustom label={label} required={required} id={inputId} />
+            )
+          }
           validateStatus={fieldState.invalid ? "error" : ""}
           help={fieldState.invalid ? errorMessage : null}
           className={formItemClassName}
           extra={extra}
-          rootClassName="m-0"
+          rootClassName="m-0 p-0"
         >
           {renderInput(field)}
         </Form.Item>

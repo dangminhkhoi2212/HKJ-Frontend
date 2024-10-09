@@ -1,6 +1,6 @@
-import axiosInterceptor from "@/config/axiosInterceptor";
-import { TCategory, TQuery } from "@/types";
-import { formatUtil } from "@/utils";
+import axiosInterceptor from '@/config/axiosInterceptor';
+import { TCategory, TQuery } from '@/types';
+import { formatUtil } from '@/utils';
 
 const interceptor = axiosInterceptor();
 export const get = async (query: TQuery<{}>) => {

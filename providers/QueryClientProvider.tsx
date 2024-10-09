@@ -13,8 +13,6 @@ const ReactQueryClientProvider: React.FC<Props> = ({ children }) => {
         defaultOptions: {
           queries: {
             refetchOnWindowFocus: false, // Prevents refetching when window regains focus
-            cacheTime: 0, // Disables caching by setting cache time to 0
-            staleTime: 0, // Data is considered stale immediately, forcing refetch
           },
         },
       })

@@ -12,7 +12,7 @@ function doc3So(numb: string): string {
     "Chín",
   ];
 
-  const result = numb
+const result = numb
     .toString()
     .split("")
     .reverse()
