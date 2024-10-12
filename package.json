@@ -24,6 +24,7 @@
         "clean-deep": "^3.4.0",
         "clsx": "^2.1.1",
         "cryptr": "^6.3.0",
+        "gantt-task-react": "^0.3.9",
         "i": "^0.3.7",
         "js-cookie": "^3.0.5",
         "jwt-decode": "^4.0.0",

@@ -1,17 +1,17 @@
-import { App, Button, Form, Space, Tag } from "antd";
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { useMutation } from "react-query";
+import { App, Button, Form, Space, Tag } from 'antd';
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { useMutation } from 'react-query';
 
-import { KEY_CONST } from "@/const";
-import templateService from "@/services/templateService";
-import { InputCustom, LabelCustom } from "@/shared/FormCustom/InputCustom";
-import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
-import { TTemplateUpdate } from "@/types";
-import templateValidation from "@/validations/templateValidation";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { KEY_CONST } from '@/const';
+import templateService from '@/services/templateService';
+import { InputCustom } from '@/shared/FormCustom/InputCustom';
+import { SelectCategoryForm } from '@/shared/FormSelect/SelectCategoryForm';
+import { TTemplateUpdate } from '@/types';
+import templateValidation from '@/validations/templateValidation';
+import { yupResolver } from '@hookform/resolvers/yup';
 
-import { templateStore } from "../store";
+import { templateStore } from '../store';
 
 type TForm = TTemplateUpdate;
 
@@ -74,11 +74,9 @@ const UpdateTemplateForm: React.FC<{}> = () => {
 					errorMessage={errors.name?.message}
 				/>
 				<Space direction="vertical" className="w-full">
-					<LabelCustom label="Loại trang sức" required />
 					<SelectCategoryForm
-						defaultValue={templateUpdate?.category?.id}
-						onChange={onChangeSelect}
-						key={openDrawer.toString()}
+                        control={control}
+                        name="category"
 					/>
 					<span className="text-red-500">
 						{errors.category?.id?.message}

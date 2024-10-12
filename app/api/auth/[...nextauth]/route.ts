@@ -36,7 +36,7 @@ async function refreshAccessToken(token: any) {
 	};
 }
 
-const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
 	providers: [
 		KeycloakProvider({
 			clientId: process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID!,

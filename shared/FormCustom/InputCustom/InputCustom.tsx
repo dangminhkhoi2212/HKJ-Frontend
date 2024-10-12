@@ -1,106 +1,194 @@
-import { Form, Input } from "antd";
+import { DatePicker, Form, Input, Select } from "antd";
 import { TextAreaProps } from "antd/es/input";
+import { SelectProps } from "antd/lib";
+import dayjs from "dayjs";
+import dynamic from "next/dynamic";
 import React from "react";
 import { Control, Controller } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 
-import { LabelCustom } from "./LabelCustom";
+import { KEY_CONST } from "@/const";
 
 import type { InputProps } from "antd/lib/input";
+import { LabelCustom } from "./LabelCustom";
+
+const ReactQuill = dynamic(() => import("react-quill-new"), {
+	ssr: false,
+});
+const { RangePicker } = DatePicker;
 type InputCustomProps = {
-  name: string;
-  label?: string;
-  required?: boolean;
-  allowClear?: InputProps["allowClear"];
-  showCount?: InputProps["showCount"];
-  placeholder?: string;
-  control: Control<any>;
-  errorMessage?: string;
-  tooltip?: string;
-  type?: "text" | "password" | "textarea" | "number" | "price";
-  extra?: React.ReactNode;
-  formItemClassName?: string;
+	name: string;
+	label?: string;
+	required?: boolean;
+	allowClear?: InputProps["allowClear"];
+	showCount?: InputProps["showCount"];
+	placeholder?: string;
+	control: Control<any>;
+	errorMessage?: string;
+	tooltip?: string;
+	type?:
+		| "text"
+		| "password"
+		| "textarea"
+		| "number"
+		| "price"
+		| "rangeDate"
+		| "date"
+		| "select"
+		| "description";
+	extra?: React.ReactNode;
+	formItemClassName?: string;
 } & InputProps &
-  TextAreaProps;
+	TextAreaProps &
+	SelectProps;
 
 const InputCustom: React.FC<InputCustomProps> = ({
-  name,
-  label,
-  required = true,
-  control,
-  errorMessage,
-  extra,
-  formItemClassName,
-  ...props
+	name,
+	label,
+	required = true,
+	control,
+	errorMessage,
+	extra,
+	formItemClassName,
+	...props
 }) => {
-  const { Password, TextArea } = Input;
-  // Filter out unsupported props for TextArea
-  const getTextAreaProps = (): TextAreaProps => {
-    const { prefix, suffix, addonBefore, addonAfter, ...textAreaProps } = props;
-    return textAreaProps as TextAreaProps; // Return only applicable props for TextArea
-  };
-  console.log(
-    "🚀 InputCustom~ ",
+	const { Password, TextArea } = Input;
+	// Filter out unsupported props for TextArea
+	const getTextAreaProps = (): TextAreaProps => {
+		const { prefix, suffix, addonBefore, addonAfter, ...textAreaProps } =
+			props;
+		return textAreaProps as TextAreaProps; // Return only applicable props for TextArea
+	};
 
-    errorMessage,
-    name
-  );
-  const inputId = uuidv4();
-  const renderInput = (field: any) => {
-    switch (props.type) {
-      case "number":
-        return (
-          <Input
-            size="large"
-            {...field}
-            {...props}
-            type="number"
-            id={inputId}
-          />
-        );
-      case "password":
-        return <Password size="large" {...field} {...props} id={inputId} />;
-      case "textarea":
-        return (
-          <TextArea
-            maxLength={200}
-            rows={4}
-            {...field}
-            {...props}
-            id={inputId}
-          />
-        );
+	const inputId = uuidv4();
+	const renderInput = (field: any, fieldState: any) => {
+		switch (props.type) {
+			case "number":
+				return (
+					<Input
+						size="large"
+						{...field}
+						{...props}
+						type="number"
+						id={inputId}
+					/>
+				);
+			case "password":
+				return (
+					<Password size="large" {...field} {...props} id={inputId} />
+				);
+			case "textarea":
+				return (
+					<TextArea
+						maxLength={200}
+						rows={4}
+						{...field}
+						{...props}
+						id={inputId}
+					/>
+				);
+			case "rangeDate":
+				return (
+					<RangePicker
+						allowClear={false}
+						value={
+							field.value
+								? [
+										dayjs(field.value.startDate),
+										dayjs(field.value.endDate),
+									]
+								: undefined
+						} // Handle value
+						onChange={(dates) => {
+							if (dates)
+								field.onChange({
+									startDate: dates![0],
+									endDate: dates![1],
+								});
+						}}
+						size="large"
+						className="w-80"
+						placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
+						format={KEY_CONST.DATE_FORMAT}
+						id={inputId}
+					/>
+				);
+			case "date":
+				return (
+					<DatePicker
+						{...field}
+						{...props}
+						value={dayjs(field.value)}
+						onChange={(value) =>
+							field.onChange(value.toISOString())
+						}
+						size="large"
+						className="w-40"
+						format={KEY_CONST.DATE_FORMAT}
+						id={inputId}
+					/>
+				);
+			case "select":
+				return (
+					<Select
+						size="large"
+						id={inputId}
+						{...field}
+						{...props}
+						options={props.options}
+						onChange={(value) => {
+							field.onChange(value);
+						}}
+					/>
+				);
+			case "description":
+				return (
+					<ReactQuill value={field.value} onChange={field.onChange} />
+				);
+			default:
+				return (
+					<Input
+						size="large"
+						type="text"
+						id={inputId}
+						{...field}
+						{...props}
+					/>
+				);
+		}
+	};
 
-      default:
-        return (
-          <Input size="large" {...field} {...props} type="text" id={inputId} />
-        );
-    }
-  };
-
-  return (
-    <Controller
-      name={name}
-      control={control}
-      rules={{ required: required }}
-      render={({ field, fieldState }) => (
-        <Form.Item
-          label={
-            label && (
-              <LabelCustom label={label} required={required} id={inputId} />
-            )
-          }
-          validateStatus={fieldState.invalid ? "error" : ""}
-          help={fieldState.invalid ? errorMessage : null}
-          className={formItemClassName}
-          extra={extra}
-          rootClassName="m-0 p-0"
-        >
-          {renderInput(field)}
-        </Form.Item>
-      )}
-    />
-  );
+	return (
+		<Controller
+			name={name}
+			control={control}
+			rules={{ required: required }}
+			render={({ field, fieldState }) => (
+				<Form.Item
+					label={
+						label && (
+							<LabelCustom
+								label={label}
+								required={required}
+								id={inputId}
+							/>
+						)
+					}
+					validateStatus={fieldState.invalid ? "error" : ""}
+					help={
+						fieldState.invalid
+							? errorMessage || fieldState.error?.message
+							: null
+					}
+					className={formItemClassName}
+					extra={extra}
+					rootClassName="m-0 p-0"
+				>
+					{renderInput(field, fieldState)}
+				</Form.Item>
+			)}
+		/>
+	);
 };
 
 export default InputCustom;

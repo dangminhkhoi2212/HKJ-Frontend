@@ -15,6 +15,7 @@ const JewelryModelPage: React.FC<{}> = () => {
 			title="Trang sức"
 			buttons={
 				<Button
+					type="primary"
 					icon={<Plus />}
 					onClick={() => router.push(routesManager.createJewelry)}
 				>

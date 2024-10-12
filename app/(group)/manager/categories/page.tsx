@@ -76,6 +76,7 @@ const CategoriesPage: React.FC<{}> = () => {
 			buttons={
 				<Button
 					type="primary"
+					className="shadow-md"
 					icon={<Plus size={18} />}
 					onClick={() => setOpenDrawer(true)}
 				>

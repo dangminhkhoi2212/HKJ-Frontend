@@ -1,5 +1,5 @@
 @import url("react-quill-new/dist/quill.snow.css");
-
+@import "gantt-task-react/dist/index.css";
 @layer tailwind-base {
 	@tailwind base;
 }
