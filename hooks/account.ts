@@ -1,12 +1,9 @@
 "use client";
 import { App } from "antd";
 import { signOut } from "next-auth/react";
-import { useQuery } from "react-query";
 
 import { routes } from "@/routes";
-import { getAccount } from "@/services/accountService";
 import useAccountStore from "@/stores/account";
-import { TAccountInfo } from "@/types";
 
 import { useRouterCustom } from "./router";
 
@@ -14,20 +11,7 @@ export const useAccount = () => {
 	const { setAccount, setIsLoading } = useAccountStore((state) => state);
 	const { message } = App.useApp();
 	const { router } = useRouterCustom();
-	const getAccountApi = useQuery("account", getAccount, {
-		onSuccess: (data) => {
-			console.log("🚀 ~ useAccount ~ data:", data);
-			const account = data as TAccountInfo;
-			setIsLoading(false);
-			setAccount(account);
-		},
-		onError: (error) => {
-			console.log(error);
 
-			message.error("Không thể lấy thông tin tài khoản người dùng");
-		},
-		enabled: false,
-	});
 	async function keycloakSessionLogOut() {
 		try {
 			const res = await fetch(routes.signOut, { method: "GET" });
@@ -49,5 +33,5 @@ export const useAccount = () => {
 			console.log("🚀 ~ signOutAll ~ error:", error);
 		}
 	};
-	return { getAccountApi, signOutAll };
+	return { signOutAll };
 };

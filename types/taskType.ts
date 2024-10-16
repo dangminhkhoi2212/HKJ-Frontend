@@ -1,4 +1,5 @@
 import { TAudit } from "./auditType";
+import { TEmployee } from "./employeeType";
 import { TFilter } from "./filterType";
 import { TPriority } from "./priorityType";
 import { TProject } from "./projectType";
@@ -16,10 +17,16 @@ export type TTask = {
 	priority: TPriority;
 	point: number;
 	project: TProject;
+	employee: TEmployee;
 } & TAudit;
 export type TTaskCreate = Omit<
 	TTask,
 	"id" | "project" | "materials" | "point" | "completedDate" | "coverImage"
+> & { project: { id: number } };
+
+export type TTaskUpdate = Omit<
+	TTask,
+	"project" | "materials" | "point" | "completedDate" | "coverImage"
 > & { project: { id: number } };
 export type TTaskQuery = {
 	projectId: TFilter;

@@ -1,20 +1,26 @@
-import { Button, Image, Space, Table, TableProps, Tag } from "antd";
-import { RotateCcw } from "lucide-react";
-import React, { useCallback, useState } from "react";
-import { useQueries } from "react-query";
+"use client";
+import { Button, Image, Space, Table, TableProps } from "antd";
+import { Pencil, RotateCcw, Trash } from "lucide-react";
+import Link from "next/link";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { QUERY_CONST } from "@/const";
+import { routesManager } from "@/routes";
 import { jewelryService } from "@/services";
+import { InputSearchCustom } from "@/shared/FormCustom/InputSearchCustom";
 import { TQuery } from "@/types";
-import { TJewelry } from "@/types/jewelryType";
+import { TJewelry, TJewelryQuery } from "@/types/jewelryType";
+import { formatUtil } from "@/utils";
+import { useQueries } from "@tanstack/react-query";
 
 const JewelryList: React.FC = () => {
-	const [query, setQuery] = React.useState<TQuery<{}>>({
+	const [query, setQuery] = React.useState<TQuery<TJewelryQuery>>({
 		...QUERY_CONST.defaultQuery,
 	});
 	const [pagination, setPagination] = useState({
 		...QUERY_CONST.initPagination,
 	});
+
 	const [
 		{
 			data: jewelryModels,
@@ -26,24 +32,33 @@ const JewelryList: React.FC = () => {
 			refetch: refreshjewelryModelsCount,
 			isLoading: isLoadingjewelryModelsCount,
 		},
-	] = useQueries([
-		{
-			queryKey: ["jewelry-model", { ...query }],
-			queryFn: () => jewelryService.get(query),
-		},
-		{
-			queryKey: ["jewelry-model-count", { ...query }],
-			queryFn: () => jewelryService.getCount(query),
-			onSuccess(data: number) {
-				setPagination({ ...pagination, total: data });
+	] = useQueries({
+		queries: [
+			{
+				queryKey: ["jewelry-model", { ...query }],
+				queryFn: () => jewelryService.get(query),
 			},
-		},
-	]);
+			{
+				queryKey: ["jewelry-model-count", { ...query }],
+				queryFn: () => jewelryService.getCount(query),
+			},
+		],
+	});
+	useEffect(() => {
+		setPagination({ ...pagination, total: jewelryModelsCount as number });
+	}, [jewelryModelsCount]);
 	const columns: TableProps<TJewelry>["columns"] = [
+		{
+			title: "ID",
+			dataIndex: "id",
+			key: "id",
+			width: 100,
+		},
 		{
 			title: "Ảnh bìa",
 			dataIndex: "coverImage",
 			key: "coverImage",
+			width: 100,
 			render(value, record, index) {
 				return (
 					<Image
@@ -69,34 +84,81 @@ const JewelryList: React.FC = () => {
 			title: "Giá",
 			dataIndex: "price",
 			key: "price",
-		},
 
+			render(value, record, index) {
+				return formatUtil.formatCurrency(value);
+			},
+		},
 		{
-			title: "Đã kích hoạt",
-			dataIndex: "activated",
-			key: "activated",
-			render: (value: boolean) =>
-				value ? (
-					<Tag color="green">Đã kích hoạt</Tag>
-				) : (
-					<Tag color="red">Chưa kích hoạt</Tag>
-				),
+			title: "Tạo bởi",
+			dataIndex: "createdBy",
+			key: "createdBy",
+		},
+		{
+			title: "Ngày tạo",
+			dataIndex: "createdDate",
+			key: "createdDate",
+
+			render(value, record, index) {
+				return formatUtil.formatDate(value);
+			},
+		},
+		{
+			title: "Ngày chỉnh sửa",
+			dataIndex: "lastModifiedDate",
+			key: "lastModifiedDate",
+
+			render(value, record, index) {
+				return formatUtil.formatDate(value);
+			},
+		},
+		{
+			title: "Tùy chọn",
+			dataIndex: "actions",
+			key: "actions",
+			fixed: "right",
+
+			render: (_, record) => (
+				<Space>
+					<Link href={routesManager.updateJewelry(record.id)}>
+						<Button color="primary" icon={<Pencil size={16} />} />
+					</Link>
+					<Button
+						danger
+						icon={<Trash size={16} />}
+						onClick={() => {
+							// setTemplateDelete(record);
+						}}
+					/>
+				</Space>
+			),
 		},
 	];
 	const refresh = useCallback(() => {
 		refreshjewelryModels();
 		refreshjewelryModelsCount();
 	}, []);
-
+	const handleSearch = (value: string) => {
+		setQuery({ ...query, name: { contains: value } });
+	};
 	return (
 		<Space direction="vertical" className="flex">
-			<Button icon={<RotateCcw size={18} onClick={() => refresh()} />}>
-				Làm mới
-			</Button>
+			<Space>
+				<Button
+					icon={<RotateCcw size={18} />}
+					onClick={() => refresh()}
+				>
+					Làm mới
+				</Button>
+				<InputSearchCustom handleSearch={handleSearch} />
+			</Space>
 			<Table
 				columns={columns}
 				dataSource={jewelryModels}
 				rowKey="id"
+				pagination={{ position: ["bottomRight"] }}
+				scroll={{ x: 1500, scrollToFirstRowOnChange: true }}
+				// className="text-nowrap overflow-auto"
 				loading={isLoadingjewelryModels || isLoadingjewelryModelsCount}
 			/>
 		</Space>

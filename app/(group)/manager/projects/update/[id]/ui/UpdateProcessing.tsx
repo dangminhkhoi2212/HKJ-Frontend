@@ -1,16 +1,18 @@
 "use client";
 import { Button, Divider, Empty, Skeleton, Space, Switch, Tag } from "antd";
 import dayjs from "dayjs";
-import { Gantt, ViewMode } from "gantt-task-react";
+import { Gantt, Task, ViewMode } from "gantt-task-react";
 import { Plus, RotateCcw } from "lucide-react";
-import React from "react";
-import { useQuery } from "react-query";
+import React, { memo, useEffect, useMemo, useState } from "react";
 
+import { useRouterCustom } from "@/hooks";
 import taskService from "@/services/taskService";
 import { TPriority, TTask } from "@/types";
+import { useQuery } from "@tanstack/react-query";
 
 import { updateProjectStore } from "../store";
 import CreateTask from "./CreateTask";
+import UpdateTask from "./UpdateTask";
 
 type Props = {};
 const colorPriority = (priority: TPriority): string => {
@@ -26,7 +28,7 @@ const colorPriority = (priority: TPriority): string => {
 			return "#F1D4D4";
 	}
 };
-const MapAnotations: React.FC<{}> = () => (
+export const MapAnotations = memo(() => (
 	<Space className="flex">
 		<Space direction="vertical">
 			<p className="font-semibold">Độ ưu tiên</p>
@@ -45,36 +47,60 @@ const MapAnotations: React.FC<{}> = () => (
 			</Space>
 		</Space>
 	</Space>
-);
+));
 const UpdateProcessing: React.FC<Props> = ({}) => {
-	const { project, setShowCreateTask, tasks, addTask, setTasks } =
+	const { project, setShowCreateTask, setShowUpdateTask, showUpdateTask } =
 		updateProjectStore();
+	console.log("🚀UpdateProcessing ~ project:", project);
+	const { params } = useRouterCustom();
+	const [projectId, setProjectId] = useState<number | null>(() => {
+		return params.id;
+	});
+	const [showModal, setShowModal] = useState<{
+		show: boolean;
+		task: { id: number; name: string } | null;
+	}>({
+		show: false,
+		task: null,
+	});
+	const [tasksGantt, setTasksGantt] = useState<Task[]>([]);
+	console.log("🚀 ~ tasksGantt:", tasksGantt);
 	const [showList, setShowList] = React.useState(true);
-	const { data, refetch, isLoading, isFetching } = useQuery({
-		queryKey: ["tasks", project?.id],
+	const {
+		data: tasks,
+		refetch,
+		isPending,
+		isFetching,
+		isSuccess,
+		error,
+	} = useQuery({
+		queryKey: ["tasks", projectId],
 		queryFn: () =>
 			taskService.get({
-				projectId: { equals: project?.id },
+				projectId: { equals: project?.id! },
+				sort: "assignedDate,asc",
 			}),
-		onSuccess(data: TTask[]) {
-			console.log("🚀 ~ onSuccess ~ data:", data);
-			setTasks([]);
-			if (project && project.startDate && project.endDate)
-				addTask({
+		enabled: !!project?.id!,
+	});
+	useEffect(() => {
+		if (isSuccess) {
+			const tasksChart: Task[] = [
+				{
 					start: dayjs(project?.startDate).toDate(),
 					end: dayjs(project?.endDate).toDate(),
 					name: "DA: " + project?.name!,
 					project: project?.name,
-					id: project.id.toString(),
+					id: project!.id.toString(),
 					type: "project",
 					progress: 100,
 					isDisabled: false,
 					styles: {
-						progressColor: colorPriority(project.priority!),
+						progressColor: colorPriority(project!.priority!),
 					},
-				});
-			data.forEach((task: TTask) => {
-				addTask({
+				},
+			];
+			tasks?.forEach((task: TTask) => {
+				tasksChart.push({
 					start: dayjs(task?.assignedDate!).toDate(),
 					end: dayjs(task?.expectDate).toDate(),
 					name: "CĐ: " + task?.name!,
@@ -88,65 +114,79 @@ const UpdateProcessing: React.FC<Props> = ({}) => {
 					},
 				});
 			});
-		},
-	});
-	if (!tasks.length) return <Empty description="Không có dữ liệu" />;
+			setTasksGantt(tasksChart);
+		} else {
+			console.log("🚀 ~ useEffect ~ error:", error);
+		}
+	}, [tasks, refetch, project]);
 
+	const renderGantt = useMemo(() => {
+		if (isPending || isFetching) {
+			return (
+				<Skeleton
+					active={isPending || isFetching}
+					loading={isPending || isFetching}
+				/>
+			);
+		}
+		if (tasksGantt!.length) {
+			return (
+				<Gantt
+					tasks={tasksGantt}
+					locale="vi" // Sets locale to Vietnamese (if supported)
+					headerHeight={60}
+					columnWidth={60}
+					// Custom labels for translation
+					listCellWidth={showList ? "155px" : ""}
+					onClick={(data) => {
+						setShowUpdateTask({
+							show: true,
+							task: tasks?.find(
+								(item) => item.id.toString() === data.id
+							)!,
+						});
+					}}
+					viewMode={ViewMode.Day}
+				/>
+			);
+		}
+		return <Empty description="Chưa có dữ liệu"></Empty>;
+	}, [isPending, isFetching, tasksGantt, showList]);
 	return (
 		<div>
-			{isLoading || isFetching ? (
-				<Skeleton
-					active={isLoading || isFetching}
-					loading={isLoading || isFetching}
-				/>
-			) : (
-				<Space direction="vertical" className="flex" size={"large"}>
-					<CreateTask />
-					<Space className="flex justify-between">
-						<Button
-							icon={<RotateCcw size={18} />}
-							onClick={() => refetch()}
-						>
-							Làm mới
-						</Button>
-						<Space>
-							<Switch
-								checked={showList}
-								onChange={() => {
-									setShowList(!showList);
-								}}
-							/>
-							{showList ? "Hiển thị danh sách" : "Ẩn danh sách"}
-						</Space>
-						<Button
-							icon={<Plus size={18} />}
-							onClick={() => setShowCreateTask(true)}
-						>
-							Giao việc
-						</Button>
-					</Space>
+			<Space direction="vertical" className="flex" size={"large"}>
+				<CreateTask />
+				{showUpdateTask?.task && <UpdateTask />}
+				<Space className="flex justify-between">
+					<Button
+						icon={<RotateCcw size={18} />}
+						onClick={() => refetch()}
+					>
+						Làm mới
+					</Button>
 					<Space>
-						<MapAnotations />
+						<Switch
+							checked={showList}
+							onChange={() => {
+								setShowList(!showList);
+							}}
+						/>
+						{showList ? "Hiển thị danh sách" : "Ẩn danh sách"}
 					</Space>
-					<Gantt
-						tasks={tasks}
-						locale="vi" // Sets locale to Vietnamese (if supported)
-						headerHeight={60}
-						columnWidth={60}
-						// Custom labels for translation
-						listCellWidth={showList ? "155px" : ""}
-						onClick={(data) => {
-							console.log("🚀onClick ~ data:", data);
-							return;
-						}}
-						onProgressChange={(data) => {
-							console.log("onProgressChange ~ data:", data);
-							return;
-						}}
-						viewMode={ViewMode.Day}
-					/>
+					<Button
+						icon={<Plus size={18} />}
+						type="primary"
+						onClick={() => setShowCreateTask(true)}
+					>
+						Giao việc
+					</Button>
 				</Space>
-			)}
+				<Space>
+					<MapAnotations />
+				</Space>
+
+				{renderGantt}
+			</Space>
 		</div>
 	);
 };

@@ -6,4 +6,4 @@ export { default as numToTextUtil } from "./numToTextUtil"; // Check for spellin
 export { default as queryUtil } from "./queryUtil"; // Check for spelling 'sortUtil'
 export * from "./sessionTokenAccessor";
 export { default as sortUtil } from "./sorter"; // Check for spelling 'sortUtil'
-
+export { default as tagMapperUtil } from "./tagMapperUtil"; // Check for spelling 'sortUtil'

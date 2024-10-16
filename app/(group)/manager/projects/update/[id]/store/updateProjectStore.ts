@@ -1,7 +1,7 @@
 import { Task } from "gantt-task-react";
 import { create } from "zustand";
 
-import { TProject } from "@/types";
+import { TProject, TTask } from "@/types";
 
 type TState = {
 	projectId?: number | null;
@@ -9,7 +9,12 @@ type TState = {
 	tab?: number | null;
 	isLoading: boolean;
 	showCreateTask: boolean;
+	showUpdateTask: TUpdateTask;
 	tasks: Task[];
+};
+type TUpdateTask = {
+	show: boolean;
+	task: TTask | null;
 };
 type TActions = {
 	reset: () => void;
@@ -18,6 +23,7 @@ type TActions = {
 	setTab: (data: number | null) => void;
 	setIsLoading: (data: boolean) => void;
 	setShowCreateTask: (data: boolean) => void;
+	setShowUpdateTask: (data: TUpdateTask) => void;
 	setTasks: (data: Task[]) => void;
 	addTask: (data: Task) => void;
 };
@@ -28,6 +34,10 @@ const initValues: TState = {
 	project: null,
 	isLoading: true,
 	showCreateTask: false,
+	showUpdateTask: {
+		show: false,
+		task: null,
+	},
 	tasks: [],
 };
 export const updateProjectStore = create<TState & TActions>((set, get) => ({
@@ -49,6 +59,9 @@ export const updateProjectStore = create<TState & TActions>((set, get) => ({
 	},
 	setShowCreateTask(data) {
 		set({ showCreateTask: data });
+	},
+	setShowUpdateTask(data) {
+		set({ showUpdateTask: data });
 	},
 	addTask(data: Task) {
 		set({ tasks: [...get().tasks, { ...data }] });

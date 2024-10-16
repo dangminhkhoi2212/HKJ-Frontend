@@ -3,7 +3,6 @@ import { App, Button, Form, Space, Switch, Tag } from "antd";
 import dynamic from "next/dynamic";
 import React from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import * as yup from "yup";
 
 import { KEY_CONST } from "@/const";
@@ -17,8 +16,9 @@ import NumberToWords from "@/shared/FormCustom/InputNumToWords/InputNumToWords";
 import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
 import jewelryValidation from "@/validations/jewelryValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useMutation } from "@tanstack/react-query";
 
-import { createJewelryStore } from "../../store";
+import { createJewelryStore } from "../store";
 
 const CreateDescription = dynamic(() => import("./CreateDescription"), {
 	ssr: false,
@@ -37,7 +37,7 @@ type TFormJewelry = yup.InferType<
 >["__outputType"];
 const initValue: TFormJewelry = {
 	name: "",
-	wieght: 0,
+	weight: 0,
 	color: "",
 	active: true,
 	isCustom: false,
@@ -53,13 +53,14 @@ const CreateBasicForm: React.FC<Props> = () => {
 	const {
 		control,
 		watch,
+		setValue,
 		handleSubmit,
 		formState: { errors },
 	} = methods;
 	console.log("🚀 ~ errors:", errors);
 	const { setJewelry, next } = createJewelryStore();
 	const message = App.useApp().message;
-	const { data, mutate, isLoading } = useMutation({
+	const { data, mutate, isPending } = useMutation({
 		mutationFn: (data: TFormJewelry) => {
 			console.log("🚀 ~ mutate ~ data:", data);
 
@@ -106,10 +107,10 @@ const CreateBasicForm: React.FC<Props> = () => {
 						/>
 						<InputNumberCustom
 							control={control}
-							name="wieght"
+							name="weight"
 							label="Khối lượng"
 							placeholder="Khối lượng"
-							errorMessage={errors?.wieght?.message!}
+							errorMessage={errors?.weight?.message!}
 							className="max-w-44"
 							suffix=" gram"
 						/>
@@ -129,18 +130,26 @@ const CreateBasicForm: React.FC<Props> = () => {
 						direction="vertical"
 						size="large"
 					>
-						<Controller
-							control={control}
-							name="category.id"
-							render={({ field }) => (
-								<SelectCategoryForm
-									onChange={(value) => field.onChange(value)}
-									errorMessage={
-										errors?.category?.id?.message!
-									}
-								/>
-							)}
-						/>
+						<Space direction="vertical">
+							<SelectCategoryForm
+								placeholder="Chọn loại trang sức"
+								onChange={(value) => {
+									setValue("category.id", value, {
+										shouldValidate: true,
+									});
+								}}
+								status={
+									(errors?.category?.message ||
+										errors?.category?.id?.message) &&
+									"error"
+								}
+							/>
+							<span className="text-red-500">
+								{errors?.category?.message ||
+									errors?.category?.id?.message}
+							</span>
+						</Space>
+
 						<Controller
 							control={control}
 							name="active"
@@ -188,9 +197,9 @@ const CreateBasicForm: React.FC<Props> = () => {
 				<div className="flex justify-end">
 					<Button
 						type="primary"
-						// htmlType="submit"
-						loading={isLoading}
-						onClick={() => next()}
+						htmlType="submit"
+						loading={isPending}
+						// onClick={() => next()}
 					>
 						Tạo
 					</Button>

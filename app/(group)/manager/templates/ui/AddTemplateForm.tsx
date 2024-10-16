@@ -1,7 +1,6 @@
 import { App, Button, Form, Space, Tag } from "antd";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 
 import { KEY_CONST } from "@/const";
 import templateService from "@/services/templateService";
@@ -10,6 +9,7 @@ import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
 import { TTemplateCreate } from "@/types";
 import templateValidation from "@/validations/templateValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useMutation } from "@tanstack/react-query";
 
 import { templateStore } from "../store";
 
@@ -38,7 +38,7 @@ const AddTemplateForm: React.FC<{}> = () => {
 		setValue("category.id", caterogyId, { shouldValidate: true });
 	};
 
-	const { data, mutate, isLoading } = useMutation({
+	const { data, mutate, isPending } = useMutation({
 		mutationFn: (data: TForm) => templateService.create(data),
 		onSuccess(data, variables, context) {
 			message.success("Đã tạo bảng bảng mẫu thành công");
@@ -70,6 +70,8 @@ const AddTemplateForm: React.FC<{}> = () => {
 				/>
 				<Space direction="vertical" className="w-full">
 					<SelectCategoryForm
+						control={control}
+						name="category"
 						onChange={onChangeSelect}
 						key={openDrawer.toString()}
 					/>
@@ -81,7 +83,7 @@ const AddTemplateForm: React.FC<{}> = () => {
 					<Button
 						type="primary"
 						htmlType="submit"
-						loading={isLoading}
+						loading={isPending}
 					>
 						Tạo
 					</Button>

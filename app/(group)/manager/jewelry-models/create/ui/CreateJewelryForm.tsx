@@ -1,11 +1,11 @@
 "use client";
 import { Space, Steps } from "antd";
-import React from "react";
+import React, { useEffect } from "react";
 
-import { createJewelryStore } from "../../store";
+import { createJewelryStore } from "../store";
 import CreateBasicForm from "./CreateBasicForm";
 import CreateImageForm from "./CreateImagesForm";
-import CreateJewelryProject from "./CreateJewelryProject";
+import CreateJewelryProject from "./CreateJeweleryProjectForm";
 
 const items = [
 	{
@@ -15,15 +15,18 @@ const items = [
 		title: "Hình ảnh",
 	},
 	{
-		title: "Quy trình",
-	},
-	{
 		title: "Kết quả",
 	},
 ];
 type Props = {};
 const CreateJewelryForm: React.FC<Props> = () => {
-	const { step } = createJewelryStore();
+	const { step, reset } = createJewelryStore();
+
+	useEffect(() => {
+		return () => {
+			reset();
+		};
+	}, []);
 	const forms = [
 		{
 			key: "1",

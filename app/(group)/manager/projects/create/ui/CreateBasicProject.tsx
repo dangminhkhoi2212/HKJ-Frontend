@@ -4,7 +4,6 @@ import dayjs from "dayjs";
 import dynamic from "next/dynamic";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import * as yup from "yup";
 
 import { KEY_CONST } from "@/const";
@@ -17,19 +16,22 @@ import {
 	LabelCustom,
 } from "@/shared/FormCustom/InputCustom";
 import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
-import { SelectJewelryForm } from "@/shared/FormSelect/SelectJewelryForm";
-import { TProject, TProjectCreate, TStatus, TStatusMapper } from "@/types";
-import { TPriority, TPriorityMapper } from "@/types/priorityType";
+import useAccountStore from "@/stores/account";
+import { TProject, TProjectCreate, TStatus } from "@/types";
+import { TPriority } from "@/types/priorityType";
+import { tagMapperUtil } from "@/utils";
 import projectValidation from "@/validations/projectValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useMutation } from "@tanstack/react-query";
 
+const { TPriorityMapper, TStatusMapper } = tagMapperUtil;
 const ReactQuill = dynamic(() => import("react-quill-new"), {
 	ssr: false,
 });
 
 const { projectSchema } = projectValidation;
 type Props = {};
-const schema = projectSchema.omit(["id", "coverImage"]);
+const schema = projectSchema.omit(["id", "coverImage", "jewelry"]);
 type TForm = yup.InferType<yup.ObjectSchema<typeof schema>>["__outputType"];
 const initValue: TForm = {
 	name: "",
@@ -46,33 +48,32 @@ const initValue: TForm = {
 	notes: "",
 	status: TStatus.NEW,
 	category: { id: 0, name: "" },
-	jewelry: { id: null, name: "" },
+	manager: { id: 0 },
 };
 
 const CreateBasicProject: React.FC<Props> = ({}) => {
 	const message = App.useApp().message;
+	const account = useAccountStore((state) => state.account);
 	const {
 		control,
 		handleSubmit,
 		setValue,
 		formState: { errors },
 	} = useForm<TForm>({
-		defaultValues: initValue,
+		defaultValues: { ...initValue, manager: { id: account?.id } },
 		resolver: yupResolver(schema),
 	});
 	const { router } = useRouterCustom();
 
-	const { data, mutate, isLoading } = useMutation({
+	const { data, mutate, isPending } = useMutation({
 		mutationFn: (data: TForm) => {
 			const dataConvert: TProjectCreate = {
 				...data,
-				...(data.jewelry.id && { jewelry: { id: data.jewelry.id! } }),
 				coverImage: "",
 				category: { id: data.category.id },
-				startDate: data.date.startDate,
-				endDate: data.date.endDate,
+				startDate: dayjs(data.date.startDate).toISOString(),
+				endDate: dayjs(data.date.endDate).toISOString(),
 			};
-			if (!data.jewelry.id) delete dataConvert.jewelry;
 			return projectService.create(dataConvert);
 		},
 		onSuccess(data: TProject) {
@@ -167,15 +168,25 @@ const CreateBasicProject: React.FC<Props> = ({}) => {
 						errorMessage={errors?.priority?.message}
 					/>
 
-					<SelectCategoryForm
-						name="category"
-						control={control}
-						errorMessage={
-							errors?.category?.message ||
-							errors?.category?.id?.message
-						}
-					/>
-					<SelectJewelryForm control={control} />
+					<Space direction="vertical">
+						<SelectCategoryForm
+							placeholder="Chọn loại trang sức"
+							onChange={(value) => {
+								setValue("category.id", value, {
+									shouldValidate: true,
+								});
+							}}
+							status={
+								(errors?.category?.message ||
+									errors?.category?.id?.message) &&
+								"error"
+							}
+						/>
+						<span className="text-red-500">
+							{errors?.category?.message ||
+								errors?.category?.id?.message}
+						</span>
+					</Space>
 				</Space>
 			</div>
 			<div>
@@ -194,7 +205,7 @@ const CreateBasicProject: React.FC<Props> = ({}) => {
 				/>
 			</div>
 			<div className="flex justify-end">
-				<Button type="primary" htmlType="submit" loading={isLoading}>
+				<Button type="primary" htmlType="submit" loading={isPending}>
 					Tạo
 				</Button>
 			</div>

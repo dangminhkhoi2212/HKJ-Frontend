@@ -12,7 +12,6 @@ import {
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
-import { useMutation } from "react-query";
 
 import { useRouterCustom } from "@/hooks";
 import { routesManager } from "@/routes";
@@ -28,6 +27,7 @@ import NumberToWords from "@/shared/FormCustom/InputNumToWords/InputNumToWords";
 import { TMaterial } from "@/types";
 import materialValidation from "@/validations/materialValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useMutation } from "@tanstack/react-query";
 
 const items = [
 	{

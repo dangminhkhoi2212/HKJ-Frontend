@@ -27,22 +27,19 @@ const TabProject: React.FC<Props> = ({}) => {
 		{
 			label: `Thông tin`,
 			key: "1",
-			children: renderChildren(
-				project,
-				isLoading,
-				<UpdateBasicProject />
-			),
+			children: <UpdateBasicProject />,
 		},
 		{
 			label: `Quy trình`,
 			key: "2",
-			children: renderChildren(project, isLoading, <UpdateProcessing />),
+			children: <UpdateProcessing />,
 		},
 	];
 	return (
 		<Tabs
 			defaultActiveKey={tab?.toString()}
 			size={"middle"}
+			tabPosition="left"
 			accessKey={tab?.toString()}
 			activeKey={tab?.toString()}
 			tabIndex={tab!}

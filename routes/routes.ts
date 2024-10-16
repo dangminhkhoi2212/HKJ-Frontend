@@ -15,8 +15,11 @@ export const routesManager = {
 	material: "/manager/materials",
 	addMaterial: "/manager/materials/add",
 	jewelry: "/manager/jewelry-models",
+	updateMaterial: (id: string | number) => `/manager/materials/update/${id}`,
+
 	createJewelry: "/manager/jewelry-models/create",
-	updateMaterial: (id: string) => `/manager/materials/update/${id}`,
+	updateJewelry: (id: string | number) =>
+		`/manager/jewelry-models/update/${id}`,
 
 	project: "/manager/projects",
 	createProject: "/manager/projects/create",

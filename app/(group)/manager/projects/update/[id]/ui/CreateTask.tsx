@@ -1,33 +1,32 @@
-import { Form, Modal } from "antd";
+import { DatePicker, Form, Modal, Spin } from "antd";
 import dayjs from "dayjs";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import * as yup from "yup";
 
+import { useRouterCustom } from "@/hooks";
 import taskService from "@/services/taskService";
 import { InputCustom } from "@/shared/FormCustom/InputCustom";
 import { SelectEmployeeForm } from "@/shared/FormSelect/SelectEmployeeForm";
-import {
-	TEmployee,
-	TPriority,
-	TPriorityMapper,
-	TStatus,
-	TStatusMapper,
-} from "@/types";
+import { TEmployee, TPriority, TStatus } from "@/types";
 import { TTaskCreate } from "@/types/taskType";
+import { tagMapperUtil } from "@/utils";
 import taskValidation from "@/validations/taskValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { updateProjectStore } from "../store";
 
+const { TPriorityMapper, TStatusMapper } = tagMapperUtil;
+const { RangePicker } = DatePicker;
 type Props = {};
 const schema = taskValidation.createTaskSchema;
 type TForm = yup.InferType<yup.ObjectSchema<typeof schema>>["__outputType"];
 
 const CreateTask: React.FC<Props> = ({}) => {
-	const { showCreateTask, setShowCreateTask, projectId, addTask } =
-		updateProjectStore();
+	const { showCreateTask, setShowCreateTask, project } = updateProjectStore();
+	const { params } = useRouterCustom();
+	console.log("🚀 ~ params:", params);
 	const [initValue, setInitValue] = useState<TForm>({
 		name: "",
 		description: "",
@@ -37,10 +36,10 @@ const CreateTask: React.FC<Props> = ({}) => {
 			startDate: dayjs().toISOString(),
 			endDate: dayjs().add(1, "week").toISOString(),
 		},
-		project: { id: projectId! },
+		project: { id: project?.id! },
 		employee: { id: 0 },
 	});
-	console.log("🚀 ~ showCreateTask:", showCreateTask);
+
 	const {
 		control,
 		handleSubmit,
@@ -53,43 +52,34 @@ const CreateTask: React.FC<Props> = ({}) => {
 		mode: "all",
 	});
 	console.log("🚀 ~ errors:", errors);
+	const queryClient = useQueryClient();
 
-	const { data, mutate, isLoading } = useMutation({
+	const { data, mutateAsync, isPending } = useMutation({
 		mutationFn: (data: TForm) => {
 			const dataConvert: TTaskCreate = {
 				...data,
 				assignedDate: dayjs(data.date.startDate!).toISOString(),
 				expectDate: dayjs(data.date.endDate!).toISOString(),
-				project: {
-					id: projectId!,
-				},
 			};
 			if ("date" in dataConvert) delete dataConvert.date;
 			console.log("🚀 ~ dataConvert:", dataConvert);
 			return taskService.create(dataConvert);
 		},
 		onSuccess(data, variables, context) {
-			reset(initValue);
-			addTask({
-				start: dayjs(data?.assignedDate).toDate(),
-				end: dayjs(data?.expectDate).toDate(),
-				name: data?.name!,
-				project: data?.name,
-				id: data.id.toString(),
-				type: "task",
-				progress: 100,
-				isDisabled: false,
-				styles: {
-					progressColor: "#ffbb54",
-					progressSelectedColor: "#ff9e0d",
-				},
+			queryClient.invalidateQueries({
+				queryKey: ["tasks", project?.id],
 			});
 		},
 		onSettled() {
-			setShowCreateTask(false);
 			reset(initValue);
+			setShowCreateTask(false);
 		},
 	});
+	useEffect(() => {
+		return () => {
+			reset(initValue);
+		};
+	}, [showCreateTask]);
 	return (
 		<Modal
 			title="Giao việc"
@@ -97,60 +87,70 @@ const CreateTask: React.FC<Props> = ({}) => {
 			okText="Tạo"
 			cancelText="Hủy"
 			onClose={() => setShowCreateTask(false)}
-			onOk={() => handleSubmit((data) => mutate(data))()}
+			onOk={() => handleSubmit((data) => mutateAsync(data))()}
 			onCancel={() => setShowCreateTask(false)}
-			okButtonProps={{ loading: isLoading }}
-			loading={isLoading}
+			okButtonProps={{ loading: isPending }}
 		>
-			<Form layout="vertical" className="flex flex-col gap-5">
-				<SelectEmployeeForm
-					control={control}
-					name="employee.id"
-					onChange={(data: TEmployee) => {
-						setValue("employee.id", data.id!);
-					}}
-				/>
-				<InputCustom
-					control={control}
-					name="name"
-					label="Tên công đoạn"
-					placeholder="Tên công đoạn"
-				/>
-				<InputCustom
-					control={control}
-					name="date"
-					label="Thời gian dự án"
-					type="rangeDate"
-				/>
+			<Spin spinning={isPending}>
+				<Form
+					layout="vertical"
+					className="flex flex-col gap-5 max-h-96 overflow-auto"
+				>
+					<SelectEmployeeForm
+						control={control}
+						name="employee.id"
+						onChange={(data: TEmployee) => {
+							setValue("employee.id", data.id!);
+						}}
+					/>
+					<InputCustom
+						control={control}
+						name="name"
+						label="Tên công đoạn"
+						placeholder="Tên công đoạn"
+					/>
+					<InputCustom
+						control={control}
+						name="date"
+						label="Thời gian dự án"
+						type="rangeDate"
+						minDate={dayjs(project?.startDate)}
+						maxDate={dayjs(project?.endDate)}
+					/>
 
-				<InputCustom
-					control={control}
-					name="status"
-					label="Trạng thái"
-					type="select"
-					options={Object.entries(TStatus).map(([key, value]) => ({
-						label: TStatusMapper(value),
-						value: key,
-					}))}
-					className="w-40"
-				/>
-				<InputCustom
-					control={control}
-					name="priority"
-					label="Độ ưu tiên"
-					type="select"
-					options={Object.entries(TPriority).map(([key, value]) => ({
-						label: TPriorityMapper(value),
-						value: key,
-					}))}
-					className="w-40"
-				/>
-				<InputCustom
-					control={control}
-					name="description"
-					type="description"
-				/>
-			</Form>
+					<InputCustom
+						control={control}
+						name="status"
+						label="Trạng thái"
+						type="select"
+						options={Object.entries(TStatus).map(
+							([key, value]) => ({
+								label: TStatusMapper(value),
+								value: key,
+							})
+						)}
+						className="w-40"
+					/>
+					<InputCustom
+						control={control}
+						name="priority"
+						label="Độ ưu tiên"
+						type="select"
+						options={Object.entries(TPriority).map(
+							([key, value]) => ({
+								label: TPriorityMapper(value),
+								value: key,
+							})
+						)}
+						className="w-40"
+					/>
+					<InputCustom
+						control={control}
+						name="description"
+						type="description"
+					/>
+				</Form>
+			</Spin>
 		</Modal>
 	);
 };

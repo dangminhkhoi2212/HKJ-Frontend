@@ -19,10 +19,12 @@ import {
 
 import { routesAdmin, routesManager } from "@/routes";
 
-export const menuUser: MenuProps["items"] = [
+type MenuItem = Required<MenuProps>["items"][number];
+export const menuUser: MenuItem[] = [
 	{
 		key: "1",
 		icon: <LayoutDashboard size={18} />,
+
 		label: "Trang chủ",
 	},
 	{
@@ -46,14 +48,14 @@ export const menuUser: MenuProps["items"] = [
 		label: "Nhắn tin",
 	},
 ];
-export const menuEmployee: MenuProps["items"] = [
+export const menuEmployee: MenuItem[] = [
 	{
 		key: "1",
 		icon: <MessageCircle size={18} />,
 		label: "Công việc hôm nay",
 	},
 ];
-export const menuManager: MenuProps["items"] = [
+export const menuManager: MenuItem[] = [
 	{
 		key: routesManager.project,
 		icon: <FolderClosed size={18} />,

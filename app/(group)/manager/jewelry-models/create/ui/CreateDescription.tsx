@@ -1,3 +1,4 @@
+"use client";
 import { useFormContext } from "react-hook-form";
 import ReactQuill from "react-quill-new";
 

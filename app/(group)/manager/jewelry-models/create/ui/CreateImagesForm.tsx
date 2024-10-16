@@ -3,7 +3,6 @@ import { App, Button, Form, Space } from "antd";
 import { UploadFile } from "antd/lib";
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import * as yup from "yup";
 
 import { KEY_CONST } from "@/const";
@@ -13,8 +12,9 @@ import { LabelCustom } from "@/shared/FormCustom/InputCustom";
 import { InputImage } from "@/shared/FormCustom/InputImage";
 import { TJewelryImageCreate } from "@/types/jewelryImageType";
 import jewelryValidation from "@/validations/jewelryValidation";
+import { useMutation } from "@tanstack/react-query";
 
-import { createJewelryStore } from "../../store";
+import { createJewelryStore } from "../store";
 
 const schema = jewelryValidation.jewelrySchema.pick(["coverImage", "images"]);
 type TForm = yup.InferType<yup.ObjectSchema<typeof schema>>["__outputType"];
@@ -61,7 +61,7 @@ const CreateImageForm: React.FC<{}> = () => {
 			};
 		});
 
-		await jewelryImageService.createMutiple(imagesCreate);
+		await jewelryImageService.createMultiple(imagesCreate);
 	};
 	const createCoverImage = async () => {
 		const images = getValues("coverImage");
@@ -73,13 +73,14 @@ const CreateImageForm: React.FC<{}> = () => {
 			images,
 			folderImage
 		);
+		console.log("🚀 ~ createCoverImage ~ imageUrls:", imageUrls);
 
-		await jewelryService.update({
-			...jewelry!,
+		await jewelryService.updatePartical({
+			id: jewelry?.id!,
 			coverImage: imageUrls[0],
 		});
 	};
-	const { data, mutate, isLoading } = useMutation({
+	const { data, mutate, isPending } = useMutation({
 		mutationFn: async () => {
 			return await Promise.all([
 				await createImages(),
@@ -121,7 +122,7 @@ const CreateImageForm: React.FC<{}> = () => {
 				</div>
 				<Space className="flex justify-end">
 					<Button
-						disabled={isLoading}
+						disabled={isPending}
 						onClick={() => {
 							next();
 						}}
@@ -131,7 +132,7 @@ const CreateImageForm: React.FC<{}> = () => {
 					<Button
 						type="primary"
 						htmlType="submit"
-						loading={isLoading}
+						loading={isPending}
 					>
 						Thêm
 					</Button>

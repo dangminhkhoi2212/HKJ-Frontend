@@ -1,17 +1,17 @@
-import { App, Button, Form, Space, Tag } from 'antd';
-import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { useMutation } from 'react-query';
+import { App, Button, Form, Space, Tag } from "antd";
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
 
-import { KEY_CONST } from '@/const';
-import templateService from '@/services/templateService';
-import { InputCustom } from '@/shared/FormCustom/InputCustom';
-import { SelectCategoryForm } from '@/shared/FormSelect/SelectCategoryForm';
-import { TTemplateUpdate } from '@/types';
-import templateValidation from '@/validations/templateValidation';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { KEY_CONST } from "@/const";
+import templateService from "@/services/templateService";
+import { InputCustom } from "@/shared/FormCustom/InputCustom";
+import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
+import { TTemplateUpdate } from "@/types";
+import templateValidation from "@/validations/templateValidation";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useMutation } from "@tanstack/react-query";
 
-import { templateStore } from '../store';
+import { templateStore } from "../store";
 
 type TForm = TTemplateUpdate;
 
@@ -39,7 +39,7 @@ const UpdateTemplateForm: React.FC<{}> = () => {
 		setValue("category.id", caterogyId, { shouldValidate: true });
 	};
 
-	const { data, mutate, isLoading } = useMutation({
+	const { data, mutate, isPending } = useMutation({
 		mutationFn: (data: TForm) => templateService.update(data),
 		onSuccess(data, variables, context) {
 			message.success("Đã cập nhật bảng bảng mẫu thành công");
@@ -74,10 +74,7 @@ const UpdateTemplateForm: React.FC<{}> = () => {
 					errorMessage={errors.name?.message}
 				/>
 				<Space direction="vertical" className="w-full">
-					<SelectCategoryForm
-                        control={control}
-                        name="category"
-					/>
+					<SelectCategoryForm control={control} name="category" />
 					<span className="text-red-500">
 						{errors.category?.id?.message}
 					</span>
@@ -86,7 +83,7 @@ const UpdateTemplateForm: React.FC<{}> = () => {
 					<Button
 						type="primary"
 						htmlType="submit"
-						loading={isLoading}
+						loading={isPending}
 					>
 						Cập nhật
 					</Button>

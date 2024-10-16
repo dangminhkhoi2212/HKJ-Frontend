@@ -1,35 +1,33 @@
 "use client";
 
-import { Button, Space, Table, TableProps } from "antd";
+import { Button, Space, Table, TablePaginationConfig, TableProps } from "antd";
 import { Pencil, RotateCcw, Trash } from "lucide-react";
-import React from "react";
-import { useQuery } from "react-query";
+import Link from "next/link";
+import React, { useCallback, useEffect, useState } from "react";
 
+import { QUERY_CONST } from "@/const";
 import { useRouterCustom } from "@/hooks";
 import { routesManager } from "@/routes";
 import projectService from "@/services/projectService";
 import { InputSearchCustom } from "@/shared/FormCustom/InputSearchCustom";
 import { TProject } from "@/types";
-import { formatUtil } from "@/utils";
+import { formatUtil, tagMapperUtil } from "@/utils";
+import { useQuery } from "@tanstack/react-query";
 
 import { projectStore } from "../store";
 
+const { TPriorityColorMapper, TStatusColorMapper } = tagMapperUtil;
 type TProps = {};
 
 const ProjectList: React.FC<TProps> = () => {
-	const {
-		setOpenDrawer,
-		pagination,
-		setQuery,
-		query,
-		setPagination,
-		setToggleRefresh,
-		setTemplateDelete,
-		setTemplateUpdate,
-	} = projectStore();
+	const { setQuery, query, setToggleRefresh, setTemplateDelete, reset } =
+		projectStore();
 
 	const { router } = useRouterCustom();
-
+	const [pagination, setPagination] = useState<TablePaginationConfig>({
+		...QUERY_CONST.initPagination,
+		total: 0,
+	});
 	const handleTableChange: TableProps<TProject>["onChange"] = (
 		pagination,
 		filters,
@@ -41,7 +39,11 @@ const ProjectList: React.FC<TProps> = () => {
 		});
 		setPagination(pagination);
 	};
-
+	useEffect(() => {
+		return () => {
+			reset();
+		};
+	}, []);
 	const handleOnChangeSearch = (value: string) => {
 		setQuery({
 			...query,
@@ -69,6 +71,22 @@ const ProjectList: React.FC<TProps> = () => {
 			key: "createdBy",
 		},
 		{
+			title: "Trạng thái",
+			dataIndex: "status",
+			key: "status",
+			render(value, record, index) {
+				return TStatusColorMapper(value);
+			},
+		},
+		{
+			title: "Ưu tiên",
+			dataIndex: "priority",
+			key: "priority",
+			render(value, record, index) {
+				return TPriorityColorMapper(value);
+			},
+		},
+		{
 			title: "Ngày tạo",
 			dataIndex: "createdDate",
 			key: "createdDate",
@@ -86,15 +104,11 @@ const ProjectList: React.FC<TProps> = () => {
 			key: "actions",
 			render: (_, record) => (
 				<Space>
+					<Link href={routesManager.updateProject(record.id)}>
+						<Button type="primary" icon={<Pencil size={16} />} />
+					</Link>
 					<Button
-						type="text"
-						icon={<Pencil size={16} />}
-						onClick={() => {
-							router.push(routesManager.updateProject(record.id));
-						}}
-					/>
-					<Button
-						type="text"
+						type="primary"
 						danger
 						icon={<Trash size={16} />}
 						onClick={() => {
@@ -108,17 +122,30 @@ const ProjectList: React.FC<TProps> = () => {
 
 	// Handle expanded row changes
 
-	const { data, refetch, isLoading } = useQuery({
+	const { data, refetch, isPending, isFetching } = useQuery({
 		queryKey: ["projects", { ...query }],
 		queryFn: () => projectService.get(query),
 	});
+	const {
+		data: count,
+		refetch: refetchCount,
+		isPending: isLoadingCount,
+		isFetching: isFetchingCount,
+	} = useQuery({
+		queryKey: ["projects-count", { ...query }],
+		queryFn: () => projectService.getCount(query),
+	});
+	const refresh = useCallback(() => {
+		refetch();
+		refetchCount();
+	}, []);
 
 	return (
 		<div>
 			<Space className="mb-4">
 				<Button
 					icon={<RotateCcw size={16} />}
-					onClick={() => setToggleRefresh()}
+					onClick={() => refresh()}
 				>
 					Làm mới
 				</Button>
@@ -131,7 +158,9 @@ const ProjectList: React.FC<TProps> = () => {
 			<Table
 				columns={columns}
 				dataSource={data!}
-				loading={isLoading}
+				loading={
+					isPending || isLoadingCount || isFetching || isFetchingCount
+				}
 				pagination={pagination}
 				onChange={handleTableChange}
 				// expandable={{

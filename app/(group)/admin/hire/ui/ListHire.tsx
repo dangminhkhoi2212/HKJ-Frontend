@@ -4,7 +4,6 @@ import { TableProps } from "antd/lib";
 import cleanDeep from "clean-deep";
 import { Eye, RotateCcw } from "lucide-react";
 import { useEffect, useId, useState } from "react";
-import { useQueries } from "react-query";
 
 import { QUERY_CONST } from "@/const";
 import { useRouterCustom } from "@/hooks";
@@ -13,6 +12,7 @@ import { InputSearchCustom } from "@/shared/FormCustom/InputSearchCustom";
 import { TQuery } from "@/types";
 import { THire, THireQuery } from "@/types/hireType";
 import { formatUtil, sortUtil } from "@/utils";
+import { useQueries } from "@tanstack/react-query";
 
 import HireDisplay from "./HireDisplay";
 
@@ -38,27 +38,25 @@ const ListHire: React.FC<{}> = () => {
 	);
 
 	const [selectHire, setSelectHire] = useState<TSelectHire>({ show: false });
-	const [getHires, getHiresCount] = useQueries([
-		{
-			queryKey: ["hires", query], // Pass the query state as part of the key
-			queryFn: () => hireService.get(query),
-			onSuccess(data: THire[]) {
-				setData(data);
-			}, // Pass the query object
-			onError(error: any) {
-				console.log("🚀 ~ file: ListHire.tsx:ListHire ~ error:", error);
+	const [getHires, getHiresCount] = useQueries({
+		queries: [
+			{
+				queryKey: ["hires", query], // Pass the query state as part of the key
+				queryFn: () => hireService.get(query),
 			},
-		},
-		{
-			queryKey: ["hires-count", query], // Use the same query object for count
-			queryFn: () => hireService.getCount(query),
-			onSuccess: (data: number) =>
-				setPagination({ ...pagination, total: data }),
-			onError: (error: any) => {
-				console.log("🚀 ~ file: ListHire.tsx:ListHire ~ error:", error);
+			{
+				queryKey: ["hires-count", query], // Use the same query object for count
+				queryFn: () => hireService.getCount(query),
 			},
-		},
-	]);
+		],
+	});
+
+	if (getHires.isSuccess) {
+		setData(getHires.data as THire[]);
+	}
+	if (getHiresCount.isSuccess) {
+		setPagination({ ...pagination, total: getHiresCount.data as number });
+	}
 	const columns: TableProps<THire>["columns"] = [
 		{
 			title: "Họ Tên",

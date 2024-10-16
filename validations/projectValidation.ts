@@ -44,6 +44,12 @@ const projectSchema = yup.object({
 		name: yup.string(),
 		coverImage: yup.string(),
 	}),
+	manager: yup.object({
+		id: yup
+			.number()
+			.min(1, REQUIRED_FIELD_MESSAGE)
+			.required(REQUIRED_FIELD_MESSAGE),
+	}),
 });
 const projectValidation = { projectSchema };
 export default projectValidation;

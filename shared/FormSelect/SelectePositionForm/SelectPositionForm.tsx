@@ -1,13 +1,13 @@
 import { Button, Divider, List, Skeleton } from "antd";
 import React, { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { useQueries } from "react-query";
 
 import positionService from "@/services/positionService";
 import { InputSearchCustom } from "@/shared/FormCustom/InputSearchCustom";
 import { TQuery } from "@/types";
 import { TPosition, TPositionQuery } from "@/types/postionType";
 import { queryUtil } from "@/utils";
+import { useQueries } from "@tanstack/react-query";
 
 type TPros = {
 	onChange: (selectedPosition: TPosition) => void;

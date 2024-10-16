@@ -1,2 +1,2 @@
-export { default as ReactQueryClientProvider } from "./QueryClientProvider";
-export * from "./SessionProvider";
+export { default as QueryClientProvider } from "./QueryClientProvider";
+export { default as SessionProvider } from "./SessionProvider";

@@ -1,9 +1,10 @@
+"use client";
 import { App, Modal } from "antd";
 import React from "react";
-import { useMutation } from "react-query";
 
 import { KEY_CONST } from "@/const";
 import templateService from "@/services/templateService";
+import { useMutation } from "@tanstack/react-query";
 
 import { templateStore } from "../store";
 
@@ -16,7 +17,7 @@ const DeleteTemplateFrom: React.FC<{}> = ({}) => {
 	const {
 		data: _,
 		mutate,
-		isLoading,
+		isPending,
 	} = useMutation({
 		mutationFn: () => {
 			return templateService.deleteOne(templateDelete?.id!);
@@ -36,8 +37,8 @@ const DeleteTemplateFrom: React.FC<{}> = ({}) => {
 			onOk={() => mutate()}
 			open={!!templateDelete}
 			onCancel={() => setTemplateDelete(null)}
-			okButtonProps={{ danger: true, loading: isLoading }}
-			cancelButtonProps={{ disabled: isLoading }}
+			okButtonProps={{ danger: true, loading: isPending }}
+			cancelButtonProps={{ disabled: isPending }}
 		>
 			<p>
 				Bạn có muốn xóa bản mầu{" "}

@@ -1,8 +1,7 @@
 "use client";
-import { Divider, Layout, Menu } from "antd";
-import { ItemType, MenuItemType } from "antd/es/menu/interface";
-import { MenuProps } from "antd/lib";
-import { usePathname, useRouter } from "next/navigation";
+import { Divider, Layout, Menu, MenuProps } from "antd";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 import { AUTHORIZATIONS_CONST } from "@/const";
@@ -15,12 +14,9 @@ import { menuAdmin, menuEmployee, menuManager, menuUser } from "./menus";
 
 const { Sider } = Layout;
 const AUTHORIZATIONS = AUTHORIZATIONS_CONST.AUTHORIZATIONS;
-const renderMenu = (
-	role: string | null | undefined
-): ItemType<MenuItemType>[] | undefined => {
-	console.log("🚀 ~ role:", role);
-	console.log(AUTHORIZATIONS.ROLE_EMPLOYEE.toString());
-
+type MenuItem = Required<MenuProps>["items"][number];
+// Helper to render the correct menu based on the role
+const renderMenu = (role: string | null | undefined): MenuProps["items"] => {
 	switch (role) {
 		case AUTHORIZATIONS.ROLE_USER.toString():
 			return menuUser;
@@ -34,39 +30,49 @@ const renderMenu = (
 			return [];
 	}
 };
+
+const convertMenu = (menu: MenuItem[]): MenuItem[] => {
+	return menu.map((item: MenuItem) => {
+		if ("label" in item!) {
+			return {
+				...item,
+				label: <Link href={item?.key?.toString()!}>{item.label}</Link>,
+			} as MenuItem;
+		} else {
+			return item;
+		}
+	});
+};
 const Sidebar: React.FC<{}> = () => {
-	const router = useRouter();
-	const pathname = usePathname();
-	const [menus, setMenus] = useState<ItemType<MenuItemType>[] | undefined>(
-		[]
-	);
+	const pathname = usePathname(); // Current path
+	const [menus, setMenus] = useState<MenuItem[]>([]);
 	const account: TAccountInfo | null | undefined = useAccountStore(
 		(state) => state.account
 	);
+	const collapsed: boolean = useStyleStore((state) => state.collapsed);
 	const [defaultSelectedKey, setDefaultSelectedKey] = useState<
 		string | undefined
-	>(pathname);
-	const [selectedKey, setSelectedKey] = useState<string | undefined>(
-		defaultSelectedKey
-	);
-	const collapsed: boolean = useStyleStore((state) => state.collapsed);
-	const onClick: MenuProps["onClick"] = (e) => {
-		const key: string = e.key;
-		setSelectedKey(key);
-		router.push(key);
-	};
+	>();
+	const [selectedKey, setSelectedKey] = useState<string | undefined>();
+
 	useEffect(() => {
-		// Determine which menu to display based on the current pathname
-		const menuItems: ItemType[] | undefined | null = renderMenu(
+		// Set menu based on the role
+		const menuItems: MenuProps["items"] = renderMenu(
 			account?.authorities![0]
 		);
-		const defaultSelected: string | undefined =
-			(menuItems?.length ?? 0) > 0 ? menuItems![0]?.key?.toString() : "1";
-		setMenus(menuItems || []);
-		setDefaultSelectedKey(defaultSelected);
-	}, [account]);
 
-	// Determine the default selected key by getting the key of the first item in the menu
+		// Set the default selected key as the first item in the menu
+		const firstPageKey: string | undefined =
+			menuItems?.[0]?.key?.toString();
+		setMenus(convertMenu(menuItems!) || []);
+		setDefaultSelectedKey(firstPageKey); // First menu item as default
+		setSelectedKey(
+			menus
+				?.find((menu) => pathname.includes(menu?.key?.toString()!))
+				?.key?.toString()
+		); // Highlight the current route
+	}, [account, pathname]);
+
 	return (
 		<Sider trigger={null} collapsible theme="light" collapsed={collapsed}>
 			<div className="flex justify-center items-center h-[64px]">
@@ -76,15 +82,14 @@ const Sidebar: React.FC<{}> = () => {
 			<Menu
 				theme="light"
 				mode="inline"
-				className=""
 				defaultSelectedKeys={[defaultSelectedKey?.toString()!]}
-				selectedKeys={
-					selectedKey ? [selectedKey?.toString()!] : undefined
-				}
-				onClick={onClick}
+				// selectedKeys={[selectedKey?.toString()!]}
+				// openKeys={[selectedKey?.toString()!]}
+				defaultOpenKeys={[defaultSelectedKey?.toString()!]}
 				items={menus}
 			/>
 		</Sider>
 	);
 };
+
 export default Sidebar;

@@ -1,68 +1,53 @@
 "use client";
 import { Select, Space } from "antd";
 import { SelectProps } from "antd/lib";
-import React, { useState } from "react";
-import { Control, Controller } from "react-hook-form";
-import { useQuery } from "react-query";
+import React, { useEffect, useState } from "react";
 
 import categoryService from "@/services/categoryService";
 import { LabelCustom } from "@/shared/FormCustom/InputCustom";
 import { TCategory } from "@/types";
+import { useQuery } from "@tanstack/react-query";
 
-const SelectCategoryForm: React.FC<
-	SelectProps & { errorMessage?: string; name: string; control: Control<any> }
-> = ({ errorMessage, name, control, ...props }) => {
+const SelectCategoryForm: React.FC<SelectProps> = ({ ...props }) => {
 	const [data, setData] = useState<SelectProps["options"]>([]);
 	const [query] = useState({ page: 0, size: 100 });
 
 	// Using useQuery to fetch categories once
-	const { data: categories, isLoading: isLoadingCategories } = useQuery({
+	const {
+		data: categories,
+		refetch,
+		isLoading: isLoadingCategories,
+	} = useQuery({
 		queryKey: ["categories", query],
 		queryFn: () => categoryService.get(query),
-		onSuccess: (response: TCategory[]) => {
-			const options: { value: number; label: string }[] = response.map(
-				(item) => ({
-					value: item.id,
-					label: item.name,
-				})
-			);
-			setData((prev) => [...prev!, ...options]);
-		},
-		onError: (error: any) => {
-			console.error("Error fetching categories:", error);
-		},
+
 		enabled: !data?.length,
 	});
+	useEffect(() => {
+		const options: { value: number; label: string; key: number }[] =
+			categories?.map((item: TCategory) => ({
+				value: item.id,
+				key: item.id,
+				label: item.name,
+			}));
+		console.log("🚀 ~ useEffect ~ options:", options);
+		if (options?.length) setData([...options]);
+	}, [refetch, categories]);
 
 	return (
-		<Controller
-			name={name}
-			control={control}
-			render={({ field, fieldState }) => (
-				<Space direction="vertical">
-					<LabelCustom label="Loại trang sức" required />
-					<Select
-						status={fieldState.invalid ? "error" : undefined}
-						size="large"
-						style={{ width: "100%" }}
-						placeholder="Chọn loại trang sức"
-						onChange={(value, option) => {
-							field.onChange({
-								id: value,
-								name: data?.find((item) => item.value === value)
-									?.label,
-							});
-						}}
-						disabled={isLoadingCategories}
-						options={data}
-						value={field.value?.id}
-						loading={isLoadingCategories}
-						{...props}
-					/>
-					<span className="text-red-500">{errorMessage}</span>
-				</Space>
-			)}
-		/>
+		<Space direction="vertical">
+			<LabelCustom label="Loại trang sức" required />
+			<Select
+				status={props.status ? "error" : undefined}
+				size="large"
+				style={{ width: "100%" }}
+				placeholder="Chọn loại trang sức"
+				disabled={isLoadingCategories}
+				options={data}
+				loading={isLoadingCategories}
+				{...props}
+			/>
+		</Space>
 	);
 };
 

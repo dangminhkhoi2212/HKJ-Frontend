@@ -2,7 +2,6 @@ import { App, Button, DatePicker, Empty, Form, Modal } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 
 import { KEY_CONST } from "@/const";
 import { hireService } from "@/services";
@@ -21,6 +20,7 @@ import { TPosition } from "@/types/postionType";
 import { cn } from "@/utils";
 import { hireEmployeeSchema } from "@/validations/hireEmployee";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useMutation } from "@tanstack/react-query";
 
 const { RangePicker } = DatePicker;
 

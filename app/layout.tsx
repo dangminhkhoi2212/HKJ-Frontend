@@ -1,4 +1,3 @@
-import "antd/dist/reset.css";
 import "./globals.css";
 
 import { getServerSession } from "next-auth";
@@ -6,8 +5,7 @@ import { Roboto } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
 import { Suspense } from "react";
 
-import ReactQueryProvider from "@/providers/QueryClientProvider";
-import SessionProvoider from "@/providers/SessionProvider";
+import { QueryClientProvider, SessionProvider } from "@/providers";
 import { LayoutConfig } from "@/shared/LayoutConfig";
 import { Security } from "@/shared/Security";
 import { cn } from "@/utils";
@@ -39,8 +37,8 @@ export default function RootLayout({
 				suppressHydrationWarning={true}
 			>
 				<NextTopLoader showSpinner={false} />
-				<SessionProvoider session={session}>
-					<ReactQueryProvider>
+				<QueryClientProvider>
+					<SessionProvider session={session}>
 						<LayoutConfig>
 							<AntdRegistry>
 								<Suspense fallback={<Loading />}>
@@ -48,8 +46,8 @@ export default function RootLayout({
 								</Suspense>
 							</AntdRegistry>
 						</LayoutConfig>
-					</ReactQueryProvider>
-				</SessionProvoider>
+					</SessionProvider>
+				</QueryClientProvider>
 			</body>
 		</html>
 	);

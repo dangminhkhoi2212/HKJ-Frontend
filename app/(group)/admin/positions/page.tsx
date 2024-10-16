@@ -10,7 +10,6 @@ import {
 import cleanDeep from "clean-deep";
 import { Pencil, Plus, RefreshCcw, Trash } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useQueries } from "react-query";
 
 import { QUERY_CONST } from "@/const";
 import { useRouterCustom } from "@/hooks/router";
@@ -24,6 +23,7 @@ import {
 	TSelectedPosition,
 } from "@/types/postionType";
 import { formatUtil, sortUtil } from "@/utils";
+import { useQueries } from "@tanstack/react-query";
 
 import AddPositionForm from "./ui/AddPositionForm";
 import DeletePositionForm from "./ui/DeletePositionForm";

@@ -13,13 +13,13 @@ import {
 import React, { useCallback, useEffect, useState } from "react";
 import { Control, Controller, useWatch } from "react-hook-form";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { useQueries } from "react-query";
 
 import { jewelryService } from "@/services";
 import { LabelCustom } from "@/shared/FormCustom/InputCustom";
 import { InputSearchCustom } from "@/shared/FormCustom/InputSearchCustom";
 import { TJewelry, TJewelryQuery, TQuery } from "@/types";
 import { queryUtil } from "@/utils";
+import { useQueries } from "@tanstack/react-query";
 
 interface SelectJewelryFormProps {
 	onChange?: (selectedJewelry: TJewelry) => void;
@@ -51,25 +51,30 @@ const SelectJewelryForm: React.FC<SelectJewelryFormProps> = ({
 		name: "jewelry.coverImage", // Specify the field you want to watch
 	});
 	// Queries for fetching jewelry items and count
-	const [getJewelryQuery, getCountQuery] = useQueries([
-		{
-			queryKey: ["jewelry", query],
-			queryFn: () => jewelryService.get(query),
-			onSuccess: (newItems: TJewelry[]) => {
-				setJewelryItems((prevItems) =>
-					query.page === 0 ? newItems : [...prevItems, ...newItems]
-				);
+	const [getJewelryQuery, getCountQuery] = useQueries({
+		queries: [
+			{
+				queryKey: ["jewelry", query],
+				queryFn: () => jewelryService.get(query),
+
+				staleTime: 5000, // Cache stale time for query
 			},
-			staleTime: 5000, // Cache stale time for query
-		},
-		{
-			queryKey: ["jewelry-count", query],
-			queryFn: () => jewelryService.getCount(query),
-			onSuccess: (count: number) => {
-				setTotalCount(count);
+			{
+				queryKey: ["jewelry-count", query],
+				queryFn: () => jewelryService.getCount(query),
 			},
-		},
-	]);
+		],
+	});
+	useEffect(() => {
+		const newItems = getJewelryQuery.data || [];
+		setJewelryItems((prevItems) =>
+			query.page === 0 ? newItems : [...prevItems, ...newItems]
+		);
+	}, [getJewelryQuery]);
+
+	useEffect(() => {
+		setTotalCount(getCountQuery.data!);
+	}, [getCountQuery]);
 
 	// Memoized functions to avoid re-creation
 	const loadMoreData = useCallback(() => {

@@ -2,7 +2,6 @@ import { App, Button, Form } from "antd";
 import { Plus } from "lucide-react";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 
 import { KEY_CONST } from "@/const";
 import templateStepService from "@/services/templateStepService";
@@ -10,6 +9,7 @@ import { InputCustom } from "@/shared/FormCustom/InputCustom";
 import { TTemplateStepCreate } from "@/types";
 import templateStepValidation from "@/validations/templateStepValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useMutation } from "@tanstack/react-query";
 
 import { templateStepStore, templateStore } from "../store";
 

@@ -1,7 +1,7 @@
 import { TCategory } from "./categoryType";
-import { TJewelry } from "./jewelryType";
 import { TPriority } from "./priorityType";
 import { TStatus } from "./statusType";
+import { TUserExtra } from "./userExtraType";
 
 export type TProject = {
 	id: number;
@@ -17,8 +17,8 @@ export type TProject = {
 	actualCost: number;
 	qualityCheck: boolean;
 	notes: string;
-	jewelry: Omit<TJewelry, "project">;
 	category: TCategory;
+	manager: TUserExtra;
 };
 
 export type TProjectCreate = {
@@ -35,7 +35,7 @@ export type TProjectCreate = {
 	qualityCheck: boolean;
 	notes?: string;
 	category: { id: number };
-	jewelry?: { id?: number | null } | null;
+	manager: { id: number };
 };
 
 export type TProjectUpdate = TProjectCreate & { id: number };

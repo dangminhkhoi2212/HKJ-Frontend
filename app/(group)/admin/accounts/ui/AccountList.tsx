@@ -3,11 +3,11 @@ import { App, Button, Table, TablePaginationConfig, Tag } from "antd";
 import { TableProps } from "antd/lib";
 import { RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useMutation, useQuery } from "react-query";
 
 import { AUTHORIZATIONS_CONST, QUERY_CONST } from "@/const";
 import { keyCloakService, userExtraService } from "@/services";
 import { TAccountSync } from "@/types";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 const colorsTag = ["success", "processing", "error", "warning"];
 type TAccountKeyCloak = TAccount[];
@@ -123,35 +123,7 @@ const AccountList: React.FC<{}> = () => {
 	const getUsersQuery = useQuery({
 		queryKey: ["keycloak-users", { ...query }],
 		queryFn: () => keyCloakService.getUsers({}),
-		onSuccess(data: TAccountKeyCloak) {
-			console.log("🚀 ~ onSuccess ~ data:", data);
-			setKeyCloakData(data);
-			findRoleForUsers(data);
-		},
-		onError(error) {
-			console.log("🚀 getUsersQuery keycloak~ onSuccess ~ error:", error);
-		},
 	});
-	const getRoleUseMutation = useMutation({
-		mutationFn: (id: string) => {
-			return keyCloakService.getRoleUser(id);
-		},
-	});
-	const getUsersCountQuery = useQuery({
-		queryKey: ["keycloak-users-count", { ...query }],
-		queryFn: () => keyCloakService.getUsersCount(query),
-		onSuccess(data: number) {
-			setPagination((pre) => ({ ...pre, total: data }));
-		},
-		onError(error) {
-			console.log("🚀 getUsersQuery keycloak~ onSuccess ~ error:", error);
-		},
-	});
-
-	const refresh = () => {
-		getUsersQuery.refetch();
-		getUsersCountQuery.refetch();
-	};
 	const findRoleForUsers = async (data: TAccountKeyCloak) => {
 		console.log("🚀 ~ findRoleForUsers ~ call:");
 		try {
@@ -176,6 +148,31 @@ const AccountList: React.FC<{}> = () => {
 			console.error("Error fetching roles for users:", error);
 		}
 	};
+	if (getUsersQuery.isSuccess) {
+		const data: TAccountKeyCloak = getUsersQuery.data;
+		console.log("🚀 ~ onSuccess ~ data:", data);
+		setKeyCloakData(data);
+		findRoleForUsers(data);
+	}
+	const getRoleUseMutation = useMutation({
+		mutationFn: (id: string) => {
+			return keyCloakService.getRoleUser(id);
+		},
+	});
+	const getUsersCountQuery = useQuery({
+		queryKey: ["keycloak-users-count", { ...query }],
+		queryFn: () => keyCloakService.getUsersCount(query),
+	});
+	if (getUsersCountQuery.isSuccess) {
+		const data = getUsersCountQuery.data;
+		setPagination((pre) => ({ ...pre, total: data }));
+	}
+
+	const refresh = () => {
+		getUsersQuery.refetch();
+		getUsersCountQuery.refetch();
+	};
+
 	useEffect(() => {
 		refresh();
 	}, []);

@@ -15,7 +15,6 @@ const AccountButton: React.FC<{}> = () => {
 	const account: TAccountInfo | null | undefined = useAccountStore(
 		(state) => state.account
 	);
-	const isLoading: boolean = useAccountStore((state) => state.isLoading);
 	const { signOutAll } = useAccount();
 	const items: MenuProps["items"] = [
 		{
@@ -41,9 +40,7 @@ const AccountButton: React.FC<{}> = () => {
 		borderRadius: token.borderRadiusLG,
 		boxShadow: token.boxShadowSecondary,
 	};
-	if (isLoading) {
-		return <Spin />;
-	}
+
 	return (
 		<>
 			{account ? (

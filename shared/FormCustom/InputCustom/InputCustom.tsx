@@ -1,7 +1,7 @@
 import { DatePicker, Form, Input, Select } from "antd";
 import { TextAreaProps } from "antd/es/input";
 import { SelectProps } from "antd/lib";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import dynamic from "next/dynamic";
 import React from "react";
 import { Control, Controller } from "react-hook-form";
@@ -9,9 +9,9 @@ import { v4 as uuidv4 } from "uuid";
 
 import { KEY_CONST } from "@/const";
 
-import type { InputProps } from "antd/lib/input";
 import { LabelCustom } from "./LabelCustom";
 
+import type { InputProps } from "antd/lib/input";
 const ReactQuill = dynamic(() => import("react-quill-new"), {
 	ssr: false,
 });
@@ -38,6 +38,8 @@ type InputCustomProps = {
 		| "description";
 	extra?: React.ReactNode;
 	formItemClassName?: string;
+	minDate?: Dayjs;
+	maxDate?: Dayjs;
 } & InputProps &
 	TextAreaProps &
 	SelectProps;
@@ -50,6 +52,8 @@ const InputCustom: React.FC<InputCustomProps> = ({
 	errorMessage,
 	extra,
 	formItemClassName,
+	minDate,
+	maxDate,
 	...props
 }) => {
 	const { Password, TextArea } = Input;
@@ -111,6 +115,8 @@ const InputCustom: React.FC<InputCustomProps> = ({
 						placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
 						format={KEY_CONST.DATE_FORMAT}
 						id={inputId}
+						minDate={minDate!}
+						maxDate={maxDate!}
 					/>
 				);
 			case "date":
@@ -126,6 +132,8 @@ const InputCustom: React.FC<InputCustomProps> = ({
 						className="w-40"
 						format={KEY_CONST.DATE_FORMAT}
 						id={inputId}
+						minDate={minDate!}
+						maxDate={maxDate!}
 					/>
 				);
 			case "select":
@@ -153,6 +161,9 @@ const InputCustom: React.FC<InputCustomProps> = ({
 						id={inputId}
 						{...field}
 						{...props}
+						onChange={(value) => {
+							field.onChange(value);
+						}}
 					/>
 				);
 		}

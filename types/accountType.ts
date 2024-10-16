@@ -1,56 +1,57 @@
 import { AUTHORIZATIONS_CONST } from "@/const";
 
 import { TAudit } from "./auditType";
+import { TQuery } from "./queryType";
 
 const AUTHORIZATIONS = AUTHORIZATIONS_CONST.AUTHORIZATIONS;
 type TPassword = {
-  password: string;
+	password: string;
 };
 type TConfirmPassword = {
-  confirmPassword: string;
+	confirmPassword: string;
 };
 export type TSignIn = {
-  username: string;
+	username: string;
 } & TPassword;
 export type TFirstName = {
-  firstName: string;
+	firstName: string;
 };
 export type TLastName = {
-  lastName: string;
+	lastName: string;
 };
 export type TEmail = {
-  email: string;
+	email: string;
 };
 export type TPhone = {
-  phone: string;
+	phone: string;
 };
 
 export type TAccontQuery = {
-  role: keyof typeof AUTHORIZATIONS;
-};
+	role?: keyof typeof AUTHORIZATIONS;
+} & TQuery;
 
 export type TAccountInfo = {
-  id?: number;
-  userId?: string;
-  idKeyCloak?: string;
-  login?: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  imageUrl?: string;
-  phone?: string;
-  activated?: boolean;
-  langKey?: string;
-  authorities?: string[];
-  address?: string;
+	id?: number;
+	userId?: string;
+	idKeyCloak?: string;
+	login?: string;
+	firstName?: string;
+	lastName?: string;
+	email?: string;
+	imageUrl?: string;
+	phone?: string;
+	activated?: boolean;
+	langKey?: string;
+	authorities?: string[];
+	address?: string;
 } & TAudit;
 export type TAccountSync = {
-  userId: string;
-  login: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  address?: string;
-  authorities?: string[];
+	userId: string;
+	login: string;
+	firstName: string;
+	lastName: string;
+	email: string;
+	phone?: string;
+	address?: string;
+	authorities?: string[];
 };

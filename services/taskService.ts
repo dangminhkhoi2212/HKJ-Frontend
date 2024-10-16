@@ -1,11 +1,5 @@
 import axiosInterceptor from "@/config/axiosInterceptor";
-import {
-	TProjectUpdate,
-	TQuery,
-	TTask,
-	TTaskCreate,
-	TTaskQuery,
-} from "@/types";
+import { TQuery, TTask, TTaskCreate, TTaskQuery, TTaskUpdate } from "@/types";
 import { formatUtil } from "@/utils";
 
 const interceptor = axiosInterceptor();
@@ -26,7 +20,7 @@ export const getCount = async (query: TQuery<{}>): Promise<number> => {
 		})
 	).data;
 };
-export const update = async (data: TProjectUpdate) => {
+export const update = async (data: TTaskUpdate) => {
 	return (await interceptor.put(`/hkj-tasks/${data.id}`, data)).data;
 };
 export const deleteOne = async (id: number) => {
