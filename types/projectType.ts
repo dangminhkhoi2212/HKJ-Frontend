@@ -1,7 +1,8 @@
-import { TCategory } from "./categoryType";
-import { TPriority } from "./priorityType";
-import { TStatus } from "./statusType";
-import { TUserExtra } from "./userExtraType";
+import { TCategory } from './categoryType';
+import { TFilter } from './filterType';
+import { TPriority } from './priorityType';
+import { TStatus } from './statusType';
+import { TUserExtra } from './userExtraType';
 
 export type TProject = {
 	id: number;
@@ -39,4 +40,9 @@ export type TProjectCreate = {
 };
 
 export type TProjectUpdate = TProjectCreate & { id: number };
-export type TProjectQuery = { id: number };
+export type TProjectQuery = {
+	id?: TFilter;
+	name?: TFilter;
+	status?: TFilter;
+	priority?: TFilter;
+};

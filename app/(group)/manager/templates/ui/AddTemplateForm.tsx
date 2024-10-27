@@ -1,3 +1,4 @@
+"use client";
 import { App, Button, Form, Space, Tag } from "antd";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -70,8 +71,6 @@ const AddTemplateForm: React.FC<{}> = () => {
 				/>
 				<Space direction="vertical" className="w-full">
 					<SelectCategoryForm
-						control={control}
-						name="category"
 						onChange={onChangeSelect}
 						key={openDrawer.toString()}
 					/>

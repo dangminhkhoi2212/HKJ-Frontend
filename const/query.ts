@@ -1,43 +1,44 @@
-import { TablePaginationConfig } from 'antd';
+import { TablePaginationConfig } from "antd";
 
-import { TQuery } from '@/types';
+import { TQuery } from "@/types";
 
 interface SortOption {
-  asc: string;
-  desc: string;
+	asc: string;
+	desc: string;
 }
 type SortField = "lastModifiedDate" | "createdDate" | "id";
 const createSortOption = (field?: SortField): SortOption | undefined => {
-  if (!field?.trim()) {
-    return undefined;
-  }
+	if (!field?.trim()) {
+		return undefined;
+	}
 
-  const normalizedField = field.trim();
+	const normalizedField = field.trim();
 
-  return {
-    asc: `${normalizedField},asc`,
-    desc: `${normalizedField},desc`,
-  };
+	return {
+		asc: `${normalizedField},asc`,
+		desc: `${normalizedField},desc`,
+	};
 };
 
 const PAGE: number = 0;
-const PAGE_SIZE: number = 5;
+const PAGE_SIZE: number = 20;
 const DEFAULT_CURRENT_PAGE: number = 1;
 const initPagination: TablePaginationConfig = {
-  pageSize: PAGE_SIZE,
-  defaultCurrent: DEFAULT_CURRENT_PAGE,
-  current: DEFAULT_CURRENT_PAGE,
+	pageSize: PAGE_SIZE,
+	defaultCurrent: DEFAULT_CURRENT_PAGE,
+	current: DEFAULT_CURRENT_PAGE,
 };
 
 const defaultQuery: TQuery = {
-  page: PAGE,
-  size: PAGE_SIZE,
+	page: PAGE,
+	size: PAGE_SIZE,
 
-  sort: createSortOption("lastModifiedDate")?.desc,
-  isDeleted: { equals: false },
+	sort: createSortOption("lastModifiedDate")?.desc,
+	isDeleted: { equals: false },
 };
 const queryConst = {
-  initPagination,
-  defaultQuery,createSortOption
+	initPagination,
+	defaultQuery,
+	createSortOption,
 };
 export default queryConst;

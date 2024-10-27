@@ -86,9 +86,10 @@ const MaterialList: React.FC<Props> = () => {
 							active
 							paragraph={{ rows: 3 }}
 							rootClassName="flex flex-col"
+							key={item.id}
 						/>
 					) : (
-						<MaterialCard data={item} />
+						<MaterialCard data={item} key={item.id} />
 					)}
 				</List.Item>
 			)}

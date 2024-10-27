@@ -1,7 +1,34 @@
+import { Space } from "antd";
 import React from "react";
 
+import { QUERY_CONST } from "@/const";
+import { materialService } from "@/services";
+import queryClientUtil from "@/utils/queryClientUtil";
+import { dehydrate } from "@tanstack/react-query";
+
+import { ProductTrending, UserCarousel } from "./ui";
+import Materials from "./ui/Materials";
+
+const hydrate = async () => {
+	const queryClient = queryClientUtil.getQueryClient();
+	const { defaultQuery } = QUERY_CONST;
+
+	await Promise.all([
+		await queryClient.prefetchQuery({
+			queryKey: ["material", defaultQuery],
+			queryFn: () => materialService.get(defaultQuery),
+		}),
+	]);
+	return dehydrate(queryClient);
+};
 const UserHomePage: React.FC<{}> = () => {
-	return <div>UserHomePage</div>;
+	return (
+		<Space direction="vertical" className="flex" size={"large"}>
+			<UserCarousel />
+			<Materials />
+			<ProductTrending />
+		</Space>
+	);
 };
 
 export default UserHomePage;

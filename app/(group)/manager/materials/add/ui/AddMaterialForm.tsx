@@ -375,7 +375,7 @@ const AddMaterialForm: React.FC<{}> = () => {
 						<Button
 							style={{ margin: "0 8px" }}
 							onClick={() => prev()}
-							disabled={createMaterialMutation.isLoading}
+							disabled={createMaterialMutation.isPending}
 						>
 							Quay lại
 						</Button>
@@ -384,7 +384,7 @@ const AddMaterialForm: React.FC<{}> = () => {
 						<Button
 							type="primary"
 							htmlType="submit"
-							loading={createMaterialMutation.isLoading}
+							loading={createMaterialMutation.isPending}
 						>
 							Tạo
 						</Button>

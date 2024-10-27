@@ -1,53 +1,37 @@
-import { App, Button, DatePicker, Empty, Form, Modal } from "antd";
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+"use client";
+import { App, Button, DatePicker, Form, Space } from 'antd';
+import dayjs from 'dayjs';
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 
-import { KEY_CONST } from "@/const";
-import { hireService } from "@/services";
-import {
-	InputCustom,
-	InputNumberCustom,
-	LabelCustom,
-} from "@/shared/FormCustom/InputCustom";
-import NumberToWords from "@/shared/FormCustom/InputNumToWords/InputNumToWords";
-import { AccountDisplay } from "@/shared/FormSelect/AccountForm";
-import SelectAccountForm from "@/shared/FormSelect/AccountForm/SelectAccountForm";
-import { SelectePositionForm } from "@/shared/FormSelect/SelectePositionForm";
-import { TAccountInfo } from "@/types";
-import { THire } from "@/types/hireType";
-import { TPosition } from "@/types/postionType";
-import { cn } from "@/utils";
-import { hireEmployeeSchema } from "@/validations/hireEmployee";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useMutation } from "@tanstack/react-query";
+import { KEY_CONST } from '@/const';
+import { hireService } from '@/services';
+import { InputNumberCustom, LabelCustom } from '@/shared/FormCustom/InputCustom';
+import NumberToWords from '@/shared/FormCustom/InputNumToWords/InputNumToWords';
+import { SelectEmployeeForm } from '@/shared/FormSelect';
+import { AccountDisplay } from '@/shared/FormSelect/AccountForm';
+import { SelectePositionForm } from '@/shared/FormSelect/SelectePositionForm';
+import { TEmployee } from '@/types';
+import { THire } from '@/types/hireType';
+import { TPosition } from '@/types/postionType';
+import { hireEmployeeSchema } from '@/validations/hireEmployee';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useMutation } from '@tanstack/react-query';
 
 const { RangePicker } = DatePicker;
 
 const defaultSalary: number = 0;
-export type TSelectedPositionHire = {
-	show: boolean;
-	record?: TPosition;
-};
-const initSelectedPositionHire: TSelectedPositionHire = {
-	show: false,
-};
-export type TSelectedEmployeeHire = {
-	show: boolean;
-	record?: any;
-};
-const initSelectedEmployeeHire: TSelectedEmployeeHire = {
-	show: false,
-};
 
 const HireEmployeeForm: React.FC<{}> = () => {
 	const [form] = Form.useForm();
 
-	const [selectedPosition, setSeletedPosition] =
-		useState<TSelectedPositionHire>(initSelectedPositionHire);
+	const [selectedPosition, setSeletedPosition] = useState<TPosition | null>(
+		null
+	);
 
-	const [selectedEmployee, setSelectedEmployee] =
-		useState<TSelectedEmployeeHire>(initSelectedEmployeeHire);
+	const [selectedEmployee, setSelectedEmployee] = useState<TEmployee | null>(
+		null
+	);
 
 	const {
 		handleSubmit,
@@ -94,55 +78,13 @@ const HireEmployeeForm: React.FC<{}> = () => {
 		},
 	});
 	const resetForm = () => {
-		setSeletedPosition(initSelectedPositionHire);
-		setSelectedEmployee(initSelectedEmployeeHire);
+		setSeletedPosition(null);
+		setSelectedEmployee(null);
 		reset();
-	};
-	useEffect(() => {
-		if (selectedPosition?.record)
-			setValue("position", selectedPosition?.record?.id!.toString()!, {
-				shouldValidate: true,
-			});
-	}, [selectedPosition, setValue]);
-	useEffect(() => {
-		if (selectedEmployee?.record)
-			setValue("employee", selectedEmployee?.record?.id.toString()!, {
-				shouldValidate: true,
-			});
-	}, [selectedEmployee, setValue]);
-
-	const handleSelectEmployee = () => {
-		setSelectedEmployee({ show: true, record: null });
 	};
 
 	return (
 		<div>
-			<Modal
-				open={selectedPosition.show}
-				title="Danh sách vị trí"
-				closable
-				onCancel={() => setSeletedPosition(initSelectedPositionHire)}
-				footer={null}
-			>
-				<SelectePositionForm
-					onChange={(data: TPosition) =>
-						setSeletedPosition({ show: false, record: data })
-					}
-				/>
-			</Modal>
-			<Modal
-				open={selectedEmployee.show}
-				title="Danh sách nhân viên"
-				closable
-				onCancel={() => setSelectedEmployee(initSelectedEmployeeHire)}
-				footer={null}
-			>
-				<SelectAccountForm
-					onChange={(data: TAccountInfo) => {
-						setSelectedEmployee({ show: false, record: data });
-					}}
-				/>
-			</Modal>
 			{/* ############################## */}
 			<Form
 				onFinish={handleSubmit(handleHireEmployee)}
@@ -213,33 +155,21 @@ const HireEmployeeForm: React.FC<{}> = () => {
 							}}
 						/>
 
-						<div className="flex flex-col gap-2">
-							<InputCustom
-								label="Lựa chọn vị trí làm việc"
-								required={true}
-								readOnly
-								type="textarea"
-								name="position"
-								value={selectedPosition.record?.name}
-								errorMessage={errors?.position?.message}
-								control={control}
-								placeholder="Ví trí làm việc"
-								className="w-80"
-								extra={
-									<Button
-										size="small"
-										className="mt-2"
-										onClick={() =>
-											setSeletedPosition({ show: true })
-										}
-									>
-										{selectedPosition.record
-											? "Thay đổi"
-											: "Lựa chọn"}
-									</Button>
+						<Space direction="vertical">
+							<SelectePositionForm
+								onChange={(data: TPosition) =>
+									setSeletedPosition(data)
 								}
 							/>
-						</div>
+							{selectedPosition && (
+								<p>
+									Ví trí:{" "}
+									<span className="font-semibold">
+										{selectedPosition.name}
+									</span>
+								</p>
+							)}
+						</Space>
 						<div>
 							<InputNumberCustom
 								label="Mức lương khởi điểm"
@@ -255,88 +185,25 @@ const HireEmployeeForm: React.FC<{}> = () => {
 								number={Number.parseInt(watch("beginSalary"))}
 							/>
 						</div>
-						{/* <InputCustom
-              label="Mức lương khởi điểm"
-              name="beginSalary"
-              className="w-full"
-              control={control}
-              errorMessage={errors?.beginSalary?.message}
-              type="price"
-            /> */}
 					</div>
 
-					<div className="col-span-3">
-						<LabelCustom
-							label="Tài khoản nhân viên"
-							classname=""
-							required
+					<Space direction="vertical" className="col-span-3 flex">
+						<SelectEmployeeForm
+							onChange={(data) => {
+								setSelectedEmployee(data);
+							}}
 						/>
-						{selectedEmployee.record ? (
-							<div>
-								<Button
-									className="my-2"
-									size="small"
-									onClick={() =>
-										setSelectedEmployee({
-											show: true,
-											record: null,
-										})
-									}
-								>
-									Thay đổi
-								</Button>
-								{selectedEmployee.record && (
-									<AccountDisplay
-										account={selectedEmployee.record}
-									/>
-								)}
-							</div>
-						) : (
-							<div
-								className={cn(
-									"ring-1 ring-gray-300 rounded-md p-2 flex flex-col justify-center",
-									errors?.employee?.message
-										? "ring-rose-400"
-										: ""
-								)}
-							>
-								<Empty
-									className="py-5"
-									description={
-										errors?.employee?.message && (
-											<span className="text-red-400">
-												Không bỏ trống ô này
-											</span>
-										)
-									}
-								>
-									<Button
-										onClick={() => handleSelectEmployee()}
-									>
-										Chọn tài khoản
-									</Button>
-								</Empty>
-							</div>
+						{selectedEmployee && (
+							<AccountDisplay account={selectedEmployee} />
 						)}
-					</div>
+					</Space>
 				</div>
 
-				{/* Notes */}
-				{/* <InputCustom
-          label="Ghi chú"
-          name="note"
-          formItemClassName="mt-4"
-          required={false}
-          showCount
-          control={control}
-          type="textarea"
-          count={{ max: 300 }}
-        /> */}
 				<div className="flex justify-end">
 					<Button
 						type="primary"
 						htmlType="submit"
-						loading={createHireMutation.isLoading}
+						loading={createHireMutation.isPending}
 					>
 						Bắt đầu thuê
 					</Button>

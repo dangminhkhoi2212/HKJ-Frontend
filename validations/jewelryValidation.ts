@@ -1,11 +1,12 @@
-import * as yup from "yup";
+import * as yup from 'yup';
 
-import { KEY_CONST } from "@/const";
+import { KEY_CONST } from '@/const';
 
 const { REQUIRED_FIELD_MESSAGE } = KEY_CONST;
 const jewelrySchema = yup.object({
 	id: yup.number().required(REQUIRED_FIELD_MESSAGE),
-	name: yup.string().required(REQUIRED_FIELD_MESSAGE),
+    name: yup.string().required(REQUIRED_FIELD_MESSAGE),
+    sku: yup.string().required(REQUIRED_FIELD_MESSAGE),
 	weight: yup
 		.number()
 		.positive("Giá một đơn vị phải lớn hơn 0")

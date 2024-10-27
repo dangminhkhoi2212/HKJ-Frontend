@@ -26,7 +26,7 @@ const Security: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 		isLoading,
 	} = useQuery({
 		queryKey: ["account"],
-		queryFn: getAccount,
+		queryFn: () => getAccount(),
 		enabled:
 			!!session?.access_token && !account && pathname !== routes.signIn,
 		retry: 3,

@@ -1,11 +1,23 @@
-export const routesUser = {};
+export const routesUser = {
+	home: "/user",
+	profile: "/user/profile",
+	product: "/user/products",
+	productDetail: (id: string | number) => `/user/products/${id}`,
+	order: `/user/orders`,
+	orderDetail: (orderId: string | number) => `/user/orders/${orderId}`,
+	createOrder: (productId?: string | number) =>
+		`/user/orders/create?pId=${productId}`,
+};
 export const routesAdmin = {
 	positions: "/admin/positions",
 	accounts: "/admin/accounts",
 	hire: "/admin/hire",
+	imageSearch: "/admin/images-search",
 };
 
-export const routesEmpoloyee = {};
+export const routesEmpoloyee = {
+	home: "/employee/tasks",
+};
 
 export const routesManager = {
 	employees: "/manager/employees",

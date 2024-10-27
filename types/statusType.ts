@@ -4,4 +4,5 @@ export enum TStatus {
 	COMPLETED = "COMPLETED",
 	DELIVERED = "DELIVERED",
 	LATED = "LATED",
+	CANCEL = "CANCEL",
 }

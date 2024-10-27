@@ -42,7 +42,7 @@ const UpdateTemplateStepForm: React.FC<Props> = ({ data }) => {
 	const {
 		data: _,
 		mutate: update,
-		isLoading: isLoadingUpdate,
+		isPending: isLoadingUpdate,
 	} = useMutation({
 		mutationFn: (data: TForm) => templateStepService.update(data),
 		onSuccess(data, variables, context) {
@@ -58,7 +58,7 @@ const UpdateTemplateStepForm: React.FC<Props> = ({ data }) => {
 	const {
 		data: __,
 		mutate: deleteStep,
-		isLoading: isLoadingDelete,
+		isPending: isLoadingDelete,
 	} = useMutation({
 		mutationFn: (data: TForm) => templateStepService.deleteOne(data.id),
 

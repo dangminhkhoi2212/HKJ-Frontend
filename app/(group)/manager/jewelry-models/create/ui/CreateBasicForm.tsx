@@ -14,6 +14,7 @@ import {
 } from "@/shared/FormCustom/InputCustom";
 import NumberToWords from "@/shared/FormCustom/InputNumToWords/InputNumToWords";
 import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
+import { generateUtil } from "@/utils";
 import jewelryValidation from "@/validations/jewelryValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useMutation } from "@tanstack/react-query";
@@ -29,6 +30,7 @@ const schema = jewelryValidation.jewelrySchema.omit([
 	"images",
 	"manager",
 	"project",
+	"sku",
 ]);
 type Props = {};
 
@@ -66,6 +68,8 @@ const CreateBasicForm: React.FC<Props> = () => {
 
 			return jewelryService.create({
 				...data,
+				name: data.name.trim() + " " + generateUtil.generateSKU(data),
+				sku: generateUtil.generateSKU(data),
 			});
 		},
 		onSuccess(data, variables, context) {
@@ -188,6 +192,12 @@ const CreateBasicForm: React.FC<Props> = () => {
 								</Space>
 							)}
 						/>
+					</Space>
+					<Space>
+						<p>
+							Mã SKU:{" "}
+							<span>{generateUtil.generateSKU(watch())}</span>
+						</p>
 					</Space>
 				</div>
 

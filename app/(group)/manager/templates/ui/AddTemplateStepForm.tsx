@@ -40,7 +40,7 @@ const AddTemplateStepForm: React.FC<{}> = () => {
 
 	const { setToggleRefreshStep } = templateStepStore();
 
-	const { data, mutate, isLoading } = useMutation({
+	const { data, mutate, isPending } = useMutation({
 		mutationFn: (data: TForm) => templateStepService.create(data),
 		onSuccess(data, variables, context) {
 			message.success("Đã tạo bảng bảng mẫu thành công");
@@ -82,7 +82,7 @@ const AddTemplateStepForm: React.FC<{}> = () => {
 				<Button
 					type="primary"
 					htmlType="submit"
-					loading={isLoading}
+					loading={isPending}
 					shape="circle"
 					size="small"
 					icon={<Plus size={18} />}

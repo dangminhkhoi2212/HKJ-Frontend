@@ -8,7 +8,15 @@ import { LabelCustom } from "@/shared/FormCustom/InputCustom";
 import { TCategory } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 
-const SelectCategoryForm: React.FC<SelectProps> = ({ ...props }) => {
+type TProps = SelectProps & {
+	hasLabel?: boolean;
+	defaultValueId?: number;
+};
+const SelectCategoryForm: React.FC<TProps> = ({
+	hasLabel = true,
+	defaultValueId,
+	...props
+}) => {
 	const [data, setData] = useState<SelectProps["options"]>([]);
 	const [query] = useState({ page: 0, size: 100 });
 
@@ -33,10 +41,14 @@ const SelectCategoryForm: React.FC<SelectProps> = ({ ...props }) => {
 		console.log("🚀 ~ useEffect ~ options:", options);
 		if (options?.length) setData([...options]);
 	}, [refetch, categories]);
+	// useEffect(() => {
+	//     if(defaultValueId && data?.length) {
 
+	//     }
+	// },[defaultValueId])
 	return (
 		<Space direction="vertical">
-			<LabelCustom label="Loại trang sức" required />
+			{hasLabel && <LabelCustom label="Loại trang sức" required />}
 			<Select
 				status={props.status ? "error" : undefined}
 				size="large"
@@ -45,6 +57,7 @@ const SelectCategoryForm: React.FC<SelectProps> = ({ ...props }) => {
 				disabled={isLoadingCategories}
 				options={data}
 				loading={isLoadingCategories}
+				defaultValue={defaultValueId}
 				{...props}
 			/>
 		</Space>

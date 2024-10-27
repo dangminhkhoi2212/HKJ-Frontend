@@ -1,11 +1,13 @@
-import { TCategory } from './categoryType';
-import { TEmployee } from './employeeType';
-import { TFilter } from './filterType';
-import { TProject } from './projectType';
-import { TUserExtra } from './userExtraType';
+import { TAudit } from "./auditType";
+import { TCategory } from "./categoryType";
+import { TEmployee } from "./employeeType";
+import { TFilter } from "./filterType";
+import { TProject } from "./projectType";
+import { TUserExtra } from "./userExtraType";
 
 export type TJewelry = {
 	id: number;
+	sku: string;
 	name: string;
 	color: string;
 	weight: number;
@@ -13,11 +15,12 @@ export type TJewelry = {
 	description?: string;
 	category: TCategory;
 	isCustom: boolean;
+	isCoverSearch?: boolean;
 	price: number;
 	coverImage: string;
 	active: boolean;
 	project: TProject;
-};
+} & TAudit;
 export type TJewelryCreate = Omit<
 	TJewelry,
 	"id" | "manager" | "category" | "coverImage" | "project"
@@ -47,4 +50,8 @@ export type TJewelryUpdateProject = {
 	project?: { id: number };
 };
 export type TJewelryUpdatePartical = Partial<TJewelry>;
-export type TJewelryQuery = { name?: TFilter };
+export type TJewelryQuery = {
+	name?: TFilter;
+	price?: TFilter;
+	categoryId?: TFilter;
+};

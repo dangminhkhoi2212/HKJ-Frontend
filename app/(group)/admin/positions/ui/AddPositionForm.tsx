@@ -1,4 +1,4 @@
-import { App, Button, Form } from "antd";
+import { App, Button, Form, Space } from "antd";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
@@ -82,32 +82,36 @@ const AddPositionForm: React.FC<{
 			size="large"
 			onFinish={handleSubmit(handleFormSubmit)}
 		>
-			<InputCustom
-				label="Vị trí"
-				name="name"
-				placeholder="Vị trí"
-				control={control}
-				errorMessage={errors?.name?.message?.toString()}
-			/>
-			<div className="flex gap-2 justify-end">
-				<Button
-					size="middle"
-					onClick={() => setSelectedPosition(initValue)}
-				>
-					Hủy
-				</Button>
-				<Button
-					htmlType="submit"
-					type="primary"
-					size="middle"
-					loading={
-						addPositionMutation.isLoading ||
-						updatePositionMutation.isLoading
-					}
-				>
-					{data?.status === FormStatus.UPDATE ? "Cập nhật" : "Thêm"}
-				</Button>
-			</div>
+			<Space direction="vertical" className="flex">
+				<InputCustom
+					label="Vị trí"
+					name="name"
+					placeholder="Vị trí"
+					control={control}
+					errorMessage={errors?.name?.message?.toString()}
+				/>
+				<div className="flex gap-2 justify-end">
+					<Button
+						size="middle"
+						onClick={() => setSelectedPosition(initValue)}
+					>
+						Hủy
+					</Button>
+					<Button
+						htmlType="submit"
+						type="primary"
+						size="middle"
+						loading={
+							addPositionMutation.isPending ||
+							updatePositionMutation.isPending
+						}
+					>
+						{data?.status === FormStatus.UPDATE
+							? "Cập nhật"
+							: "Thêm"}
+					</Button>
+				</div>
+			</Space>
 		</Form>
 	);
 };

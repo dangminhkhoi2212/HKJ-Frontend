@@ -1,5 +1,5 @@
 "use client";
-import { Button, Image, Space, Table, TableProps } from "antd";
+import { Button, Image, Space, Table, TableProps, Tag } from "antd";
 import { Pencil, RotateCcw, Trash } from "lucide-react";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
@@ -53,6 +53,14 @@ const JewelryList: React.FC = () => {
 			dataIndex: "id",
 			key: "id",
 			width: 100,
+		},
+		{
+			title: "SKU",
+			dataIndex: "sku",
+			key: "sku",
+			render(value, record, index) {
+				return <Tag className="text-xs">{value}</Tag>;
+			},
 		},
 		{
 			title: "Ảnh bìa",
@@ -134,6 +142,17 @@ const JewelryList: React.FC = () => {
 			),
 		},
 	];
+	const handleTableChange: TableProps<TJewelry>["onChange"] = (
+		pagination,
+		filters,
+		sorter
+	) => {
+		setQuery({
+			...query,
+			page: pagination.current! - 1,
+		});
+		setPagination(pagination);
+	};
 	const refresh = useCallback(() => {
 		refreshjewelryModels();
 		refreshjewelryModelsCount();
@@ -156,9 +175,9 @@ const JewelryList: React.FC = () => {
 				columns={columns}
 				dataSource={jewelryModels}
 				rowKey="id"
-				pagination={{ position: ["bottomRight"] }}
+				pagination={pagination}
+				onChange={handleTableChange}
 				scroll={{ x: 1500, scrollToFirstRowOnChange: true }}
-				// className="text-nowrap overflow-auto"
 				loading={isLoadingjewelryModels || isLoadingjewelryModelsCount}
 			/>
 		</Space>

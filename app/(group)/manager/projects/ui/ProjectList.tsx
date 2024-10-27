@@ -1,6 +1,13 @@
 "use client";
 
-import { Button, Space, Table, TablePaginationConfig, TableProps } from "antd";
+import {
+	Button,
+	Select,
+	Space,
+	Table,
+	TablePaginationConfig,
+	TableProps,
+} from "antd";
 import { Pencil, RotateCcw, Trash } from "lucide-react";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
@@ -10,19 +17,25 @@ import { useRouterCustom } from "@/hooks";
 import { routesManager } from "@/routes";
 import projectService from "@/services/projectService";
 import { InputSearchCustom } from "@/shared/FormCustom/InputSearchCustom";
-import { TProject } from "@/types";
+import { TPriority, TProject, TProjectQuery, TQuery, TStatus } from "@/types";
 import { formatUtil, tagMapperUtil } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 
 import { projectStore } from "../store";
 
-const { TPriorityColorMapper, TStatusColorMapper } = tagMapperUtil;
+const {
+	TStatusColorMapper,
+	TPriorityColorMapper,
+	TPriorityMapper,
+	TStatusMapper,
+} = tagMapperUtil;
 type TProps = {};
-
+const { defaultQuery } = QUERY_CONST;
 const ProjectList: React.FC<TProps> = () => {
-	const { setQuery, query, setToggleRefresh, setTemplateDelete, reset } =
-		projectStore();
-
+	const { setProjectDelete, reset } = projectStore();
+	const [query, setQuery] = useState<TQuery<TProjectQuery>>({
+		...defaultQuery,
+	});
 	const { router } = useRouterCustom();
 	const [pagination, setPagination] = useState<TablePaginationConfig>({
 		...QUERY_CONST.initPagination,
@@ -102,17 +115,17 @@ const ProjectList: React.FC<TProps> = () => {
 			title: "Tùy chọn",
 			dataIndex: "actions",
 			key: "actions",
+			fixed: "right",
 			render: (_, record) => (
 				<Space>
 					<Link href={routesManager.updateProject(record.id)}>
-						<Button type="primary" icon={<Pencil size={16} />} />
+						<Button icon={<Pencil size={16} />} />
 					</Link>
 					<Button
-						type="primary"
 						danger
 						icon={<Trash size={16} />}
 						onClick={() => {
-							setTemplateDelete(record);
+							setProjectDelete(record);
 						}}
 					/>
 				</Space>
@@ -152,6 +165,38 @@ const ProjectList: React.FC<TProps> = () => {
 				<InputSearchCustom
 					placeholder="Tìm kiếm dự án"
 					handleSearch={handleOnChangeSearch}
+				/>
+				<Select
+					options={Object.entries(TStatus).map(([key, value]) => ({
+						label: TStatusMapper(value),
+						value: key,
+					}))}
+					className="min-w-28"
+					onChange={(value) => {
+						setQuery((pre) => ({
+							...pre,
+							page: 0,
+							status: { equals: value },
+						}));
+					}}
+					placeholder="Trạng thái"
+					allowClear
+				/>
+				<Select
+					options={Object.entries(TPriority).map(([key, value]) => ({
+						label: TPriorityMapper(value),
+						value: key,
+					}))}
+					className="min-w-28"
+					onChange={(value) => {
+						setQuery((pre) => ({
+							...pre,
+							page: 0,
+							priority: { equals: value },
+						}));
+					}}
+					placeholder="Độ ưu tiên"
+					allowClear
 				/>
 			</Space>
 

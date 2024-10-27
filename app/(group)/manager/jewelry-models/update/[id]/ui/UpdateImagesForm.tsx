@@ -5,7 +5,11 @@ import React, { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
-import { jewelryImageService, jewelryService } from "@/services";
+import {
+	imageSearchAIService,
+	jewelryImageService,
+	jewelryService,
+} from "@/services";
 import supabaseService from "@/services/supabaseService";
 import { LabelCustom } from "@/shared/FormCustom/InputCustom";
 import { InputImage } from "@/shared/FormCustom/InputImage";
@@ -104,12 +108,15 @@ const UpdateImagesForm: React.FC<Props> = ({}) => {
 				jewelry?.id!
 			);
 
-			const coverImageUrl: string[] =
+			const [coverImageUrl, _] = await Promise.all([
 				await supabaseService.uploadAnDelete(
 					[],
 					[supabaseService.convertFile(coverImage!)],
 					folder
-				);
+				),
+
+				await imageSearchAIService.removeImages([jewelry?.id!]),
+			]);
 			return coverImageUrl[0];
 		}
 

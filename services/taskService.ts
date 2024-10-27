@@ -1,6 +1,6 @@
-import axiosInterceptor from "@/config/axiosInterceptor";
-import { TQuery, TTask, TTaskCreate, TTaskQuery, TTaskUpdate } from "@/types";
-import { formatUtil } from "@/utils";
+import axiosInterceptor from '@/config/axiosInterceptor';
+import { TQuery, TTask, TTaskCreate, TTaskQuery, TTaskUpdate } from '@/types';
+import { formatUtil } from '@/utils';
 
 const interceptor = axiosInterceptor();
 export const get = async (query: TQuery<TTaskQuery>): Promise<TTask[]> => {
@@ -13,7 +13,7 @@ export const get = async (query: TQuery<TTaskQuery>): Promise<TTask[]> => {
 export const getOne = async (id: number): Promise<TTask[]> => {
 	return (await interceptor.get(`/hkj-tasks/${id}`)).data;
 };
-export const getCount = async (query: TQuery<{}>): Promise<number> => {
+export const getCount = async (query: TQuery<TTaskQuery>): Promise<number> => {
 	return (
 		await interceptor.get("/hkj-tasks/count", {
 			params: formatUtil.objectOneDegree(query),

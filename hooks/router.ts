@@ -9,8 +9,13 @@ import {
 } from "next/navigation";
 import queryString from "query-string";
 
+type TUpdatePathname = {
+	url?: string;
+	query: any;
+	type?: "push" | "replace";
+};
 type TUseRouterCustom = {
-	updatePathname: ({ url, query }: { url?: string; query: any }) => string;
+	updatePathname: ({ url, query, type }: TUpdatePathname) => string;
 	pathname: string;
 	searchParams: URLSearchParams;
 	router: AppRouterInstance;
@@ -24,7 +29,7 @@ export const useRouterCustom = (): TUseRouterCustom => {
 	const isEmpty = (obj: any) => {
 		return Object.keys(obj).length === 0;
 	};
-	const updatePathname = ({ url, query }: { url?: string; query: any }) => {
+	const updatePathname = ({ url, query, type = "push" }: TUpdatePathname) => {
 		const useUrl = url ? url : pathname;
 		if (isEmpty(query)) {
 			router.replace(useUrl);
@@ -39,7 +44,7 @@ export const useRouterCustom = (): TUseRouterCustom => {
 				skipEmptyString: true,
 				skipNull: true,
 			});
-		router.push(newUrl);
+		type === "push" ? router.push(newUrl) : router.replace(newUrl);
 		return newUrl;
 	};
 	return { updatePathname, pathname, searchParams, router, params };

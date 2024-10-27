@@ -148,12 +148,15 @@ const AccountList: React.FC<{}> = () => {
 			console.error("Error fetching roles for users:", error);
 		}
 	};
-	if (getUsersQuery.isSuccess) {
-		const data: TAccountKeyCloak = getUsersQuery.data;
-		console.log("🚀 ~ onSuccess ~ data:", data);
-		setKeyCloakData(data);
-		findRoleForUsers(data);
-	}
+	useEffect(() => {
+		if (getUsersQuery.isSuccess) {
+			const data: TAccountKeyCloak = getUsersQuery.data;
+			console.log("🚀 ~ onSuccess ~ data:", data);
+			setKeyCloakData(data);
+			findRoleForUsers(data);
+		}
+	}, [getUsersQuery.data]);
+
 	const getRoleUseMutation = useMutation({
 		mutationFn: (id: string) => {
 			return keyCloakService.getRoleUser(id);
@@ -163,19 +166,22 @@ const AccountList: React.FC<{}> = () => {
 		queryKey: ["keycloak-users-count", { ...query }],
 		queryFn: () => keyCloakService.getUsersCount(query),
 	});
-	if (getUsersCountQuery.isSuccess) {
-		const data = getUsersCountQuery.data;
-		setPagination((pre) => ({ ...pre, total: data }));
-	}
+
+	useEffect(() => {
+		if (getUsersCountQuery.isSuccess) {
+			const data = getUsersCountQuery.data;
+			setPagination((pre) => ({ ...pre, total: data }));
+		}
+	}, [getUsersCountQuery.data]);
 
 	const refresh = () => {
 		getUsersQuery.refetch();
 		getUsersCountQuery.refetch();
 	};
 
-	useEffect(() => {
-		refresh();
-	}, []);
+	// useEffect(() => {
+	// 	refresh();
+	// }, []);
 
 	const updateInKeyCloak = async () => {
 		const updateAccountList = keyCloakData.map((account) => {
@@ -233,7 +239,7 @@ const AccountList: React.FC<{}> = () => {
 				{pagination.total! > 0 && (
 					<Button
 						type="primary"
-						onClick={handleSync}
+						onClick={() => handleSync()}
 						loading={loading}
 					>
 						Đồng bộ ngay
@@ -243,7 +249,7 @@ const AccountList: React.FC<{}> = () => {
 			<Table
 				columns={columns}
 				dataSource={data}
-				rowKey="userId"
+				rowKey="login"
 				loading={{
 					style: {},
 					className: "absolute inset-0",

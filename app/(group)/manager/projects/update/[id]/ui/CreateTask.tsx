@@ -1,4 +1,4 @@
-import { DatePicker, Form, Modal, Spin } from "antd";
+import { DatePicker, Form, Modal, Space, Spin } from "antd";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -7,6 +7,7 @@ import * as yup from "yup";
 import { useRouterCustom } from "@/hooks";
 import taskService from "@/services/taskService";
 import { InputCustom } from "@/shared/FormCustom/InputCustom";
+import { AccountDisplay } from "@/shared/FormSelect/AccountForm";
 import { SelectEmployeeForm } from "@/shared/FormSelect/SelectEmployeeForm";
 import { TEmployee, TPriority, TStatus } from "@/types";
 import { TTaskCreate } from "@/types/taskType";
@@ -39,6 +40,9 @@ const CreateTask: React.FC<Props> = ({}) => {
 		project: { id: project?.id! },
 		employee: { id: 0 },
 	});
+	const [selectedEmployee, setSelectedEmployee] = useState<TEmployee | null>(
+		null
+	);
 
 	const {
 		control,
@@ -96,13 +100,17 @@ const CreateTask: React.FC<Props> = ({}) => {
 					layout="vertical"
 					className="flex flex-col gap-5 max-h-96 overflow-auto"
 				>
-					<SelectEmployeeForm
-						control={control}
-						name="employee.id"
-						onChange={(data: TEmployee) => {
-							setValue("employee.id", data.id!);
-						}}
-					/>
+					<Space direction="vertical" className="col-span-3 flex">
+						<SelectEmployeeForm
+							onChange={(data) => {
+								setSelectedEmployee(data);
+								setValue("employee.id", data.id!);
+							}}
+						/>
+						{selectedEmployee && (
+							<AccountDisplay account={selectedEmployee} />
+						)}
+					</Space>
 					<InputCustom
 						control={control}
 						name="name"

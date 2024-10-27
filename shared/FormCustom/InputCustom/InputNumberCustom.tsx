@@ -1,12 +1,13 @@
-import { Form, Input, Space } from 'antd';
-import React from 'react';
-import { Control, Controller } from 'react-hook-form';
-import { NumericFormat, NumericFormatProps } from 'react-number-format';
+"use client";
+import { Form, Input, Space } from "antd";
+import React from "react";
+import { Control, Controller } from "react-hook-form";
+import { NumericFormat, NumericFormatProps } from "react-number-format";
 
-import { cn } from '@/utils';
+import { cn } from "@/utils";
 
-import NumberToWords from '../InputNumToWords/InputNumToWords';
-import { LabelCustom } from './LabelCustom';
+import NumberToWords from "../InputNumToWords/InputNumToWords";
+import { LabelCustom } from "./LabelCustom";
 
 const MIN: number = 0;
 const MAX: number = 100000000;
@@ -48,7 +49,7 @@ const InputNumberCustom = React.forwardRef<
 					<Form.Item
 						label={<LabelCustom label={label} required={true} />}
 						validateStatus={fieldState.invalid ? "error" : ""}
-						help={errorMessage}
+						help={errorMessage || fieldState.error?.message}
 						extra={extra}
 						rootClassName="m-0"
 					>

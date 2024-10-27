@@ -5,16 +5,16 @@ import { Gantt, Task } from "gantt-task-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
-import { MapAnotations } from "@/app/(group)/manager/projects/update/[id]/ui/UpdateProcessing";
 import { KEY_CONST } from "@/const";
 import { jewelryService } from "@/services";
 import projectService from "@/services/projectService";
 import taskService from "@/services/taskService";
+import MapAnotations from "@/shared/Anotation/MapAnotation";
 import DisplayProject from "@/shared/FormSelect/SelectProjectForm/DisplayProject";
 import SelectProjectForm from "@/shared/FormSelect/SelectProjectForm/SelectProjectForm";
 import { TJewelry, TProject, TTask } from "@/types";
 import { tagMapperUtil } from "@/utils";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { updateJewelryModelStore } from "../store";
 
@@ -26,10 +26,8 @@ type TForm = {
 
 const UpdateProjectForm: React.FC = () => {
 	const jewelry = updateJewelryModelStore((state) => state.jewelry);
-	console.log("jewelry.project", jewelry?.project);
 
 	const { setValue, getValues, handleSubmit } = useForm<TForm>();
-	const queryClient = useQueryClient();
 	const [project, setProject] = useState<TProject | null>(null);
 	const [tasksGantt, setTasksGantt] = useState<Task[]>([]);
 	const setJewelry = updateJewelryModelStore((state) => state.setJewelry);
@@ -125,7 +123,7 @@ const UpdateProjectForm: React.FC = () => {
 
 	const handleSelectProject = (data: TProject) => {
 		setProject(data);
-		setValue("project.id", data.id, { shouldValidate: true });
+		setValue("project.id", data?.id, { shouldValidate: true });
 	};
 
 	const { mutate: updateProject, isPending: isUpdateProjectLoading } =

@@ -1,18 +1,18 @@
-import { TablePaginationConfig } from "antd";
-import { create } from "zustand";
+import { TablePaginationConfig } from 'antd';
+import { create } from 'zustand';
 
-import { QUERY_CONST } from "@/const";
-import { TQuery, TTemplate, TTemplateQuery } from "@/types";
+import { QUERY_CONST } from '@/const';
+import { TProject, TProjectQuery, TQuery } from '@/types';
 
 type TTypeForm = "add" | "update" | "delete" | null;
 type TState = {
-	query: TQuery;
+	query: TQuery<TProjectQuery>;
 	pagination: TablePaginationConfig;
 	openDrawer: boolean;
 	toggleRefresh: boolean;
-	templateCreate: TTemplate | null;
-	templateUpdate: TTemplate | null;
-	templateDelete: TTemplate | null;
+	templateCreate: TProject | null;
+	templateUpdate: TProject | null;
+	templateDelete: TProject | null;
 };
 const initValues: TState = {
 	query: { ...QUERY_CONST.defaultQuery, isDeleted: { equals: false } },
@@ -27,10 +27,10 @@ type TActions = {
 	setToggleRefresh: () => void;
 	setOpenDrawer: (value: boolean) => void;
 	setPagination: (value: TablePaginationConfig) => void;
-	setQuery: (value: TQuery<TTemplateQuery>) => void;
-	setTemplateCreate: (value: TTemplate | null) => void;
-	setTemplateDelete: (value: TTemplate | null) => void;
-	setTemplateUpdate: (value: TTemplate | null) => void;
+	setQuery: (value: TQuery<TProjectQuery>) => void;
+	setTemplateCreate: (value: TProject | null) => void;
+	setProjectDelete: (value: TProject | null) => void;
+	setTemplateUpdate: (value: TProject | null) => void;
 	reset: () => void;
 };
 
@@ -43,7 +43,7 @@ export const projectStore = create<TState & TActions>((set, get) => ({
 	setPagination: (value) => set({ pagination: value }),
 	setQuery: (value) => set({ query: value }),
 	setTemplateUpdate: (value) => set({ templateUpdate: value }),
-	setTemplateDelete: (value) => set({ templateDelete: value }),
+	setProjectDelete: (value) => set({ templateDelete: value }),
 	setTemplateCreate: (value) => set({ templateCreate: value }),
 
 	reset: () => {

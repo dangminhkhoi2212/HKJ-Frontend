@@ -14,6 +14,7 @@ import {
 } from "@/shared/FormCustom/InputCustom";
 import NumberToWords from "@/shared/FormCustom/InputNumToWords/InputNumToWords";
 import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
+import { generateUtil } from "@/utils";
 import jewelryValidation from "@/validations/jewelryValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -37,6 +38,7 @@ type TFormJewelry = yup.InferType<
 const initValue: TFormJewelry = {
 	id: 0,
 	name: "",
+	sku: "",
 	weight: 0,
 	color: "",
 	active: true,
@@ -209,6 +211,14 @@ const UpdateBasicForm: React.FC<Props> = () => {
 									</Space>
 								)}
 							/>
+							<Space>
+								<p>
+									Mã SKU:{" "}
+									<span>
+										{generateUtil.generateSKU(watch())}
+									</span>
+								</p>
+							</Space>
 						</Space>
 					</div>
 

@@ -10,7 +10,7 @@ export const get = async (query: TQuery<{}>): Promise<TProject[]> => {
 		})
 	).data;
 };
-export const getOne = async (id: number): Promise<TProject> => {
+export const getOne = async (id: number | string): Promise<TProject> => {
 	return (await interceptor.get(`/hkj-projects/${id}`)).data;
 };
 export const getCount = async (query: TQuery<{}>): Promise<number> => {

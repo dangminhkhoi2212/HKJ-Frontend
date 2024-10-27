@@ -16,8 +16,12 @@ export const get = async (query: TQuery<{}>): Promise<TJewelry[]> => {
 		})
 	).data;
 };
-const getOne = async (id: number): Promise<TJewelry> => {
-	return (await axiosInterceptor().get(`/hkj-jewelry-models/${id}`, {})).data;
+const getOne = async (id: number | string): Promise<TJewelry> => {
+	return (
+		await axiosInterceptor().get(`/hkj-jewelry-models/${id}`, {
+			params: { isDeleted: false },
+		})
+	).data;
 };
 export const getCount = async (query: TQuery<{}>): Promise<number> => {
 	return (

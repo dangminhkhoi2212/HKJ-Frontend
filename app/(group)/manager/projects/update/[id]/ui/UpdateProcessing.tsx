@@ -1,12 +1,13 @@
 "use client";
-import { Button, Divider, Empty, Skeleton, Space, Switch, Tag } from "antd";
+import { Button, Empty, Skeleton, Space, Switch } from "antd";
 import dayjs from "dayjs";
 import { Gantt, Task, ViewMode } from "gantt-task-react";
 import { Plus, RotateCcw } from "lucide-react";
-import React, { memo, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import { useRouterCustom } from "@/hooks";
 import taskService from "@/services/taskService";
+import MapAnotations from "@/shared/Anotation/MapAnotation";
 import { TPriority, TTask } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 
@@ -28,26 +29,7 @@ const colorPriority = (priority: TPriority): string => {
 			return "#F1D4D4";
 	}
 };
-export const MapAnotations = memo(() => (
-	<Space className="flex">
-		<Space direction="vertical">
-			<p className="font-semibold">Độ ưu tiên</p>
-			<Space>
-				<Tag color={colorPriority(TPriority.LOW)}>Thấp</Tag>
-				<Tag color={colorPriority(TPriority.MEDIUM)}>Trung Bình</Tag>
-				<Tag color={colorPriority(TPriority.HIGH)}>Cao</Tag>
-			</Space>
-		</Space>
-		<Divider type="vertical" className="m-1 h-fit" />
-		<Space direction="vertical">
-			<p className="font-semibold">Chú thích</p>
-			<Space>
-				<span>DA: Dự án</span>
-				<span>CĐ: Công đoạn</span>
-			</Space>
-		</Space>
-	</Space>
-));
+
 const UpdateProcessing: React.FC<Props> = ({}) => {
 	const { project, setShowCreateTask, setShowUpdateTask, showUpdateTask } =
 		updateProjectStore();

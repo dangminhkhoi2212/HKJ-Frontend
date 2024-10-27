@@ -1,3 +1,4 @@
+"use client";
 import { DatePicker, Form, Input, Select } from "antd";
 import { TextAreaProps } from "antd/es/input";
 import { SelectProps } from "antd/lib";
@@ -31,7 +32,6 @@ type InputCustomProps = {
 		| "password"
 		| "textarea"
 		| "number"
-		| "price"
 		| "rangeDate"
 		| "date"
 		| "select"

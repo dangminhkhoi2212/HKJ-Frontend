@@ -10,4 +10,4 @@ export type TJewelryImage = TImage & {
 export type TJewelryImageCreate = Omit<TJewelryImage, "id" | "jewelryModel"> & {
 	jewelryModel: { id: number };
 };
-export type TJewelryImageQuery = { jewelryModelId: TFilter };
+export type TJewelryImageQuery = { jewelryModelId?: TFilter };

@@ -5,10 +5,10 @@ import { Gantt, Task } from "gantt-task-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
-import { MapAnotations } from "@/app/(group)/manager/projects/update/[id]/ui/UpdateProcessing";
 import { KEY_CONST } from "@/const";
 import { jewelryService } from "@/services";
 import taskService from "@/services/taskService";
+import MapAnotations from "@/shared/Anotation/MapAnotation";
 import DisplayProject from "@/shared/FormSelect/SelectProjectForm/DisplayProject";
 import SelectProjectForm from "@/shared/FormSelect/SelectProjectForm/SelectProjectForm";
 import { TJewelry, TProject, TTask } from "@/types";

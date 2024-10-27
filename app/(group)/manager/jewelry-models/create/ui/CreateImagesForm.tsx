@@ -75,8 +75,8 @@ const CreateImageForm: React.FC<{}> = () => {
 		);
 		console.log("🚀 ~ createCoverImage ~ imageUrls:", imageUrls);
 
-		await jewelryService.updatePartical({
-			id: jewelry?.id!,
+		await jewelryService.update({
+			...jewelry!,
 			coverImage: imageUrls[0],
 		});
 	};

@@ -4,7 +4,8 @@ import React from "react";
 import { TProject } from "@/types";
 
 import { updateProjectStore } from "../store";
-import { UpdateBasicProject, UpdateProcessing } from "./";
+import UpdateBasicProject from "./UpdateBasicProject";
+import UpdateProcessing from "./UpdateProcessing";
 
 type Props = {};
 const renderChildren = (
@@ -20,21 +21,21 @@ const renderChildren = (
 	}
 	return children;
 };
+const tabs = [
+	{
+		label: `Thông tin`,
+		key: "1",
+		children: <UpdateBasicProject />,
+	},
+	{
+		label: `Quy trình`,
+		key: "2",
+		children: <UpdateProcessing />,
+	},
+];
 const TabProject: React.FC<Props> = ({}) => {
 	const { tab, setTab, project, isLoading } = updateProjectStore();
 
-	let tabs = [
-		{
-			label: `Thông tin`,
-			key: "1",
-			children: <UpdateBasicProject />,
-		},
-		{
-			label: `Quy trình`,
-			key: "2",
-			children: <UpdateProcessing />,
-		},
-	];
 	return (
 		<Tabs
 			defaultActiveKey={tab?.toString()}

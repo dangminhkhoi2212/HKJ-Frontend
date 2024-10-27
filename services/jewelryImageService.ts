@@ -17,7 +17,7 @@ const get = async (
 		})
 	).data;
 };
-const getCount = async (query: TQuery<TJewelryImage>): Promise<number> => {
+const getCount = async (query: TQuery<TJewelryImageQuery>): Promise<number> => {
 	return (
 		await interceptor.get("/hkj-jewelry-images/count", {
 			params: formatUtil.objectOneDegree(query),

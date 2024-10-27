@@ -1,15 +1,17 @@
-import { Button, Divider, List, Skeleton } from "antd";
-import React, { useEffect, useState } from "react";
-import InfiniteScroll from "react-infinite-scroll-component";
+import { Button, Divider, List, Modal, Skeleton, Space } from 'antd';
+import React, { memo, useEffect, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
-import positionService from "@/services/positionService";
-import { InputSearchCustom } from "@/shared/FormCustom/InputSearchCustom";
-import { TQuery } from "@/types";
-import { TPosition, TPositionQuery } from "@/types/postionType";
-import { queryUtil } from "@/utils";
-import { useQueries } from "@tanstack/react-query";
+import positionService from '@/services/positionService';
+import { LabelCustom } from '@/shared/FormCustom/InputCustom';
+import { InputSearchCustom } from '@/shared/FormCustom/InputSearchCustom';
+import { TQuery } from '@/types';
+import { TPosition, TPositionQuery } from '@/types/postionType';
+import { queryUtil } from '@/utils';
+import { useQueries } from '@tanstack/react-query';
 
 type TPros = {
+	defaultValuedId?: number;
 	onChange: (selectedPosition: TPosition) => void;
 };
 const initPositionQuery: TQuery<TPositionQuery> = {
@@ -17,33 +19,37 @@ const initPositionQuery: TQuery<TPositionQuery> = {
 	size: 8,
 	page: 0,
 };
-const SelectPositionForm: React.FC<TPros> = ({ onChange }) => {
+const SelectPositionForm: React.FC<TPros> = ({ onChange, defaultValuedId }) => {
 	const [data, setData] = useState<TPosition[]>([]);
 	const [pageCount, setPageCount] = useState<number>(99999);
+	const [showModal, setShowModal] = useState<boolean>(false);
 	const [query, setQuery] =
 		useState<TQuery<TPositionQuery>>(initPositionQuery);
 
-	const [getPositionsQuery, getPositionsCountQuery] = useQueries([
-		{
-			queryKey: ["positions", { ...query }],
-			queryFn: () => positionService.get(query),
-			onSuccess: (dataRepsonse: TPosition[]) => {
-				setData([...data, ...dataRepsonse]);
+	const [getPositionsQuery, getPositionsCountQuery] = useQueries({
+		queries: [
+			{
+				queryKey: ["positions", { ...query }],
+				queryFn: () => positionService.get(query),
 			},
-			onError: (error: any) => {
-				console.log("🚀 ~ useAdminPositionsAction ~ error:", error);
+			{
+				queryKey: ["positions-count", { ...query }],
+				queryFn: () => positionService.getCount(query),
 			},
-		},
-		{
-			queryKey: ["positions-count", { ...query }],
-			queryFn: () => positionService.getCount(query),
-			onSuccess: (data: number) => {
-				// setPagination((pre) => ({ ...pre, total: data }));
-				setPageCount(data);
-			},
-		},
-	]);
+		],
+	});
 
+	useEffect(() => {
+		if (getPositionsQuery.isSuccess) {
+			setData((pre) => [...pre, ...getPositionsQuery.data]);
+		}
+	}, [getPositionsQuery.data]);
+
+	useEffect(() => {
+		if (getPositionsCountQuery.isSuccess) {
+			setPageCount(getPositionsCountQuery.data);
+		}
+	}, [getPositionsCountQuery.data]);
 	const loadMoreData = () => {
 		setQuery((pre) => ({ ...pre, page: pre.page! + 1 }));
 	};
@@ -64,50 +70,66 @@ const SelectPositionForm: React.FC<TPros> = ({ onChange }) => {
 		if (onChange) {
 			onChange(data);
 		}
+		setShowModal(false);
 	};
 	return (
-		<div>
-			<InputSearchCustom handleSearch={handleSearch} />
-			<p className="font-medium text-xs mt-2">
-				Tổng số vị trí: {getPositionsCountQuery.data}
-			</p>
-			<div id="scrollableDiv" className=" overflow-auto p-5 h-[350px] ">
-				<InfiniteScroll
-					dataLength={data.length}
-					next={loadMoreData}
-					hasMore={data.length < pageCount}
-					loader={<Skeleton paragraph={{ rows: 1 }} active />}
-					endMessage={<Divider plain>Không còn dữ liệu 🤐</Divider>}
-					scrollableTarget="scrollableDiv"
+		<Space direction="vertical">
+			<LabelCustom label="Vị trí làm việc" required />
+			<Button onClick={() => setShowModal(true)}>Chọn</Button>
+			<Modal
+				open={showModal}
+				onCancel={() => setShowModal(false)}
+				footer={null}
+			>
+				<InputSearchCustom handleSearch={handleSearch} />
+				<p className="font-medium text-xs mt-2">
+					Tổng số vị trí: {getPositionsCountQuery.data}
+				</p>
+				<div
+					id="scrollableDiv"
+					className=" overflow-auto p-5 h-[350px] "
 				>
-					<List
-						dataSource={data}
-						renderItem={(item, index) => (
-							<List.Item
-								key={item.id}
-								actions={[
-									<Button
-										key={item.id}
-										onClick={(data) => handleOnchange(item)}
-									>
-										Chọn
-									</Button>,
-								]}
-							>
-								<List.Item.Meta
-									title={
-										<p>
-											{index + 1}. {item.name}
-										</p>
-									}
-								/>
-							</List.Item>
-						)}
-					/>
-				</InfiniteScroll>
-			</div>
-		</div>
+					<InfiniteScroll
+						dataLength={data.length}
+						next={loadMoreData}
+						hasMore={data.length < pageCount}
+						loader={<Skeleton paragraph={{ rows: 1 }} active />}
+						endMessage={
+							<Divider plain>Không còn dữ liệu 🤐</Divider>
+						}
+						scrollableTarget="scrollableDiv"
+					>
+						<List
+							dataSource={data}
+							renderItem={(item, index) => (
+								<List.Item
+									key={item.id}
+									actions={[
+										<Button
+											key={item.id}
+											onClick={(data) =>
+												handleOnchange(item)
+											}
+										>
+											Chọn
+										</Button>,
+									]}
+								>
+									<List.Item.Meta
+										title={
+											<p>
+												{index + 1}. {item.name}
+											</p>
+										}
+									/>
+								</List.Item>
+							)}
+						/>
+					</InfiniteScroll>
+				</div>
+			</Modal>
+		</Space>
 	);
 };
 
-export default SelectPositionForm;
+export default memo(SelectPositionForm);

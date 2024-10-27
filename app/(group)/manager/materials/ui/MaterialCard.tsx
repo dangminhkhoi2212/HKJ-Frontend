@@ -37,6 +37,7 @@ const MaterialCard: React.FC<Props> = ({ data }) => {
 	return (
 		<Card
 			className="overflow-hidden w-full min-w-40 min-h-28 max-w-60 "
+			key={data.id}
 			cover={
 				<Image
 					alt="example"
@@ -53,6 +54,7 @@ const MaterialCard: React.FC<Props> = ({ data }) => {
 			}
 			actions={[
 				<Link
+					key={data.id}
 					href={routesManager.updateMaterial(data?.id!.toString())}
 					className="flex justify-center items-center"
 				>

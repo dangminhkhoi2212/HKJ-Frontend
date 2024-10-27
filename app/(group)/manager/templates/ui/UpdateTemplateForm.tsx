@@ -74,7 +74,10 @@ const UpdateTemplateForm: React.FC<{}> = () => {
 					errorMessage={errors.name?.message}
 				/>
 				<Space direction="vertical" className="w-full">
-					<SelectCategoryForm control={control} name="category" />
+					<SelectCategoryForm
+						onChange={onChangeSelect}
+						defaultValueId={templateUpdate?.category?.id}
+					/>
 					<span className="text-red-500">
 						{errors.category?.id?.message}
 					</span>

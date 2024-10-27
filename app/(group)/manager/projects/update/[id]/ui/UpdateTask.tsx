@@ -1,22 +1,23 @@
-import { DatePicker, Form, message, Modal, Spin } from "antd";
-import dayjs from "dayjs";
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import * as yup from "yup";
+import { DatePicker, Form, message, Modal, Space, Spin } from 'antd';
+import dayjs from 'dayjs';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import * as yup from 'yup';
 
-import { KEY_CONST } from "@/const";
-import { useRouterCustom } from "@/hooks";
-import taskService from "@/services/taskService";
-import { InputCustom } from "@/shared/FormCustom/InputCustom";
-import { SelectEmployeeForm } from "@/shared/FormSelect/SelectEmployeeForm";
-import { TEmployee, TPriority, TStatus } from "@/types";
-import { TTask, TTaskUpdate } from "@/types/taskType";
-import { tagMapperUtil } from "@/utils";
-import taskValidation from "@/validations/taskValidation";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { KEY_CONST } from '@/const';
+import { useRouterCustom } from '@/hooks';
+import taskService from '@/services/taskService';
+import { InputCustom } from '@/shared/FormCustom/InputCustom';
+import { AccountDisplay } from '@/shared/FormSelect/AccountForm';
+import { SelectEmployeeForm } from '@/shared/FormSelect/SelectEmployeeForm';
+import { TEmployee, TPriority, TStatus } from '@/types';
+import { TTask, TTaskUpdate } from '@/types/taskType';
+import { tagMapperUtil } from '@/utils';
+import taskValidation from '@/validations/taskValidation';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { updateProjectStore } from "../store";
+import { updateProjectStore } from '../store';
 
 const { TPriorityMapper, TStatusMapper } = tagMapperUtil;
 const { RangePicker } = DatePicker;
@@ -38,7 +39,9 @@ const UpdateTask: React.FC<Props> = ({}) => {
 	const [initValue, setInitValue] = useState<TForm>(() =>
 		convertDateToForm(showUpdateTask.task!)
 	);
-
+	const [selectedEmployee, setSelectedEmployee] = useState<TEmployee | null>(
+		null
+	);
 	const {
 		control,
 		handleSubmit,
@@ -94,13 +97,18 @@ const UpdateTask: React.FC<Props> = ({}) => {
 					layout="vertical"
 					className="flex flex-col gap-5 max-h-96 overflow-auto"
 				>
-					<SelectEmployeeForm
-						control={control}
-						name="employee.id"
-						onChange={(data: TEmployee) => {
-							setValue("employee.id", data.id!);
-						}}
-					/>
+					<Space direction="vertical" className="flex">
+						<SelectEmployeeForm
+							defaultValueId={initValue.employee.id}
+							onChange={(data) => {
+								setSelectedEmployee(data);
+								setValue("employee.id", data.id!);
+							}}
+						/>
+						{selectedEmployee && (
+							<AccountDisplay account={selectedEmployee} />
+						)}
+					</Space>
 					<InputCustom
 						control={control}
 						name="name"
