@@ -1,16 +1,16 @@
 "use client";
 
-import { App } from 'antd';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import React, { useEffect } from 'react';
+import { App } from "antd";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import React, { useEffect } from "react";
 
-import { useAccountStore } from '@/providers';
-import { routes } from '@/routes';
-import { getAccount } from '@/services/accountService';
-import { TAccountInfo } from '@/types';
+import { useAccountStore } from "@/providers";
+import { routes } from "@/routes";
+import { getAccount } from "@/services/accountService";
+import { TAccountInfo } from "@/types";
 
-import LoadingIntro from '../Loading/LoadingIntro';
+import LoadingIntro from "../Loading/LoadingIntro";
 
 const Security: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	const router = useRouter();
@@ -72,7 +72,7 @@ const Security: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 		return () => {
 			// Optional: Add a destructor function here if needed
 		};
-	}, [status]);
+	}, [status, getAccountData, account, router]);
 
 	if (status === "loading") {
 		return <LoadingIntro />;
