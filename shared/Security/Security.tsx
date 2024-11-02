@@ -58,7 +58,7 @@ const Security: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 		} catch (error) {
 			console.log("🚀 ~ getAccountData ~ error:", error);
 			// message.error("Đăng nhập thất bại");
-			router.push(routes.signIn);
+			// router.push(routes.signIn);
 		}
 	};
 
