@@ -3,34 +3,36 @@ import {
 	TOrder,
 	TOrderCreate,
 	TOrderQuery,
-	TProjectUpdate,
+	TOrderUpdate,
 	TQuery,
 } from "@/types";
 import { formatUtil } from "@/utils";
 
 const interceptor = axiosInterceptor();
-export const get = async (query: TQuery<TOrderQuery>): Promise<TOrder[]> => {
+const get = async (query: TQuery<TOrderQuery>): Promise<TOrder[]> => {
 	return (
 		await interceptor.get("/hkj-orders", {
 			params: formatUtil.objectOneDegree(query),
 		})
 	).data;
 };
-export const getOne = async (id: number | string): Promise<TOrder> => {
+const getOne = async (id: number | string): Promise<TOrder> => {
 	return (await interceptor.get(`/hkj-orders/${id}`)).data;
 };
-export const getCount = async (query: TQuery<TOrderQuery>): Promise<number> => {
+const getCount = async (query: TQuery<TOrderQuery>): Promise<number> => {
 	return (
 		await interceptor.get("/hkj-orders/count", {
 			params: formatUtil.objectOneDegree(query),
 		})
 	).data;
 };
-export const update = async (data: TProjectUpdate) => {
+const update = async (data: TOrderUpdate) => {
 	return (await interceptor.put(`/hkj-orders/${data.id}`, data)).data;
 };
-
-export const deleteOne = async (id: number) => {
+const updatePartical = async (data: TOrderUpdate) => {
+	return (await interceptor.patch(`/hkj-orders/${data.id}`, data)).data;
+};
+const deleteOne = async (id: number) => {
 	return (
 		await interceptor.patch(`/hkj-orders/${id}`, {
 			id,
@@ -38,7 +40,7 @@ export const deleteOne = async (id: number) => {
 		})
 	).data;
 };
-export const create = async (data: TOrderCreate): Promise<TOrder> => {
+const create = async (data: TOrderCreate): Promise<TOrder> => {
 	return (
 		await interceptor.post("/hkj-orders", {
 			...data,
@@ -53,5 +55,6 @@ const orderService = {
 	update,
 	deleteOne,
 	getOne,
+	updatePartical,
 };
 export default orderService;

@@ -41,7 +41,7 @@ const CreateImageForm: React.FC<{}> = () => {
 		},
 		[setValue]
 	);
-	const { jewelry, next } = createJewelryStore();
+	const { jewelry, next, setJewelry } = createJewelryStore();
 	const message = App.useApp().message;
 	const createImages = async () => {
 		const images = getValues("images");
@@ -75,10 +75,12 @@ const CreateImageForm: React.FC<{}> = () => {
 		);
 		console.log("🚀 ~ createCoverImage ~ imageUrls:", imageUrls);
 
-		await jewelryService.update({
+		const newJewelry = await jewelryService.update({
 			...jewelry!,
 			coverImage: imageUrls[0],
+			isCoverSearch: false,
 		});
+		setJewelry(newJewelry);
 	};
 	const { data, mutate, isPending } = useMutation({
 		mutationFn: async () => {

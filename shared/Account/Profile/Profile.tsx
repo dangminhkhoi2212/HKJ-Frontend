@@ -1,17 +1,15 @@
 "use client";
-import { Button, Tag } from "antd";
-import { signIn } from "next-auth/react";
-import Link from "next/link";
-import React from "react";
+import { Button, Tag } from 'antd';
+import { signIn } from 'next-auth/react';
+import Link from 'next/link';
+import React from 'react';
 
-import { useRouterCustom } from "@/hooks";
-import { AccountDisplay } from "@/shared/FormSelect/AccountForm";
-import { Frame } from "@/shared/Frame";
-import useAccountStore from "@/stores/account";
+import { useAccountStore } from '@/providers';
+import { AccountDisplay } from '@/shared/FormSelect/AccountForm';
+import { Frame } from '@/shared/Frame';
 
 const Profile: React.FC<{}> = () => {
-	const { router, pathname } = useRouterCustom();
-	const { account } = useAccountStore();
+	const account = useAccountStore((state) => state.account);
 	return (
 		<div className="flex flex-col gap-4">
 			<Frame

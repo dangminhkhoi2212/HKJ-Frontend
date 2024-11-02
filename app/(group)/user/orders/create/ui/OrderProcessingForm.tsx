@@ -1,11 +1,11 @@
 "use client";
 import { Steps } from "antd";
-import React from "react";
+import React, { useEffect } from "react";
 
 import { Frame } from "@/shared/Frame";
 
 import { createOrderStore } from "../store";
-import { CreateOrderBasicForm, CreateOrderImagesForm } from "./";
+import { CreateOrderBasicForm } from "./";
 import CreateOrderResult from "./CreateOrderResult";
 
 type Props = {};
@@ -15,28 +15,28 @@ const items = [
 		title: "Thông tin",
 	},
 	{
-		title: "Hình ảnh",
-	},
-	{
 		title: "Kết quả",
 	},
 ];
 const OrderProcessingForm: React.FC<Props> = ({}) => {
 	const step = createOrderStore((state) => state.step);
+	const resetStore = createOrderStore((state) => state.reset);
 	const forms = [
 		{
 			key: 1,
 			children: <CreateOrderBasicForm />,
 		},
+
 		{
 			key: 2,
-			children: <CreateOrderImagesForm />,
-		},
-		{
-			key: 3,
 			children: <CreateOrderResult />,
 		},
 	];
+	useEffect(() => {
+		return () => {
+			resetStore();
+		};
+	}, []);
 	return (
 		<Frame
 			title="Đặt làm mẫu trang sức"

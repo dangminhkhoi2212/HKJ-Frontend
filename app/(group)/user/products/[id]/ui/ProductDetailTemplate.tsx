@@ -1,28 +1,26 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect } from 'react';
 
-import { useRouterCustom } from "@/hooks";
-import { jewelryService } from "@/services";
-import { EmptyCustom } from "@/shared/EmptyCustom";
-import { useQuery } from "@tanstack/react-query";
+import { jewelryService } from '@/services';
+import { EmptyCustom } from '@/shared/EmptyCustom';
+import { useQuery } from '@tanstack/react-query';
 
-import { productDetailStore } from "../store";
-import ProductDescription from "./ProductDescription";
-import ProductGallery from "./ProductGallery";
-import ProductInfo from "./ProductInfo";
-import ProductProject from "./ProductProject";
+import { productDetailStore } from '../store';
+import ProductDescription from './ProductDescription';
+import ProductGallery from './ProductGallery';
+import ProductInfo from './ProductInfo';
+import ProductProject from './ProductProject';
 
-type Props = {};
+type Props = { id: string };
 
-const ProductDetailTempate: React.FC<Props> = ({}) => {
-	const param = useRouterCustom().params;
-	console.log("🚀 ~ param:", param);
+const ProductDetailTempate: React.FC<Props> = ({ id }) => {
 	const setJewelry = productDetailStore((state) => state.setJewelry);
 	const reset = productDetailStore((state) => state.reset);
 
 	const getJewelry = useQuery({
-		queryKey: ["jewelry", param.id],
-		queryFn: () => jewelryService.getOne(param.id),
+		queryKey: ["jewelry", id],
+		queryFn: () => jewelryService.getOne(id),
+		enabled: !!id,
 	});
 	useEffect(() => {
 		if (getJewelry.data) setJewelry(getJewelry.data);

@@ -1,12 +1,13 @@
-import { Button, Descriptions } from "antd";
-import { DescriptionsProps } from "antd/lib";
-import { ChevronsRight } from "lucide-react";
-import Link from "next/link";
-import React from "react";
+import { Button, Descriptions } from 'antd';
+import { DescriptionsProps } from 'antd/lib';
+import { ChevronsRight } from 'lucide-react';
+import Link from 'next/link';
+import React from 'react';
 
-import { routesUser } from "@/routes";
-import { TOrder } from "@/types";
-import { formatUtil, tagMapperUtil } from "@/utils";
+import { routesUser } from '@/routes';
+import { OrderProductCard } from '@/shared/CardCustom';
+import { TOrder } from '@/types';
+import { formatUtil, tagMapperUtil } from '@/utils';
 
 type Props = { order: TOrder };
 const { TStatusColorMapper } = tagMapperUtil;
@@ -20,18 +21,6 @@ const OrderCard: React.FC<Props> = ({ order }) => {
 			span: 1,
 		},
 		{
-			key: "budget",
-			label: "Ngân sách yêu cầu",
-			children: formatCurrency(order?.budget!),
-			span: 1,
-		},
-		{
-			key: "actualDeliveryDate",
-			label: "Ngày mong đợi giao",
-			children: formatDate(order.expectedDeliveryDate),
-			span: 1,
-		},
-		{
 			key: "catergory",
 			label: "Loại trang sức",
 			children: order?.category?.name,
@@ -39,20 +28,43 @@ const OrderCard: React.FC<Props> = ({ order }) => {
 		},
 
 		{
-			key: "budget",
-			label: "Giá hoàn thành",
+			key: "totalPrice",
+			label: "Tổng tiền",
 			children: order?.totalPrice
 				? formatCurrency(order?.totalPrice!)
 				: "Đang cập nhật",
-			span: 2,
+			span: 1,
 		},
 		{
-			key: "actualDeliveryDate",
-			label: "Ngày giao",
-			children: order.actualDeliveryDate
-				? formatDate(order.actualDeliveryDate)
+			key: "expectedDeliveryDate",
+			label: "Ngày giao dự kiến",
+			children: order.expectedDeliveryDate
+				? formatDate(order.expectedDeliveryDate)
 				: "Đang cập nhật",
-			span: 2,
+
+			span: 1,
+		},
+		{
+			key: "specialRequests",
+			label: "Mô tả",
+			children: (
+				<p
+					dangerouslySetInnerHTML={{ __html: order.specialRequests }}
+				></p>
+			),
+
+			span: 4,
+		},
+		{
+			key: "jewelry",
+			label: "Sản phẩm mẫu",
+			children: order.jewelry?.id ? (
+				<OrderProductCard jewelry={order.jewelry} />
+			) : (
+				"Không có"
+			),
+
+			span: 4,
 		},
 	];
 	return (

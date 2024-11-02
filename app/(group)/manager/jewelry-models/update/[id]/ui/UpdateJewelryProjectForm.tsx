@@ -1,22 +1,22 @@
 "use client";
-import { App, Button, Empty, Form, Skeleton, Space, Spin, Switch } from "antd";
-import dayjs from "dayjs";
-import { Gantt, Task } from "gantt-task-react";
-import React, { useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { App, Button, Empty, Form, Skeleton, Space, Spin, Switch } from 'antd';
+import dayjs from 'dayjs';
+import { Gantt, Task } from 'gantt-task-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
-import { KEY_CONST } from "@/const";
-import { jewelryService } from "@/services";
-import projectService from "@/services/projectService";
-import taskService from "@/services/taskService";
-import MapAnotations from "@/shared/Anotation/MapAnotation";
-import DisplayProject from "@/shared/FormSelect/SelectProjectForm/DisplayProject";
-import SelectProjectForm from "@/shared/FormSelect/SelectProjectForm/SelectProjectForm";
-import { TJewelry, TProject, TTask } from "@/types";
-import { tagMapperUtil } from "@/utils";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { KEY_CONST } from '@/const';
+import { jewelryService } from '@/services';
+import projectService from '@/services/projectService';
+import taskService from '@/services/taskService';
+import MapAnotations from '@/shared/Anotation/MapAnotation';
+import DisplayProject from '@/shared/FormSelect/SelectProjectForm/DisplayProject';
+import SelectProjectForm from '@/shared/FormSelect/SelectProjectForm/SelectProjectForm';
+import { TJewelry, TProject, TTask } from '@/types';
+import { tagMapperUtil } from '@/utils';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
-import { updateJewelryModelStore } from "../store";
+import { updateJewelryModelStore } from '../store';
 
 const { colorPriority } = tagMapperUtil;
 type TForm = {
@@ -133,7 +133,7 @@ const UpdateProjectForm: React.FC = () => {
 
 				return jewelryService.update({
 					...jewelry!,
-					...data!,
+					project: data.project.id ? { id: data.project.id } : null,
 				});
 			},
 			onSuccess: (data: TJewelry) => {

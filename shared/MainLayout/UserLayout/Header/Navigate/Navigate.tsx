@@ -1,10 +1,10 @@
 "use client";
-import { Menu, MenuProps } from "antd";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { Menu, MenuProps } from 'antd';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 
-import { menuUser } from "./menu";
+import { menuUser } from './menu';
 
 type Props = {};
 type MenuItem = Required<MenuProps>["items"][number];
@@ -23,28 +23,27 @@ const convertMenu = (menu: MenuItem[]): MenuItem[] => {
 };
 const UserNavigate: React.FC<Props> = ({}) => {
 	const pathname = usePathname(); // Current path
-	const [menus, setMenus] = useState<MenuItem[]>([]);
+	const [menus, setMenus] = useState<MenuItem[]>(
+		convertMenu(menuUser!) || []
+	);
 
 	const [defaultSelectedKey, setDefaultSelectedKey] = useState<
 		string | undefined
 	>();
 	useEffect(() => {
-		setMenus(convertMenu(menuUser!) || []);
-		const menu = menuUser?.find((item: MenuItem) => {
+		const menu = menuUser.reverse()?.find((item: MenuItem) => {
 			return pathname === item?.key?.toString();
 		});
 		setDefaultSelectedKey(menu?.key?.toString());
-	}, [pathname]);
+	}, [pathname, menus]);
 
-	if (!defaultSelectedKey) return <></>;
 	return (
 		<Menu
 			theme="light"
 			mode="horizontal"
-			className="w-full bg-transparent"
 			disabledOverflow={true}
 			defaultSelectedKeys={[defaultSelectedKey?.toString()!]}
-			defaultOpenKeys={[defaultSelectedKey?.toString()!]}
+			selectedKeys={[defaultSelectedKey?.toString()!]}
 			items={menus}
 		/>
 	);

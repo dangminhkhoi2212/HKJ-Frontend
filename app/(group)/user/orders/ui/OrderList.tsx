@@ -1,32 +1,36 @@
 "use client";
-import { Button, Divider, List, Skeleton, Space } from "antd";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import InfiniteScroll from "react-infinite-scroll-component";
+import { Button, Divider, List, Skeleton, Space, Spin } from 'antd';
+import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
-import { QUERY_CONST } from "@/const";
-import { useRouterCustom } from "@/hooks";
-import { routesUser } from "@/routes";
-import { orderService } from "@/services";
-import { EmptyCustom } from "@/shared/EmptyCustom";
-import useAccountStore from "@/stores/account";
-import { TOrder, TOrderQuery, TQuery, TStatus } from "@/types";
-import { useQueries } from "@tanstack/react-query";
+import { QUERY_CONST } from '@/const';
+import { useRouterCustom } from '@/hooks';
+import { useAccountStore } from '@/providers';
+import { routesUser } from '@/routes';
+import { orderService } from '@/services';
+import { EmptyCustom } from '@/shared/EmptyCustom';
+import { TOrder, TOrderQuery, TQuery, TStatus } from '@/types';
+import { queryUtil } from '@/utils';
+import { useQueries } from '@tanstack/react-query';
 
-import OrderCard from "./OrderCard";
+import OrderCard from './OrderCard';
 
 type Props = {};
 
 const defaultQuery = QUERY_CONST.defaultQuery;
+const { createSortOption } = queryUtil;
 const OrderList: React.FC<Props> = ({}) => {
 	const account = useAccountStore((state) => state.account);
+	console.log("🚀 ~ account:", account);
 	const { searchParams } = useRouterCustom();
 	const [pageSize, setPageSize] = useState<number>(Number.MAX_VALUE);
 	const [query, setQuery] = useState<TQuery<TOrderQuery>>({
 		...defaultQuery,
 		size: 2,
-		customer: { id: { equals: account?.id } },
+		customerId: { equals: account?.id },
 		status: { equals: TStatus.NEW },
+		sort: createSortOption("createdDate")?.desc,
 	});
 	console.log("🚀 ~ query:", query);
 	const [data, setData] = useState<TOrder[]>([]);
@@ -35,10 +39,12 @@ const OrderList: React.FC<Props> = ({}) => {
 			{
 				queryKey: ["orders", query],
 				queryFn: () => orderService.get(query),
+				enabled: !!account,
 			},
 			{
 				queryKey: ["orders-count", query],
 				queryFn: () => orderService.getCount(query),
+				enabled: !!account,
 			},
 		],
 	});
@@ -67,6 +73,7 @@ const OrderList: React.FC<Props> = ({}) => {
 			}));
 		}
 	}, [searchParams]);
+
 	if (!data?.length) {
 		return (
 			<EmptyCustom
@@ -83,6 +90,9 @@ const OrderList: React.FC<Props> = ({}) => {
 	}
 	return (
 		<div id="scrollableDiv" className="h-full overflow-auto no-scrollbar">
+			<Spin
+				spinning={getOrder.isLoading || getOrderCount.isLoading}
+			></Spin>
 			<InfiniteScroll
 				dataLength={data.length}
 				next={() => loadMoreData()}

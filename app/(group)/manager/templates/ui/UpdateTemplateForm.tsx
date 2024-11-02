@@ -1,17 +1,17 @@
-import { App, Button, Form, Space, Tag } from "antd";
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { App, Button, Form, Space, Tag } from 'antd';
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 
-import { KEY_CONST } from "@/const";
-import templateService from "@/services/templateService";
-import { InputCustom } from "@/shared/FormCustom/InputCustom";
-import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
-import { TTemplateUpdate } from "@/types";
-import templateValidation from "@/validations/templateValidation";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useMutation } from "@tanstack/react-query";
+import { KEY_CONST } from '@/const';
+import templateService from '@/services/templateService';
+import { InputCustom } from '@/shared/FormCustom/InputCustom';
+import { SelectCategoryForm } from '@/shared/FormSelect/SelectCategoryForm';
+import { TTemplateUpdate } from '@/types';
+import templateValidation from '@/validations/templateValidation';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useMutation } from '@tanstack/react-query';
 
-import { templateStore } from "../store";
+import { templateStore } from '../store';
 
 type TForm = TTemplateUpdate;
 
@@ -76,7 +76,7 @@ const UpdateTemplateForm: React.FC<{}> = () => {
 				<Space direction="vertical" className="w-full">
 					<SelectCategoryForm
 						onChange={onChangeSelect}
-						defaultValueId={templateUpdate?.category?.id}
+						value={templateUpdate?.category?.id}
 					/>
 					<span className="text-red-500">
 						{errors.category?.id?.message}

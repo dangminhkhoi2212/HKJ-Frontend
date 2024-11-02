@@ -1,14 +1,14 @@
 "use client";
-import { App } from "antd";
-import { signOut } from "next-auth/react";
+import { App } from 'antd';
+import { signOut } from 'next-auth/react';
 
-import { routes } from "@/routes";
-import useAccountStore from "@/stores/account";
+import { useAccountStore } from '@/providers';
+import { routes } from '@/routes';
 
-import { useRouterCustom } from "./router";
+import { useRouterCustom } from './router';
 
 export const useAccount = () => {
-	const { setAccount, setIsLoading } = useAccountStore((state) => state);
+	const { setAccount } = useAccountStore((state) => state);
 	const { message } = App.useApp();
 	const { router } = useRouterCustom();
 

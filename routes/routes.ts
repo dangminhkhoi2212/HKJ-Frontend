@@ -6,7 +6,9 @@ export const routesUser = {
 	order: `/user/orders`,
 	orderDetail: (orderId: string | number) => `/user/orders/${orderId}`,
 	createOrder: (productId?: string | number) =>
-		`/user/orders/create?pId=${productId}`,
+		productId
+			? `/user/orders/create?pId=${productId}`
+			: "/user/orders/create",
 };
 export const routesAdmin = {
 	positions: "/admin/positions",
@@ -28,6 +30,7 @@ export const routesManager = {
 	addMaterial: "/manager/materials/add",
 	jewelry: "/manager/jewelry-models",
 	updateMaterial: (id: string | number) => `/manager/materials/update/${id}`,
+	updateOrder: (id: string | number) => `/manager/orders/update/${id}`,
 
 	createJewelry: "/manager/jewelry-models/create",
 	updateJewelry: (id: string | number) =>

@@ -1,7 +1,7 @@
-import * as yup from "yup";
+import * as yup from 'yup';
 
-import { KEY_CONST } from "@/const";
-import { TStatus } from "@/types";
+import { KEY_CONST } from '@/const';
+import { TStatus } from '@/types';
 
 const { REQUIRED_FIELD_MESSAGE } = KEY_CONST;
 const orderSchema = yup.object({
@@ -9,7 +9,10 @@ const orderSchema = yup.object({
 	orderDate: yup.string().required(REQUIRED_FIELD_MESSAGE),
 	expectedDeliveryDate: yup.string().required(REQUIRED_FIELD_MESSAGE),
 	actualDeliveryDate: yup.string().required(REQUIRED_FIELD_MESSAGE),
-	specialRequests: yup.string().max(5000, "Tối đa 5000 kí tự"),
+	specialRequests: yup
+		.string()
+		.max(5000, "Tối đa 5000 kí tự")
+		.required(REQUIRED_FIELD_MESSAGE),
 	status: yup
 		.mixed<TStatus>()
 		.oneOf(Object.values(TStatus) as TStatus[])
@@ -18,10 +21,6 @@ const orderSchema = yup.object({
 	totalPrice: yup
 		.number()
 		.min(0, "Giá trị phải lớn hơn 0")
-		.required(REQUIRED_FIELD_MESSAGE),
-	budget: yup
-		.number()
-		.min(100000, "Giá trị phải lớn hơn 100,000 VND")
 		.required(REQUIRED_FIELD_MESSAGE),
 	project: yup.object({
 		id: yup
@@ -36,6 +35,9 @@ const orderSchema = yup.object({
 			.required(REQUIRED_FIELD_MESSAGE),
 	}),
 	jewelry: yup.object({
+		id: yup.number().nullable(),
+	}),
+	material: yup.object({
 		id: yup.number().nullable(),
 	}),
 	category: yup.object({

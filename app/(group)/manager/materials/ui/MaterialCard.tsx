@@ -1,12 +1,11 @@
-import { Card, Image, Skeleton } from "antd";
-import Link from "next/link";
-import React from "react";
-import { NumericFormat } from "react-number-format";
+import { Card, Image, Skeleton } from 'antd';
+import Link from 'next/link';
+import React from 'react';
 
-import { useRouterCustom } from "@/hooks";
-import { routesManager } from "@/routes";
-import { TMaterial } from "@/types";
-import { EditOutlined } from "@ant-design/icons";
+import { useRouterCustom } from '@/hooks';
+import { routesManager } from '@/routes';
+import { TMaterial } from '@/types';
+import { EditOutlined } from '@ant-design/icons';
 
 const { Meta } = Card;
 type Props = {
@@ -14,26 +13,7 @@ type Props = {
 };
 const MaterialCard: React.FC<Props> = ({ data }) => {
 	const { router } = useRouterCustom();
-	const extraUnitPrice = () => {
-		const unitPrice = data.unitPrice;
-		const unit = data.unit;
-		return (
-			(unitPrice || unit) && (
-				<span>
-					{
-						<NumericFormat
-							readOnly
-							value={unitPrice}
-							displayType="text"
-							suffix=" VND"
-							thousandSeparator=","
-						/>
-					}
-					/{unit}
-				</span>
-			)
-		);
-	};
+
 	return (
 		<Card
 			className="overflow-hidden w-full min-w-40 min-h-28 max-w-60 "
@@ -62,7 +42,7 @@ const MaterialCard: React.FC<Props> = ({ data }) => {
 				</Link>,
 			]}
 		>
-			<Meta title={data.name} description={extraUnitPrice()} />
+			<Meta title={data.name} />
 		</Card>
 	);
 };

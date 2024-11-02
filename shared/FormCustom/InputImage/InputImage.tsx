@@ -122,7 +122,13 @@ const InputImages: React.FC<TProps> = ({
 			{errorMessage && (
 				<p className="p-0 m-0 text-red-500">{errorMessage}</p>
 			)}
-			<ImgCrop rotationSlider zoomSlider aspectSlider showReset>
+			<ImgCrop
+				rotationSlider
+				zoomSlider
+				aspectSlider
+				showReset
+				maxZoom={10}
+			>
 				<Upload
 					listType="picture-card"
 					fileList={fileList}

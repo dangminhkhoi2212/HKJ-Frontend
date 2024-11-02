@@ -1,16 +1,15 @@
 "use client";
-import { Divider, Layout, Menu, MenuProps } from "antd";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { Divider, Layout, Menu, MenuProps } from 'antd';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 
-import { AUTHORIZATIONS_CONST } from "@/const";
-import { Logo } from "@/shared/Logo";
-import useAccountStore from "@/stores/account";
-import useStyleStore from "@/stores/style";
-import { TAccountInfo } from "@/types";
+import { AUTHORIZATIONS_CONST } from '@/const';
+import { useAccountStore } from '@/providers';
+import { Logo } from '@/shared/Logo';
+import useStyleStore from '@/stores/style';
 
-import { menuAdmin, menuEmployee, menuManager, menuUser } from "./menus";
+import { menuAdmin, menuEmployee, menuManager, menuUser } from './menus';
 
 const { Sider } = Layout;
 const AUTHORIZATIONS = AUTHORIZATIONS_CONST.AUTHORIZATIONS;
@@ -46,32 +45,33 @@ const convertMenu = (menu: MenuItem[]): MenuItem[] => {
 const Sidebar: React.FC<{}> = () => {
 	const pathname = usePathname(); // Current path
 	const [menus, setMenus] = useState<MenuItem[]>([]);
-	const account: TAccountInfo | null | undefined = useAccountStore(
-		(state) => state.account
-	);
+	const account = useAccountStore((state) => state.account);
+
 	const collapsed: boolean = useStyleStore((state) => state.collapsed);
 	const [defaultSelectedKey, setDefaultSelectedKey] = useState<
 		string | undefined
 	>();
-
 	useEffect(() => {
-		const menuItems: MenuProps["items"] = renderMenu(
-			account?.authorities![0]
-		);
-
-		setMenus(convertMenu(menuItems!) || []);
-		const menu = menuItems?.find((item: MenuItem) => {
+		if (account) {
+			const menuItems: MenuProps["items"] = renderMenu(
+				account?.authorities![0]
+			);
+			setMenus(convertMenu(menuItems!) || []);
+		}
+	}, [account]);
+	useEffect(() => {
+		const menu = menus?.find((item: MenuItem) => {
 			return (
 				pathname === item?.key?.toString() ||
 				pathname.startsWith(item?.key?.toString()!)
 			);
 		});
-		setDefaultSelectedKey(
-			menu?.key?.toString() || menuItems![0]?.key?.toString()
-		);
-	}, [pathname]);
 
-	if (!defaultSelectedKey) return <></>;
+		setDefaultSelectedKey(
+			menu?.key?.toString() || menus![0]?.key?.toString()
+		);
+	}, [menus, pathname]);
+
 	return (
 		<Sider trigger={null} collapsible theme="light" collapsed={collapsed}>
 			<div className="flex justify-center items-center h-[64px]">
@@ -82,7 +82,7 @@ const Sidebar: React.FC<{}> = () => {
 				theme="light"
 				mode="inline"
 				defaultSelectedKeys={[defaultSelectedKey?.toString()!]}
-				defaultOpenKeys={[defaultSelectedKey?.toString()!]}
+				selectedKeys={[defaultSelectedKey?.toString()!]}
 				items={menus}
 			/>
 		</Sider>

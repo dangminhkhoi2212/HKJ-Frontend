@@ -113,6 +113,7 @@ const columns: TableColumnsType<TJewelry> = [
 const JewelryList: React.FC = () => {
 	const [query, setQuery] = React.useState<TQuery<TJewelryQuery>>({
 		...QUERY_CONST.defaultQuery,
+		// isCoverSearch: { equals: false },
 	});
 	const [pagination, setPagination] = useState({
 		...QUERY_CONST.initPagination,
@@ -162,7 +163,7 @@ const JewelryList: React.FC = () => {
 	const handleSearch = (value: string) => {
 		setQuery({ ...query, name: { contains: value } });
 	};
-	const handleAllowSearch = () => {
+	const handleAllowSearch = async () => {
 		const images = jewelryModels?.filter((jewelry) =>
 			selectedRowKeys.includes(jewelry.id)
 		);
@@ -173,15 +174,30 @@ const JewelryList: React.FC = () => {
 			url: item.coverImage,
 		}));
 		console.log("🚀 ~ constdata:TImageSearchAI[]=images.map ~ data:", data);
-
-		allowSearchMutation.mutate(data);
+		await imageSearchAIService.imageToVector(data);
+	};
+	const updateInDB = async () => {
+		const images = jewelryModels?.filter((jewelry) =>
+			selectedRowKeys.includes(jewelry.id)
+		);
+		if (!images?.length) return;
+		const data: TJewelry[] = images.map((item) => ({
+			...item,
+			isCoverSearch: true,
+		}));
+		console.log("🚀 ~ constdata:TImageSearchAI[]=images.map ~ data:", data);
+		await Promise.all(
+			data.map(async (item) => await jewelryService.update(item))
+		);
 	};
 	const allowSearchMutation = useMutation({
-		mutationFn: (data: TImageSearchAI[]) => {
-			return imageSearchAIService.imageToVector(data);
+		mutationFn: () => {
+			return Promise.all([handleAllowSearch(), updateInDB()]);
 		},
 		onSuccess() {
 			message.success("Đã cho phép tìm kiếm");
+			setSelectedRowKeys([]);
+			refresh();
 		},
 		onError(error: any) {
 			console.log("🚀 ~ onSuccess ~ error:", error);
@@ -201,7 +217,7 @@ const JewelryList: React.FC = () => {
 				<Button
 					icon={<ScanSearch size={18} />}
 					type="primary"
-					onClick={handleAllowSearch}
+					onClick={() => allowSearchMutation.mutate()}
 					loading={allowSearchMutation.isPending}
 				>
 					Cho phép tìm kiếm

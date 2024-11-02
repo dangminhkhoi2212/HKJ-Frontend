@@ -1,11 +1,11 @@
 "use client";
-import { Avatar } from "antd";
-import { AvatarProps } from "antd/lib/avatar";
-import React from "react";
+import { Avatar } from 'antd';
+import { AvatarProps } from 'antd/lib/avatar';
+import React from 'react';
 
-import useAccountStore from "@/stores/account";
-import { TAccountInfo } from "@/types";
-import { cn } from "@/utils/cn";
+import { useAccountStore } from '@/providers';
+import { TAccountInfo } from '@/types';
+import { cn } from '@/utils/cn';
 
 const AvatarAccount: React.FC<AvatarProps> = ({
 	size = "large",

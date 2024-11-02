@@ -6,6 +6,7 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 
 import { KEY_CONST } from "@/const";
+import { useAccountStore } from "@/providers";
 import { jewelryService } from "@/services";
 import {
 	InputCustom,
@@ -13,8 +14,8 @@ import {
 	LabelCustom,
 } from "@/shared/FormCustom/InputCustom";
 import NumberToWords from "@/shared/FormCustom/InputNumToWords/InputNumToWords";
+import { SelectMaterialForm } from "@/shared/FormSelect";
 import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
-import { generateUtil } from "@/utils";
 import jewelryValidation from "@/validations/jewelryValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useMutation } from "@tanstack/react-query";
@@ -46,8 +47,10 @@ const initValue: TFormJewelry = {
 	price: 0,
 	description: "",
 	category: { id: 0 },
+	material: { id: 0 },
 };
 const CreateBasicForm: React.FC<Props> = () => {
+	const account = useAccountStore((state) => state.account);
 	const methods = useForm<TFormJewelry>({
 		defaultValues: initValue,
 		resolver: yupResolver(schema),
@@ -63,13 +66,23 @@ const CreateBasicForm: React.FC<Props> = () => {
 	const { setJewelry, next } = createJewelryStore();
 	const message = App.useApp().message;
 	const { data, mutate, isPending } = useMutation({
-		mutationFn: (data: TFormJewelry) => {
+		mutationFn: async (data: TFormJewelry) => {
 			console.log("🚀 ~ mutate ~ data:", data);
 
-			return jewelryService.create({
+			const newJewelry = await jewelryService.create({
 				...data,
-				name: data.name.trim() + " " + generateUtil.generateSKU(data),
-				sku: generateUtil.generateSKU(data),
+				name: data.name.trim(),
+				sku: "",
+				coverImage: "",
+				manager: { id: account?.id! },
+				isCoverSearch: false,
+			});
+			console.log("🚀 ~ mutationFn: ~ newJewelry:", newJewelry);
+			const sku: string = "HKJ" + newJewelry.id;
+			return await jewelryService.updatePartical({
+				id: newJewelry.id,
+				sku,
+				name: `${newJewelry.name} ${sku}`,
 			});
 		},
 		onSuccess(data, variables, context) {
@@ -78,6 +91,7 @@ const CreateBasicForm: React.FC<Props> = () => {
 			next();
 		},
 		onError(error) {
+			console.log("🚀 ~ onError ~ error:", error);
 			message.error(KEY_CONST.ERROR_MESSAGE);
 		},
 	});
@@ -153,7 +167,24 @@ const CreateBasicForm: React.FC<Props> = () => {
 									errors?.category?.id?.message}
 							</span>
 						</Space>
-
+						<Space direction="vertical">
+							<SelectMaterialForm
+								onChange={(value) => {
+									setValue("material.id", value, {
+										shouldValidate: true,
+									});
+								}}
+								status={
+									(errors?.material?.message ||
+										errors?.material?.id?.message) &&
+									"error"
+								}
+							/>
+							<span className="text-red-500">
+								{errors?.material?.message ||
+									errors?.material?.id?.message}
+							</span>
+						</Space>
 						<Controller
 							control={control}
 							name="active"
@@ -192,12 +223,6 @@ const CreateBasicForm: React.FC<Props> = () => {
 								</Space>
 							)}
 						/>
-					</Space>
-					<Space>
-						<p>
-							Mã SKU:{" "}
-							<span>{generateUtil.generateSKU(watch())}</span>
-						</p>
 					</Space>
 				</div>
 

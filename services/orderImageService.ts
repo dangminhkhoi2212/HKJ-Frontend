@@ -1,16 +1,14 @@
 import axiosInterceptor from "@/config/axiosInterceptor";
 import {
-	TJewelryImageQuery,
 	TOrderImage,
 	TOrderImageCreate,
+	TOrderImageQuery,
 	TQuery,
 } from "@/types";
 import { formatUtil } from "@/utils";
 
 const interceptor = axiosInterceptor();
-const get = async (
-	query: TQuery<TJewelryImageQuery>
-): Promise<TOrderImage[]> => {
+const get = async (query: TQuery<TOrderImageQuery>): Promise<TOrderImage[]> => {
 	return (
 		await interceptor.get("/hkj-order-images", {
 			params: formatUtil.objectOneDegree({ ...query }),
@@ -51,7 +49,7 @@ const createMultiple = async (
 const deleteMultiple = async (ids: number[]) => {
 	return await Promise.all(ids.map(async (item) => await deleteOne(item)));
 };
-const jewelryImageService = {
+const orderImageService = {
 	get,
 	create,
 	getCount,
@@ -60,4 +58,4 @@ const jewelryImageService = {
 	createMultiple,
 	deleteMultiple,
 };
-export default jewelryImageService;
+export default orderImageService;

@@ -1,15 +1,14 @@
-"use client";
-import { Button, Space } from "antd";
-import { Plus } from "lucide-react";
-import Link from "next/link";
+import { Button, Space } from 'antd';
+import { Plus } from 'lucide-react';
+import Link from 'next/link';
 
-import { routesManager } from "@/routes";
-import { materialService } from "@/services";
-import { Frame } from "@/shared/Frame";
-import queryClientUtil from "@/utils/queryClientUtil";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { routesManager } from '@/routes';
+import { materialService } from '@/services';
+import { Frame } from '@/shared/Frame';
+import queryClientUtil from '@/utils/queryClientUtil';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 
-import MaterialList from "./ui/MaterialList";
+import MaterialList from './ui/MaterialList';
 
 type TSelectMaterial = {
 	show: boolean;

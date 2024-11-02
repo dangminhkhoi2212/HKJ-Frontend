@@ -16,7 +16,7 @@ type TActions = {
 
 const initValues: TState = {
 	step: 0,
-	maxStep: 2,
+	maxStep: 1,
 	order: null,
 };
 export const createOrderStore = create<TState & TActions>((set, get) => ({

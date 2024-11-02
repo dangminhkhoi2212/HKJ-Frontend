@@ -1,5 +1,7 @@
+import { TAudit } from './auditType';
 import { TCategory } from './categoryType';
 import { TFilter } from './filterType';
+import { TMaterial } from './materialType';
 import { TPriority } from './priorityType';
 import { TStatus } from './statusType';
 import { TUserExtra } from './userExtraType';
@@ -20,7 +22,8 @@ export type TProject = {
 	notes: string;
 	category: TCategory;
 	manager: TUserExtra;
-};
+	material: TMaterial;
+} & TAudit;
 
 export type TProjectCreate = {
 	name: string;

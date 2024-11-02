@@ -2,6 +2,7 @@ import { TAudit } from "./auditType";
 import { TCategory } from "./categoryType";
 import { TEmployee } from "./employeeType";
 import { TFilter } from "./filterType";
+import { TMaterial } from "./materialType";
 import { TProject } from "./projectType";
 import { TUserExtra } from "./userExtraType";
 
@@ -13,20 +14,27 @@ export type TJewelry = {
 	weight: number;
 	manager: TUserExtra;
 	description?: string;
-	category: TCategory;
 	isCustom: boolean;
 	isCoverSearch?: boolean;
 	price: number;
 	coverImage: string;
 	active: boolean;
+	category: TCategory;
 	project: TProject;
+	material: TMaterial;
 } & TAudit;
-export type TJewelryCreate = Omit<
+
+export type TJewelryCRUD = Omit<
 	TJewelry,
-	"id" | "manager" | "category" | "coverImage" | "project"
+	"project" | "material" | "category" | "manager"
 > & {
-	category: Pick<TCategory, "id">;
+	project?: Pick<TProject, "id"> | null;
+	category?: Pick<TCategory, "id"> | null;
+	material?: Pick<TMaterial, "id"> | null;
+	manager?: Pick<TUserExtra, "id"> | null;
 };
+export type TJewelryCreate = Omit<TJewelryCRUD, "id">;
+
 export type TJewelryUpdate = Omit<
 	TJewelry,
 	"manager" | "category" | "project"
@@ -54,4 +62,5 @@ export type TJewelryQuery = {
 	name?: TFilter;
 	price?: TFilter;
 	categoryId?: TFilter;
+	isCoverSearch?: TFilter;
 };

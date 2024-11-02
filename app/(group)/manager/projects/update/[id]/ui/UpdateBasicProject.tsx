@@ -1,29 +1,25 @@
 "use client";
-import { App, Button, Form, Space, Spin, Tag } from "antd";
-import dayjs from "dayjs";
-import dynamic from "next/dynamic";
-import React, { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
-import * as yup from "yup";
+import { App, Button, Form, Space, Spin, Tag } from 'antd';
+import dayjs from 'dayjs';
+import dynamic from 'next/dynamic';
+import React, { useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import * as yup from 'yup';
 
-import { KEY_CONST } from "@/const";
-import { useRouterCustom } from "@/hooks";
-import projectService from "@/services/projectService";
-import {
-	InputCustom,
-	InputNumberCustom,
-	LabelCustom,
-} from "@/shared/FormCustom/InputCustom";
-import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
-import useAccountStore from "@/stores/account";
-import { TProject, TProjectUpdate, TStatus } from "@/types";
-import { TPriority } from "@/types/priorityType";
-import { tagMapperUtil } from "@/utils";
-import projectValidation from "@/validations/projectValidation";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { KEY_CONST } from '@/const';
+import { useRouterCustom } from '@/hooks';
+import { useAccountStore } from '@/providers';
+import projectService from '@/services/projectService';
+import { InputCustom, InputNumberCustom, LabelCustom } from '@/shared/FormCustom/InputCustom';
+import { SelectCategoryForm } from '@/shared/FormSelect/SelectCategoryForm';
+import { TProject, TProjectUpdate, TStatus } from '@/types';
+import { TPriority } from '@/types/priorityType';
+import { tagMapperUtil } from '@/utils';
+import projectValidation from '@/validations/projectValidation';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
-import { updateProjectStore } from "../store";
+import { updateProjectStore } from '../store';
 
 const { TPriorityMapper, TStatusMapper } = tagMapperUtil;
 const ReactQuill = dynamic(() => import("react-quill-new"), {

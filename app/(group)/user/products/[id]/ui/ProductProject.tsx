@@ -1,18 +1,18 @@
-import { Skeleton, Space, Switch } from "antd";
-import dayjs from "dayjs";
-import { Gantt, Task } from "gantt-task-react";
-import React, { useEffect, useMemo, useState } from "react";
+import { Skeleton, Space, Switch } from 'antd';
+import dayjs from 'dayjs';
+import { Gantt, Task } from 'gantt-task-react';
+import React, { useEffect, useMemo, useState } from 'react';
 
-import projectService from "@/services/projectService";
-import taskService from "@/services/taskService";
-import MapAnotations from "@/shared/Anotation/MapAnotation";
-import { EmptyCustom } from "@/shared/EmptyCustom";
-import { Frame } from "@/shared/Frame";
-import { TTask } from "@/types";
-import { tagMapperUtil } from "@/utils";
-import { useQueries } from "@tanstack/react-query";
+import projectService from '@/services/projectService';
+import taskService from '@/services/taskService';
+import MapAnotations from '@/shared/Anotation/MapAnotation';
+import { EmptyCustom } from '@/shared/EmptyCustom';
+import { Frame } from '@/shared/Frame';
+import { TTask } from '@/types';
+import { tagMapperUtil } from '@/utils';
+import { useQueries } from '@tanstack/react-query';
 
-import { productDetailStore } from "../store";
+import { productDetailStore } from '../store';
 
 type Props = {};
 const { colorPriority } = tagMapperUtil;
@@ -26,6 +26,7 @@ const ProductProject: React.FC<Props> = ({}) => {
 			{
 				queryKey: ["project", jewelry?.project?.id],
 				queryFn: () => projectService.getOne(jewelry?.project?.id!),
+				enabled: !!jewelry?.project?.id,
 			},
 			{
 				queryKey: [
@@ -37,6 +38,7 @@ const ProductProject: React.FC<Props> = ({}) => {
 						projectId: { equals: jewelry?.project?.id! },
 						sort: "assignedDate,asc",
 					}),
+				enabled: !!jewelry?.project?.id,
 			},
 		],
 	});

@@ -1,18 +1,14 @@
-import { TAudit } from "./auditType";
+import { TAudit } from './auditType';
 
 export type TMaterial = {
-  id: number;
-  name: string;
-  quantity: number;
-  unit: string;
-  unitPrice: number;
-  supplier: string;
-  coverImage: string;
+	id: number;
+	name: string;
+	coverImage: string;
 } & TAudit;
 
-export type TMaterialAdd = TMaterial;
+export type TMaterialAdd = Omit<TMaterial, "id">;
 export type TMaterialUpadate = Partial<TMaterial>;
 
 export type TMaterialQuery = {
-  id?: number;
+	id?: number;
 };

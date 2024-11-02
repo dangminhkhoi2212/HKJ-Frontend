@@ -5,11 +5,7 @@ import React, { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
-import {
-	imageSearchAIService,
-	jewelryImageService,
-	jewelryService,
-} from "@/services";
+import { jewelryImageService, jewelryService } from "@/services";
 import supabaseService from "@/services/supabaseService";
 import { LabelCustom } from "@/shared/FormCustom/InputCustom";
 import { InputImage } from "@/shared/FormCustom/InputImage";
@@ -108,14 +104,14 @@ const UpdateImagesForm: React.FC<Props> = ({}) => {
 				jewelry?.id!
 			);
 
-			const [coverImageUrl, _] = await Promise.all([
+			const [coverImageUrl] = await Promise.all([
 				await supabaseService.uploadAnDelete(
 					[],
 					[supabaseService.convertFile(coverImage!)],
 					folder
 				),
 
-				await imageSearchAIService.removeImages([jewelry?.id!]),
+				// await imageSearchAIService.removeImages([jewelry?.id!]),
 			]);
 			return coverImageUrl[0];
 		}
@@ -189,6 +185,7 @@ const UpdateImagesForm: React.FC<Props> = ({}) => {
 			return jewelryService.updatePartical({
 				id: rest?.id!,
 				coverImage: newCoverImage || jewelry?.coverImage!,
+				isCoverSearch: false,
 			});
 		},
 		onSuccess: (data: TJewelry) => {

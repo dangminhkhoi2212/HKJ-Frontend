@@ -6,7 +6,7 @@ import { materialService } from "@/services";
 import queryClientUtil from "@/utils/queryClientUtil";
 import { dehydrate } from "@tanstack/react-query";
 
-import { ProductTrending, UserCarousel } from "./ui";
+import { ProductTrending, StorePicture, UserCarousel } from "./ui";
 import Materials from "./ui/Materials";
 
 const hydrate = async () => {
@@ -27,6 +27,7 @@ const UserHomePage: React.FC<{}> = () => {
 			<UserCarousel />
 			<Materials />
 			<ProductTrending />
+			<StorePicture />
 		</Space>
 	);
 };

@@ -1,11 +1,5 @@
 import axiosInterceptor from "@/config/axiosInterceptor";
-import {
-	TJewelry,
-	TJewelryCreate,
-	TJewelryUpdate,
-	TJewelryUpdatePartical,
-	TQuery,
-} from "@/types";
+import { TJewelry, TJewelryCreate, TJewelryCRUD, TQuery } from "@/types";
 import { formatUtil } from "@/utils";
 
 const interceptor = axiosInterceptor();
@@ -30,16 +24,12 @@ export const getCount = async (query: TQuery<{}>): Promise<number> => {
 		})
 	).data;
 };
-export const update = async (data: TJewelryUpdate) => {
+export const update = async (data: TJewelryCRUD) => {
 	return (await interceptor.put(`/hkj-jewelry-models/${data.id}`, data)).data;
 };
-export const updatePartical = async (data: TJewelryUpdatePartical) => {
-	const dataConvert = data?.project?.id
-		? { id: data.id, project: data.project }
-		: data;
-	return (
-		await interceptor.patch(`/hkj-jewelry-models/${data.id}`, dataConvert)
-	).data;
+export const updatePartical = async (data: Partial<TJewelryCRUD>) => {
+	return (await interceptor.patch(`/hkj-jewelry-models/${data.id}`, data))
+		.data;
 };
 export const deleteOne = async (id: number) => {
 	return (

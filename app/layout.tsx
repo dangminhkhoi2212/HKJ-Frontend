@@ -1,17 +1,16 @@
-import "./globals.css";
+import './globals.css';
 
-import { getServerSession } from "next-auth";
-import { Roboto } from "next/font/google";
-import NextTopLoader from "nextjs-toploader";
-import { Suspense } from "react";
+import { getServerSession } from 'next-auth';
+import { Roboto } from 'next/font/google';
+import NextTopLoader from 'nextjs-toploader';
 
-import { QueryClientProvider, SessionProvider } from "@/providers";
-import { LayoutConfig } from "@/shared/LayoutConfig";
-import { Security } from "@/shared/Security";
-import { cn } from "@/utils";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
-
-import Loading from "./loading";
+import { authOptions } from '@/config';
+import { QueryClientProvider, SessionProvider } from '@/providers';
+import { ZustandProvider } from '@/providers/ZustandProvider';
+import { LayoutConfig } from '@/shared/LayoutConfig';
+import { Security } from '@/shared/Security';
+import { cn } from '@/utils';
+import { AntdRegistry } from '@ant-design/nextjs-registry';
 
 import type { Metadata } from "next";
 const roboto = Roboto({
@@ -29,24 +28,24 @@ export default function RootLayout({
 }: {
 	children: React.ReactNode;
 }) {
-	const session: any = getServerSession();
+	const session: any = getServerSession(authOptions);
 	return (
 		<html lang="en">
-			<body
-				className={cn(roboto.className, "bg-slate-50")}
-				suppressHydrationWarning={true}
-			>
+			<body className={cn(roboto.className, "bg-slate-50")}>
 				<NextTopLoader showSpinner={false} />
 				<QueryClientProvider>
-					<SessionProvider session={session}>
-						<LayoutConfig>
-							<AntdRegistry>
-								<Suspense fallback={<Loading />}>
+					<LayoutConfig>
+						<AntdRegistry>
+							<SessionProvider
+								session={session}
+								refetchInterval={5 * 60}
+							>
+								<ZustandProvider>
 									<Security>{children}</Security>
-								</Suspense>
-							</AntdRegistry>
-						</LayoutConfig>
-					</SessionProvider>
+								</ZustandProvider>
+							</SessionProvider>
+						</AntdRegistry>
+					</LayoutConfig>
 				</QueryClientProvider>
 			</body>
 		</html>

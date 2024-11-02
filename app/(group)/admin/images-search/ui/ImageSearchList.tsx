@@ -1,5 +1,6 @@
 "use client";
 import {
+	App,
 	Button,
 	Image,
 	Space,
@@ -8,14 +9,20 @@ import {
 	TableProps,
 	Tag,
 } from "antd";
-import { RotateCcw } from "lucide-react";
+import { BadgeX, RotateCcw, ScanSearch } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 
-import { QUERY_CONST } from "@/const";
-import { jewelryImageService } from "@/services";
-import { TJewelryImage, TJewelryImageQuery, TQuery } from "@/types";
+import { KEY_CONST, QUERY_CONST } from "@/const";
+import { imageSearchAIService, jewelryImageService } from "@/services";
+import { InputSearchCustom } from "@/shared/FormCustom/InputSearchCustom";
+import {
+	TImageSearchAI,
+	TJewelryImage,
+	TJewelryImageQuery,
+	TQuery,
+} from "@/types";
 import { formatUtil } from "@/utils";
-import { useQueries } from "@tanstack/react-query";
+import { useMutation, useQueries } from "@tanstack/react-query";
 
 type TableRowSelection<T extends object = object> =
 	TableProps<T>["rowSelection"];
@@ -71,14 +78,7 @@ const columns: TableColumnsType<TJewelryImage> = [
 			return formatUtil.formatCurrency(value);
 		},
 	},
-	{
-		title: "Tạo bởi",
-		dataIndex: ["jewelryModel", "createdBy"],
-		key: "jewelryModel.createdBy",
-		render(value, record, index) {
-			return formatUtil.formatDate(value.createdBy);
-		},
-	},
+
 	{
 		title: "Tạo bởi",
 		dataIndex: ["jewelryModel", "createdDate"],
@@ -103,6 +103,7 @@ const JewelryList: React.FC = () => {
 	const [pagination, setPagination] = useState({
 		...QUERY_CONST.initPagination,
 	});
+	const message = App.useApp().message;
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 	const [
 		{
@@ -144,9 +145,50 @@ const JewelryList: React.FC = () => {
 		refreshjewelryModels();
 		refreshjewelryModelsCount();
 	}, []);
-	// const handleSearch = (value: string) => {
-	// 	setQuery({ ...query, jewelryModelId: { contains: value } });
-	// };
+	const handleSearch = (value: string) => {
+		setQuery({ ...query, jewelryModelId: { contains: value } });
+	};
+	const handleAllowSearch = async () => {
+		const images = jewelryModels?.filter((jewelry) =>
+			selectedRowKeys.includes(jewelry.id)
+		);
+		if (!images?.length) return;
+		const data: TImageSearchAI[] = images.map((item) => ({
+			id: item.id,
+			jewelryId: item.jewelryModel.id,
+			url: item.url,
+		}));
+		console.log("🚀 ~ constdata:TImageSearchAI[]=images.map ~ data:", data);
+		await imageSearchAIService.imageToVector(data);
+	};
+	const updateInDB = async () => {
+		const images = jewelryModels?.filter((jewelry) =>
+			selectedRowKeys.includes(jewelry.id)
+		);
+		if (!images?.length) return;
+		const data: TJewelryImage[] = images.map((item) => ({
+			...item,
+			isSearchImage: true,
+		}));
+		console.log("🚀 ~ constdata:TImageSearchAI[]=images.map ~ data:", data);
+		await Promise.all(
+			data.map(async (item) => await jewelryImageService.update(item))
+		);
+	};
+	const allowSearchMutation = useMutation({
+		mutationFn: () => {
+			return Promise.all([handleAllowSearch(), updateInDB()]);
+		},
+		onSuccess() {
+			message.success("Đã cho phép tìm kiếm");
+			setSelectedRowKeys([]);
+			refresh();
+		},
+		onError(error: any) {
+			console.log("🚀 ~ onSuccess ~ error:", error);
+			message.error(KEY_CONST.ERROR_MESSAGE);
+		},
+	});
 	return (
 		<Space direction="vertical" className="flex">
 			<Space>
@@ -156,7 +198,18 @@ const JewelryList: React.FC = () => {
 				>
 					Làm mới
 				</Button>
-				{/* <InputSearchCustom handleSearch={handleSearch} /> */}
+				<InputSearchCustom handleSearch={handleSearch} />
+				<Button
+					icon={<ScanSearch size={18} />}
+					type="primary"
+					onClick={() => allowSearchMutation.mutate()}
+					loading={allowSearchMutation.isPending}
+				>
+					Cho phép tìm kiếm
+				</Button>
+				<Button icon={<BadgeX size={18} />} danger>
+					Bỏ tìm kiếm
+				</Button>
 			</Space>
 			<Table<TJewelryImage>
 				columns={columns}

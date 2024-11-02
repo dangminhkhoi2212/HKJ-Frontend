@@ -111,8 +111,8 @@ const CreateJeweleryProjectForm: React.FC = () => {
 			mutationFn: (data: TForm) => {
 				console.log("data", data);
 
-				return jewelryService.update({
-					...jewelry!,
+				return jewelryService.updatePartical({
+					// ...jewelry!,
 					...data!,
 				});
 			},

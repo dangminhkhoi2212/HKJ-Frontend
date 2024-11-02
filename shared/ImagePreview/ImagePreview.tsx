@@ -1,7 +1,7 @@
 "use client";
 import "../../shared/ImagePreview/ImagePreview.css";
 
-import { Empty, Image, Space } from "antd";
+import { Image, Space } from "antd";
 import React, { useEffect } from "react";
 
 import { cn } from "@/utils";
@@ -15,6 +15,8 @@ import {
 	ZoomInOutlined,
 	ZoomOutOutlined,
 } from "@ant-design/icons";
+
+import { EmptyCustom } from "../EmptyCustom";
 
 type TProps = {
 	images?: string[];
@@ -38,7 +40,7 @@ const ImagePreview: React.FC<TProps> = ({
 	if (!images || !images.length)
 		return (
 			<div className="flex justify-center items-center w-full">
-				<Empty />
+				<EmptyCustom />
 			</div>
 		);
 	return (

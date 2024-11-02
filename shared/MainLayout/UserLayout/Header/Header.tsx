@@ -1,13 +1,13 @@
-import { Layout } from "antd";
-import React from "react";
+import { Divider, Layout } from 'antd';
+import React from 'react';
 
-import { useRouterCustom } from "@/hooks";
-import { routesUser } from "@/routes";
-import { Logo } from "@/shared/Logo";
+import { useRouterCustom } from '@/hooks';
+import { routesUser } from '@/routes';
+import { Logo } from '@/shared/Logo';
 
-import { UserMenu } from "../../AdminLayout/Content/Header";
-import { UserNavigate } from "./Navigate";
-import SearchImage from "./SearchImage";
+import { UserMenu } from '../../AdminLayout/Content/Header';
+import { UserNavigate } from './Navigate';
+import SearchImage from './SearchImage';
 
 type Props = {};
 const { Header } = Layout;
@@ -21,20 +21,23 @@ const UserHeader: React.FC<Props> = ({}) => {
 		router.push(newUrl);
 	};
 	return (
-		<Header className=" bg-white bg-no-repeat object-cover object-center">
-			<div className="grid grid-cols-12 gap-5 h-full place-items-center">
-				<div className="col-span-1">
-					<Logo />
+		<div className=" flex flex-col justify-stretch items-center w-full shadow-sm z-50">
+			<div className="py-2 grid grid-cols-6 gap-5 h-full place-items-center">
+				<div className="col-span-2">
+					<SearchImage onSearch={onSearch} size="middle" />
 				</div>
-				<div className="col-span-4">
-					<SearchImage onSearch={onSearch} size="large" />
+				<div className="col-span-2">
+					<Logo className="h-8 " />
 				</div>
-				<div className="col-span-7 place-self-end flex justify-end">
-					<UserNavigate />
+				<div className="col-span-2">
 					<UserMenu />
 				</div>
 			</div>
-		</Header>
+			<Divider className="m-0 p-0 w-[80%]" />
+			<div className=" flex flex-col justify-center items-center ">
+				<UserNavigate />
+			</div>
+		</div>
 	);
 };
 

@@ -7,10 +7,11 @@ import { useDebounce } from "use-debounce";
 import { useRouterCustom } from "@/hooks";
 import { LabelCustom } from "@/shared/FormCustom/InputCustom";
 import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
+import { imageSearchAIStore } from "@/stores";
 import { formatUtil } from "@/utils";
 
 import { projectStore } from "../store/ProdcutStore";
-import ImageSearchFilter from "./ImageSerachFilter";
+import { ImageSearchFilter } from "./index";
 
 type Props = {};
 const { formatCurrency } = formatUtil;
@@ -32,6 +33,7 @@ const optionsSort = [
 ];
 
 const Filter: React.FC<Props> = ({}) => {
+	const image = imageSearchAIStore((state) => state.file);
 	const setQuery = projectStore((state) => state.setQuery);
 	const reset = projectStore((state) => state.reset);
 	const [priceRange, setPriceRange] = useState<number[]>([
@@ -87,9 +89,14 @@ const Filter: React.FC<Props> = ({}) => {
 
 		return `${startPrice} - ${endPrice}`;
 	}, [priceRangeDebounced]);
+	if (image)
+		return (
+			<div className="flex flex-col justify-center  gap-4 bg-white rounded-lg p-4">
+				<ImageSearchFilter />
+			</div>
+		);
 	return (
 		<div className="flex flex-col justify-center  gap-4 bg-white rounded-lg p-4">
-			<ImageSearchFilter />
 			<LabelCustom label="Bộ lọc" />
 			<div className="flex  gap-3">
 				<div className="flex justify-start gap-3">

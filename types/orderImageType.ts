@@ -1,3 +1,4 @@
+import { TFilter } from "./filterType";
 import { TOrder } from "./orderType";
 
 export type TOrderImage = {
@@ -9,4 +10,6 @@ export type TOrderImageCreate = {
 	url: string;
 	order: { id: number };
 };
-export type TOrderImageQuery = {};
+export type TOrderImageQuery = {
+	orderId?: TFilter;
+};

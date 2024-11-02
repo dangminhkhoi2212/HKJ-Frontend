@@ -1,9 +1,10 @@
-import { TCategory } from "./categoryType";
-import { TFilter } from "./filterType";
-import { TJewelry } from "./jewelryType";
-import { TProject } from "./projectType";
-import { TStatus } from "./statusType";
-import { TUserExtra } from "./userExtraType";
+import { TCategory } from './categoryType';
+import { TFilter } from './filterType';
+import { TJewelry } from './jewelryType';
+import { TMaterial } from './materialType';
+import { TProject } from './projectType';
+import { TStatus } from './statusType';
+import { TUserExtra } from './userExtraType';
 
 export type TOrder = {
 	id: number;
@@ -20,16 +21,22 @@ export type TOrder = {
 	customer: TUserExtra;
 	jewelry: TJewelry | null;
 	category: TCategory;
+	material: TMaterial;
 };
 export type TOrderCreate = Partial<
-	Omit<TOrder, "id" | "project" | "jewelry" | "customer" | "category">
+	Omit<
+		TOrder,
+		"id" | "project" | "jewelry" | "customer" | "category" | "material"
+	>
 > & {
-	project?: { id: number };
-	jewelry: { id: number } | null;
-	customer: { id: number };
-	category: { id: number };
+	project?: { id: number } | null;
+	jewelry?: { id: number } | null;
+	customer: { id: number } | null;
+	category?: { id: number } | null;
+	material?: { id: number } | null;
 };
+export type TOrderUpdate = Partial<TOrderCreate> & { id: number };
 export type TOrderQuery = {
-	customer?: { id: TFilter };
+	customerId?: TFilter;
 	status?: TFilter;
 };

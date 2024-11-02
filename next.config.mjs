@@ -1,11 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-	env: {
-		NEXTAUTH_URL:
-			process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
-				? `https://${process.env.VERCEL_URL}`
-				: "http://localhost:3000",
-	},
 	images: {
 		remotePatterns: [
 			{

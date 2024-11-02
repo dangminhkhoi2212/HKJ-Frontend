@@ -1,16 +1,15 @@
 "use client";
-import { DatePicker, Form, Input, Select } from "antd";
-import { TextAreaProps } from "antd/es/input";
-import { SelectProps } from "antd/lib";
-import dayjs, { Dayjs } from "dayjs";
-import dynamic from "next/dynamic";
-import React from "react";
-import { Control, Controller } from "react-hook-form";
-import { v4 as uuidv4 } from "uuid";
+import { DatePicker, Form, Input, Select } from 'antd';
+import { TextAreaProps } from 'antd/es/input';
+import { SelectProps } from 'antd/lib';
+import dayjs, { Dayjs } from 'dayjs';
+import dynamic from 'next/dynamic';
+import React from 'react';
+import { Control, Controller } from 'react-hook-form';
 
-import { KEY_CONST } from "@/const";
+import { KEY_CONST } from '@/const';
 
-import { LabelCustom } from "./LabelCustom";
+import { LabelCustom } from './LabelCustom';
 
 import type { InputProps } from "antd/lib/input";
 const ReactQuill = dynamic(() => import("react-quill-new"), {
@@ -64,32 +63,17 @@ const InputCustom: React.FC<InputCustomProps> = ({
 		return textAreaProps as TextAreaProps; // Return only applicable props for TextArea
 	};
 
-	const inputId = uuidv4();
 	const renderInput = (field: any, fieldState: any) => {
 		switch (props.type) {
 			case "number":
 				return (
-					<Input
-						size="large"
-						{...field}
-						{...props}
-						type="number"
-						id={inputId}
-					/>
+					<Input size="large" {...field} {...props} type="number" />
 				);
 			case "password":
-				return (
-					<Password size="large" {...field} {...props} id={inputId} />
-				);
+				return <Password size="large" {...field} {...props} />;
 			case "textarea":
 				return (
-					<TextArea
-						maxLength={200}
-						rows={4}
-						{...field}
-						{...props}
-						id={inputId}
-					/>
+					<TextArea maxLength={200} rows={4} {...field} {...props} />
 				);
 			case "rangeDate":
 				return (
@@ -114,7 +98,6 @@ const InputCustom: React.FC<InputCustomProps> = ({
 						className="w-80"
 						placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
 						format={KEY_CONST.DATE_FORMAT}
-						id={inputId}
 						minDate={minDate!}
 						maxDate={maxDate!}
 					/>
@@ -122,16 +105,14 @@ const InputCustom: React.FC<InputCustomProps> = ({
 			case "date":
 				return (
 					<DatePicker
-						{...field}
-						{...props}
-						value={dayjs(field.value)}
-						onChange={(value) =>
-							field.onChange(value.toISOString())
-						}
+						// {...props}
+						value={field.value && dayjs(field.value)}
+						onChange={(value) => {
+							field.onChange(value?.toISOString());
+						}}
 						size="large"
 						className="w-40"
 						format={KEY_CONST.DATE_FORMAT}
-						id={inputId}
 						minDate={minDate!}
 						maxDate={maxDate!}
 					/>
@@ -140,7 +121,6 @@ const InputCustom: React.FC<InputCustomProps> = ({
 				return (
 					<Select
 						size="large"
-						id={inputId}
 						{...field}
 						{...props}
 						options={props.options}
@@ -158,7 +138,6 @@ const InputCustom: React.FC<InputCustomProps> = ({
 					<Input
 						size="large"
 						type="text"
-						id={inputId}
 						{...field}
 						{...props}
 						onChange={(value) => {
@@ -178,11 +157,7 @@ const InputCustom: React.FC<InputCustomProps> = ({
 				<Form.Item
 					label={
 						label && (
-							<LabelCustom
-								label={label}
-								required={required}
-								id={inputId}
-							/>
+							<LabelCustom label={label} required={required} />
 						)
 					}
 					validateStatus={fieldState.invalid ? "error" : ""}

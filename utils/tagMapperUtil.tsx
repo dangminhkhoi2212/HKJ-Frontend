@@ -1,6 +1,6 @@
-import { Tag } from "antd";
+import { Tag } from 'antd';
 
-import { TPriority, TStatus } from "@/types";
+import { TPriority, TStatus } from '@/types';
 
 const TPriorityMapper = (key: TPriority): string => {
 	switch (key) {
@@ -38,6 +38,8 @@ const TStatusMapper = (key: TStatus): string => {
 			return "Đã giao";
 		case TStatus.LATED:
 			return "Trễ";
+		case TStatus.CANCEL:
+			return "Đã hủy";
 		default:
 			return "Mới";
 	}
@@ -51,9 +53,11 @@ const TStatusColorMapper = (key: TStatus): React.ReactNode => {
 		case TStatus.COMPLETED:
 			return <Tag color="green">Hoàn thành</Tag>;
 		case TStatus.DELIVERED:
-			return <Tag color="geekblue">Đẫ giao</Tag>;
+			return <Tag color="geekblue">Đã giao</Tag>;
 		case TStatus.LATED:
 			return <Tag color="red">Trễ</Tag>;
+		case TStatus.CANCEL:
+			return <Tag color="red">Đã hủy</Tag>;
 		default:
 			return <Tag color="cyan">Mới</Tag>;
 	}

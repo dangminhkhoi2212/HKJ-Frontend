@@ -1,25 +1,23 @@
 "use client";
-import { App, Button, Form, Space, Spin, Switch, Tag } from "antd";
-import dynamic from "next/dynamic";
-import React, { useEffect } from "react";
-import { Controller, FormProvider, useForm } from "react-hook-form";
-import * as yup from "yup";
+import { App, Button, Form, Space, Spin, Switch, Tag } from 'antd';
+import dynamic from 'next/dynamic';
+import React, { useEffect } from 'react';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
+import * as yup from 'yup';
 
-import { KEY_CONST } from "@/const";
-import { jewelryService } from "@/services";
-import {
-	InputCustom,
-	InputNumberCustom,
-	LabelCustom,
-} from "@/shared/FormCustom/InputCustom";
-import NumberToWords from "@/shared/FormCustom/InputNumToWords/InputNumToWords";
-import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
-import { generateUtil } from "@/utils";
-import jewelryValidation from "@/validations/jewelryValidation";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { KEY_CONST } from '@/const';
+import { jewelryService } from '@/services';
+import { InputCustom, InputNumberCustom, LabelCustom } from '@/shared/FormCustom/InputCustom';
+import NumberToWords from '@/shared/FormCustom/InputNumToWords/InputNumToWords';
+import { SelectMaterialForm } from '@/shared/FormSelect';
+import { SelectCategoryForm } from '@/shared/FormSelect/SelectCategoryForm';
+import { TJewelry } from '@/types';
+import { generateUtil } from '@/utils';
+import jewelryValidation from '@/validations/jewelryValidation';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { updateJewelryModelStore } from "../store";
+import { updateJewelryModelStore } from '../store';
 
 const ReactQuill = dynamic(() => import("react-quill-new"), {
 	ssr: false,
@@ -46,6 +44,7 @@ const initValue: TFormJewelry = {
 	price: 0,
 	description: "",
 	category: { id: 0 },
+	material: { id: 0 },
 };
 
 const UpdateBasicForm: React.FC<Props> = () => {
@@ -70,6 +69,8 @@ const UpdateBasicForm: React.FC<Props> = () => {
 
 	useEffect(() => {
 		if (jewelry) {
+			console.log("🚀 ~ useEffect ~ jewelry:", jewelry);
+
 			reset(jewelry);
 		}
 	}, [jewelry]);
@@ -92,10 +93,9 @@ const UpdateBasicForm: React.FC<Props> = () => {
 		},
 	});
 
-	const isLoading = isPending;
 	return (
 		<FormProvider {...methods}>
-			<Spin spinning={isLoading}>
+			<Spin spinning={isPending}>
 				<Form
 					layout="vertical"
 					className="w-full flex flex-col gap-5"
@@ -156,7 +156,7 @@ const UpdateBasicForm: React.FC<Props> = () => {
 											shouldValidate: true,
 										});
 									}}
-									defaultValue={jewelry?.category?.id}
+									value={watch("category.id")}
 									status={
 										(errors?.category?.message ||
 											errors?.category?.id?.message) &&
@@ -166,6 +166,26 @@ const UpdateBasicForm: React.FC<Props> = () => {
 								<span className="text-red-500">
 									{errors?.category?.message ||
 										errors?.category?.id?.message}
+								</span>
+							</Space>
+							<Space direction="vertical">
+								<SelectMaterialForm
+									placeholder="Chọn chất liệu"
+									onChange={(value) => {
+										setValue("material.id", value, {
+											shouldValidate: true,
+										});
+									}}
+									value={watch("material.id")}
+									status={
+										(errors?.material?.message ||
+											errors?.material?.id?.message) &&
+										"error"
+									}
+								/>
+								<span className="text-red-500">
+									{errors?.material?.message ||
+										errors?.material?.id?.message}
 								</span>
 							</Space>
 
@@ -215,7 +235,9 @@ const UpdateBasicForm: React.FC<Props> = () => {
 								<p>
 									Mã SKU:{" "}
 									<span>
-										{generateUtil.generateSKU(watch())}
+										{generateUtil.generateSKU(
+											watch() as TJewelry
+										)}
 									</span>
 								</p>
 							</Space>
@@ -239,7 +261,7 @@ const UpdateBasicForm: React.FC<Props> = () => {
 						<Button
 							type="primary"
 							htmlType="submit"
-							loading={isLoading}
+							loading={isPending}
 						>
 							Cập nhật
 						</Button>

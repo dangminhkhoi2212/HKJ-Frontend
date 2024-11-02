@@ -1,28 +1,26 @@
 "use client";
 import { Button, Divider, Dropdown, Spin, Tag, theme, Tooltip } from 'antd';
 import { MenuProps } from 'antd/lib';
-import { LogOut } from 'lucide-react';
+import { LogOut, UserRound } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 
 import { useAccount } from '@/hooks';
+import { useAccountStore } from '@/providers';
 import { routes } from '@/routes';
 import AvatarAccount from '@/shared/Account/AvatarAccount';
-import useAccountStore from '@/stores/account';
-import { TAccountInfo } from '@/types';
 
 const AccountButton: React.FC<{}> = () => {
-	const account: TAccountInfo | null | undefined = useAccountStore(
-		(state) => state.account
-	);
+	const account = useAccountStore((state) => state.account);
 	const { signOutAll } = useAccount();
+
 	const items: MenuProps["items"] = [
 		{
 			key: "1",
 			label: (
 				<Link
 					href={routes.profile}
-					className="flex flex-col gap-2 justify-start items-center m-0"
+					className="flex flex-col gap-2 justify-center items-center m-0"
 				>
 					<AvatarAccount />
 					<p className="m-0">{account?.email}</p>
@@ -50,12 +48,15 @@ const AccountButton: React.FC<{}> = () => {
 					arrow
 					menu={{ items }}
 					dropdownRender={(menu) => (
-						<div style={contentStyle} className="">
+						<div
+							style={contentStyle}
+							className="flex flex-col justify-center items-center"
+						>
 							{React.cloneElement(menu as React.ReactElement, {
 								style: menuStyle,
 							})}
 							<Divider className="m-1" />
-							<div className="w-full  p-2">
+							<div className="w-full flex justify-center items-center p-2">
 								<Button
 									htmlType="button"
 									className="w-full "
@@ -70,8 +71,9 @@ const AccountButton: React.FC<{}> = () => {
 				>
 					<Tooltip
 						title="Tài khoản"
-						className=" cursor-pointer flex flex-col justify-center items-center"
+						className=" cursor-pointer flex  justify-center items-center"
 					>
+						<Button icon={<UserRound />} />
 						<Tag
 							className="text-sm font-semibold p-2 text-center align-middle"
 							bordered={false}

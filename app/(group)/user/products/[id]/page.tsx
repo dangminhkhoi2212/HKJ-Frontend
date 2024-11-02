@@ -1,10 +1,11 @@
-import React from "react";
+import React from 'react';
 
-import { jewelryImageService, jewelryService } from "@/services";
-import queryClientUtil from "@/utils/queryClientUtil";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { jewelryImageService, jewelryService } from '@/services';
+import { EmptyCustom } from '@/shared/EmptyCustom';
+import queryClientUtil from '@/utils/queryClientUtil';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 
-import { ProductDetailTemplate } from "./ui";
+import { ProductDetailTemplate } from './ui';
 
 type Props = {
 	params: {
@@ -33,9 +34,10 @@ const hydrate = async (id: string) => {
 	return dehydrate(queryClient);
 };
 const ProductDetailPage: React.FC<Props> = async ({ params: { id } }) => {
+	if (!id) return <EmptyCustom />;
 	return (
-		<HydrationBoundary state={await hydrate(id)}>
-			<ProductDetailTemplate />
+		<HydrationBoundary state={hydrate(id)}>
+			<ProductDetailTemplate id={id} />
 		</HydrationBoundary>
 	);
 };

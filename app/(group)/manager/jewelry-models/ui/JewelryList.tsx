@@ -58,6 +58,7 @@ const JewelryList: React.FC = () => {
 			title: "SKU",
 			dataIndex: "sku",
 			key: "sku",
+			width: 180,
 			render(value, record, index) {
 				return <Tag className="text-xs">{value}</Tag>;
 			},
@@ -82,6 +83,7 @@ const JewelryList: React.FC = () => {
 			title: "Tên",
 			dataIndex: "name",
 			key: "name",
+			width: 200,
 		},
 		{
 			title: "Màu sắc",
@@ -96,6 +98,16 @@ const JewelryList: React.FC = () => {
 			render(value, record, index) {
 				return formatUtil.formatCurrency(value);
 			},
+		},
+		{
+			title: "Loại",
+			dataIndex: ["category", "name"],
+			key: "category.name",
+		},
+		{
+			title: "Chất liệu",
+			dataIndex: ["material", "name"],
+			key: "material.name",
 		},
 		{
 			title: "Tạo bởi",
@@ -177,7 +189,7 @@ const JewelryList: React.FC = () => {
 				rowKey="id"
 				pagination={pagination}
 				onChange={handleTableChange}
-				scroll={{ x: 1500, scrollToFirstRowOnChange: true }}
+				scroll={{ x: 1800, scrollToFirstRowOnChange: true }}
 				loading={isLoadingjewelryModels || isLoadingjewelryModelsCount}
 			/>
 		</Space>

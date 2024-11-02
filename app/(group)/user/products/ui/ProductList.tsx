@@ -2,7 +2,7 @@
 import { Card, List, Skeleton } from "antd";
 import React, { useEffect, useState } from "react";
 
-import { imageSearchAIService } from "@/services";
+import { imageSearchAIService, jewelryService } from "@/services";
 import { EmptyCustom } from "@/shared/EmptyCustom";
 import { imageSearchAIStore } from "@/stores";
 import { TJewelry } from "@/types";
@@ -15,47 +15,43 @@ const ProductList: React.FC = () => {
 	const query = projectStore((state) => state.query);
 	const image = imageSearchAIStore((state) => state.file);
 	const [data, setData] = useState<TJewelry[]>([]);
-	// const [getJewelrys, getJewelrysCount] = useQueries({
-	// 	queries: [
-	// 		{
-	// 			queryKey: ["products", query],
-	// 			queryFn: () => jewelryService.get(query),
-	// 			enabled: !image,
-	// 		},
-	// 		{
-	// 			queryKey: ["products-count", query],
-	// 			queryFn: () => jewelryService.get(query),
-	// 			enabled: !image,
-	// 		},
-	// 	],
-	// });
 
-	const [getJewelryAI] = useQueries({
+	const queries = useQueries({
 		queries: [
+			{
+				queryKey: ["products", query, image?.name],
+				queryFn: () => jewelryService.get(query),
+				enabled: !image,
+			},
 			{
 				queryKey: ["products-ai", query, image?.name],
 				queryFn: () => imageSearchAIService.searchImage(image!),
-				enabled: !!image,
+				enabled: false,
+				staleTime: 0,
 			},
 		],
 	});
-	// useEffect(() => {
-	// 	if (getJewelrys.data) {
-	// 		setData(getJewelrys.data);
-	// 	}
-	// }, [getJewelrys.data]);
+
+	const [getJewelrys, getJewelryAI] = queries;
 
 	useEffect(() => {
-		if (getJewelryAI.data) {
+		if (getJewelrys.isSuccess) {
+			setData(getJewelrys.data);
+		}
+		if (getJewelryAI.isSuccess) {
 			setData(getJewelryAI.data);
 		}
-	}, [getJewelryAI.data]);
+	}, [getJewelrys.data, getJewelryAI.data]);
 
 	useEffect(() => {
-		if (image) getJewelryAI.refetch();
+		if (image) {
+			getJewelryAI.refetch();
+		}
 	}, [image]);
 
-	if (getJewelryAI.isFetching) {
+	const isLoading = getJewelrys.isFetching || getJewelryAI.isFetching;
+
+	if (isLoading) {
 		return (
 			<List
 				grid={{
@@ -71,7 +67,7 @@ const ProductList: React.FC = () => {
 				renderItem={(item, index) => (
 					<List.Item key={index}>
 						<Card
-							className="flex flex-col justify-stretch overflow-hidden h-72" // Set a fixed height for the card
+							className="flex flex-col justify-stretch overflow-hidden h-72"
 							cover={
 								<div className="h-40 max-h-40 overflow-hidden">
 									<Skeleton.Image
@@ -90,9 +86,11 @@ const ProductList: React.FC = () => {
 			/>
 		);
 	}
-	if (data?.length === 0) {
+
+	if (data.length === 0) {
 		return <EmptyCustom />;
 	}
+
 	return (
 		<List
 			grid={{

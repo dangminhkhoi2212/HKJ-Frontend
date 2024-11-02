@@ -1,13 +1,14 @@
-import { jwtDecode } from "jwt-decode";
-import NextAuth, { NextAuthOptions } from "next-auth";
-import KeycloakProvider from "next-auth/providers/keycloak";
+import { jwtDecode } from 'jwt-decode';
+import NextAuth, { NextAuthOptions } from 'next-auth';
+import KeycloakProvider from 'next-auth/providers/keycloak';
 
-import { AUTHORIZATIONS_CONST } from "@/const";
-import { encrypt } from "@/utils/encryption";
+import { AUTHORIZATIONS_CONST } from '@/const';
+import { encrypt } from '@/utils/encryption';
 
-import { routes } from "../../../../routes/index";
+import { routes } from '../../../../routes/index';
 
 const AUTHORIZATIONS = AUTHORIZATIONS_CONST.AUTHORIZATIONS;
+
 const convertReamlRoles = (roles: string[] | undefined) => {
 	return Object.keys(AUTHORIZATIONS).filter((role) => roles?.includes(role));
 };
@@ -59,6 +60,7 @@ const authOptions: NextAuthOptions = {
 					token.decoded.realm_access.roles
 				)[0];
 				token.refresh_token = account.refresh_token;
+
 				return token;
 			}
 			if (nowTimeStamp < token.expires_at) {
@@ -92,6 +94,7 @@ const authOptions: NextAuthOptions = {
 	pages: {
 		signIn: routes.signIn,
 	},
+	debug: true,
 };
 
 const handler = NextAuth(authOptions);
