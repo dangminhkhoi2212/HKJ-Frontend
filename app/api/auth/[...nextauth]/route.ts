@@ -1,11 +1,11 @@
-import { jwtDecode } from 'jwt-decode';
-import NextAuth, { NextAuthOptions } from 'next-auth';
-import KeycloakProvider from 'next-auth/providers/keycloak';
+import { jwtDecode } from "jwt-decode";
+import NextAuth, { NextAuthOptions } from "next-auth";
+import KeycloakProvider from "next-auth/providers/keycloak";
 
-import { AUTHORIZATIONS_CONST } from '@/const';
-import { encrypt } from '@/utils/encryption';
+import { AUTHORIZATIONS_CONST } from "@/const";
+import { encrypt } from "@/utils/encryption";
 
-import { routes } from '../../../../routes/index';
+import { routes } from "../../../../routes/index";
 
 const AUTHORIZATIONS = AUTHORIZATIONS_CONST.AUTHORIZATIONS;
 
@@ -47,6 +47,9 @@ const authOptions: NextAuthOptions = {
 	],
 
 	callbacks: {
+		async signIn(params) {
+			return true;
+		},
 		async jwt({ token, account }: any) {
 			const nowTimeStamp = Math.floor(Date.now() / 1000);
 
