@@ -63,10 +63,9 @@ const Security: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	};
 
 	useEffect(() => {
-		if (status === "authenticated" && !account) {
+		if (status === "authenticated" && !account && session.access_token) {
 			getAccountData();
-		}
-		if (status === "unauthenticated") {
+		} else if (status === "unauthenticated") {
 			router.push(routes.signIn);
 		}
 		return () => {
