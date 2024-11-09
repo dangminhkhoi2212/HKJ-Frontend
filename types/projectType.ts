@@ -1,10 +1,10 @@
-import { TAudit } from './auditType';
-import { TCategory } from './categoryType';
-import { TFilter } from './filterType';
-import { TMaterial } from './materialType';
-import { TPriority } from './priorityType';
-import { TStatus } from './statusType';
-import { TUserExtra } from './userExtraType';
+import { TAudit } from "./auditType";
+import { TCategory } from "./categoryType";
+import { TFilter } from "./filterType";
+import { TMaterial } from "./materialType";
+import { TPriority } from "./priorityType";
+import { TStatus } from "./statusType";
+import { TUserExtra } from "./userExtraType";
 
 export type TProject = {
 	id: number;
@@ -16,7 +16,7 @@ export type TProject = {
 	endDate: string;
 	status: TStatus;
 	priority: TPriority;
-	budget: number;
+
 	actualCost: number;
 	qualityCheck: boolean;
 	notes: string;
@@ -34,7 +34,7 @@ export type TProjectCreate = {
 	endDate: string;
 	status: string;
 	priority: string;
-	budget: number;
+
 	actualCost?: number;
 	qualityCheck: boolean;
 	notes?: string;

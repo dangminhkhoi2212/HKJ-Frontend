@@ -6,6 +6,7 @@ import { useDebounce } from "use-debounce";
 
 import { useRouterCustom } from "@/hooks";
 import { LabelCustom } from "@/shared/FormCustom/InputCustom";
+import { SelectMaterialForm } from "@/shared/FormSelect";
 import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
 import { imageSearchAIStore } from "@/stores";
 import { formatUtil } from "@/utils";
@@ -35,6 +36,7 @@ const optionsSort = [
 const Filter: React.FC<Props> = ({}) => {
 	const image = imageSearchAIStore((state) => state.file);
 	const setQuery = projectStore((state) => state.setQuery);
+	const query = projectStore((state) => state.query);
 	const reset = projectStore((state) => state.reset);
 	const [priceRange, setPriceRange] = useState<number[]>([
 		minPrice,
@@ -45,8 +47,13 @@ const Filter: React.FC<Props> = ({}) => {
 
 	useEffect(() => {
 		const textSearch = searchParams?.get("textSearch");
-		console.log("🚀 ~ useEffect ~ textSearch:", textSearch);
+		const materialId = searchParams?.get("materialId");
+		const categoryId = searchParams?.get("categoryId");
 		if (textSearch) setQuery({ name: { contains: textSearch } });
+		if (materialId)
+			setQuery({ materialId: { equals: Number(materialId) } });
+		if (categoryId)
+			setQuery({ categoryId: { equals: Number(categoryId) } });
 		return () => {
 			reset();
 		};
@@ -89,6 +96,14 @@ const Filter: React.FC<Props> = ({}) => {
 
 		return `${startPrice} - ${endPrice}`;
 	}, [priceRangeDebounced]);
+
+	const handleMaterialChange = (value: number) => {
+		setQuery({
+			page: 0,
+			materialId: { equals: value },
+		});
+	};
+
 	if (image)
 		return (
 			<div className="flex flex-col justify-center  gap-4 bg-white rounded-lg p-4">
@@ -104,6 +119,7 @@ const Filter: React.FC<Props> = ({}) => {
 						hasLabel={false}
 						size="large"
 						allowClear
+						value={query.categoryId?.equals}
 						onChange={(value) => {
 							console.log("🚀 ~ onChange ~ SelectCategoryForm");
 
@@ -114,13 +130,18 @@ const Filter: React.FC<Props> = ({}) => {
 						}}
 					/>
 				</div>
+				<SelectMaterialForm
+					onChange={handleMaterialChange}
+					hasLabel={false}
+					value={query.materialId?.equals}
+					allowClear
+				/>
 				<div>
 					<Select
 						options={optionsSort}
 						size="large"
 						className="min-w-40"
 						onChange={(value) => {
-							console.log("🚀 ~ onChange ~ optionsSort");
 							setQuery({
 								page: 0,
 								sort: value,

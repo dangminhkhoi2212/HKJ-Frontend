@@ -2,7 +2,7 @@ import { TAudit } from "./auditType";
 import { TCategory } from "./categoryType";
 import { TEmployee } from "./employeeType";
 import { TFilter } from "./filterType";
-import { TMaterial } from "./materialType";
+import { TMaterialUsage } from "./materialUsageType";
 import { TProject } from "./projectType";
 import { TUserExtra } from "./userExtraType";
 
@@ -10,34 +10,30 @@ export type TJewelry = {
 	id: number;
 	sku: string;
 	name: string;
-	color: string;
-	weight: number;
 	manager: TUserExtra;
 	description?: string;
-	isCustom: boolean;
 	isCoverSearch?: boolean;
 	price: number;
 	coverImage: string;
 	active: boolean;
 	category: TCategory;
 	project: TProject;
-	material: TMaterial;
+	materials?: TMaterialUsage[] | null;
 } & TAudit;
 
 export type TJewelryCRUD = Omit<
 	TJewelry,
-	"project" | "material" | "category" | "manager"
+	"project" | "materials" | "category" | "manager"
 > & {
 	project?: Pick<TProject, "id"> | null;
 	category?: Pick<TCategory, "id"> | null;
-	material?: Pick<TMaterial, "id"> | null;
 	manager?: Pick<TUserExtra, "id"> | null;
 };
 export type TJewelryCreate = Omit<TJewelryCRUD, "id">;
 
 export type TJewelryUpdate = Omit<
 	TJewelry,
-	"manager" | "category" | "project"
+	"manager" | "category" | "project" | "materials"
 > & {
 	category: Pick<TCategory, "id">;
 	project: Pick<TProject, "id">;
@@ -62,5 +58,6 @@ export type TJewelryQuery = {
 	name?: TFilter;
 	price?: TFilter;
 	categoryId?: TFilter;
+	materialId?: TFilter;
 	isCoverSearch?: TFilter;
 };

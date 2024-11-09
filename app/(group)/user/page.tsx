@@ -3,10 +3,16 @@ import React from "react";
 
 import { QUERY_CONST } from "@/const";
 import { materialService } from "@/services";
+import categoryService from "@/services/categoryService";
 import queryClientUtil from "@/utils/queryClientUtil";
 import { dehydrate } from "@tanstack/react-query";
 
-import { ProductTrending, StorePicture, UserCarousel } from "./ui";
+import {
+	CategoryIntro,
+	ProductTrending,
+	StorePicture,
+	UserCarousel,
+} from "./ui";
 import Materials from "./ui/Materials";
 
 const hydrate = async () => {
@@ -18,6 +24,10 @@ const hydrate = async () => {
 			queryKey: ["material", defaultQuery],
 			queryFn: () => materialService.get(defaultQuery),
 		}),
+		await queryClient.prefetchQuery({
+			queryKey: ["category", { ...defaultQuery, size: 4 }],
+			queryFn: () => categoryService.get({ ...defaultQuery, size: 4 }),
+		}),
 	]);
 	return dehydrate(queryClient);
 };
@@ -27,6 +37,7 @@ const UserHomePage: React.FC<{}> = () => {
 			<UserCarousel />
 			<Materials />
 			<ProductTrending />
+			<CategoryIntro />
 			<StorePicture />
 		</Space>
 	);

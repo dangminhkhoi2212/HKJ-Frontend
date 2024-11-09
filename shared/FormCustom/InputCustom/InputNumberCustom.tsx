@@ -1,19 +1,19 @@
 "use client";
-import { Form, Input, Space } from "antd";
-import React from "react";
-import { Control, Controller } from "react-hook-form";
-import { NumericFormat, NumericFormatProps } from "react-number-format";
+import { Form, Input, Space } from 'antd';
+import React from 'react';
+import { Control, Controller } from 'react-hook-form';
+import { NumericFormat, NumericFormatProps } from 'react-number-format';
 
-import { cn } from "@/utils";
+import { cn } from '@/utils';
 
-import NumberToWords from "../InputNumToWords/InputNumToWords";
-import { LabelCustom } from "./LabelCustom";
+import NumberToWords from '../InputNumToWords/InputNumToWords';
+import { LabelCustom } from './LabelCustom';
 
 const MIN: number = 0;
 const MAX: number = 100000000;
 type InputNumberCustomProps = {
 	name: string;
-	label: string;
+	label?: string;
 	control: Control<any>;
 	defaultValue?: number;
 	errorMessage?: string;
@@ -47,7 +47,11 @@ const InputNumberCustom = React.forwardRef<
 				defaultValue={defaultValue}
 				render={({ field, fieldState }) => (
 					<Form.Item
-						label={<LabelCustom label={label} required={true} />}
+						label={
+							label && (
+								<LabelCustom label={label} required={true} />
+							)
+						}
 						validateStatus={fieldState.invalid ? "error" : ""}
 						help={errorMessage || fieldState.error?.message}
 						extra={extra}
@@ -56,6 +60,7 @@ const InputNumberCustom = React.forwardRef<
 						<Space direction="vertical">
 							<NumericFormat
 								{...props}
+								placeholder={props.placeholder ?? label}
 								size="large"
 								thousandSeparator=","
 								min={props.min || MIN}
@@ -64,8 +69,11 @@ const InputNumberCustom = React.forwardRef<
 								suffix={suffix}
 								customInput={Input}
 								value={field.value}
-								onValueChange={(values) => {
+								onValueChange={(values, source) => {
 									field.onChange(values.value);
+									if (props.onValueChange) {
+										props.onValueChange(values, source);
+									}
 								}}
 							/>
 							{toWords && field.value !== 0 && (

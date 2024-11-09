@@ -9,7 +9,7 @@ const AppContent: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 		token: { colorBgContainer, borderRadiusLG },
 	} = theme.useToken();
 	return (
-		<Layout className="max-h-screen">
+		<Layout className="">
 			<AppHeader />
 			<Content
 				style={{

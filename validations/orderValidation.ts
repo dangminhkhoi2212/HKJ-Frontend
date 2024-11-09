@@ -1,9 +1,9 @@
-import * as yup from 'yup';
+import * as yup from "yup";
 
-import { KEY_CONST } from '@/const';
-import { TStatus } from '@/types';
+import { KEY_CONST } from "@/const";
+import { TStatus } from "@/types";
 
-const { REQUIRED_FIELD_MESSAGE } = KEY_CONST;
+const { REQUIRED_FIELD_MESSAGE, REQUIRED_NUMBER_FIELD } = KEY_CONST;
 const orderSchema = yup.object({
 	id: yup.number().required(REQUIRED_FIELD_MESSAGE),
 	orderDate: yup.string().required(REQUIRED_FIELD_MESSAGE),
@@ -20,7 +20,9 @@ const orderSchema = yup.object({
 	customerRating: yup.number().required(REQUIRED_FIELD_MESSAGE),
 	totalPrice: yup
 		.number()
-		.min(0, "Giá trị phải lớn hơn 0")
+		.typeError(REQUIRED_NUMBER_FIELD)
+		.min(0, REQUIRED_NUMBER_FIELD)
+		.positive(REQUIRED_NUMBER_FIELD)
 		.required(REQUIRED_FIELD_MESSAGE),
 	project: yup.object({
 		id: yup

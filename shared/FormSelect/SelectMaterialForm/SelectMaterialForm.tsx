@@ -1,29 +1,29 @@
 "use client";
-import { Select, Space } from 'antd';
-import { SelectProps } from 'antd/lib';
-import React, { useEffect, useState } from 'react';
+import { Select, Space } from "antd";
+import { SelectProps } from "antd/lib";
+import React, { memo, useEffect, useState } from "react";
 
-import { materialService } from '@/services';
-import { LabelCustom } from '@/shared/FormCustom/InputCustom';
-import { TCategory } from '@/types';
-import { useQuery } from '@tanstack/react-query';
+import { materialService } from "@/services";
+import { LabelCustom } from "@/shared/FormCustom/InputCustom";
+import { TCategory, TMaterialQuery, TQuery } from "@/types";
+import { useQuery } from "@tanstack/react-query";
 
 type TProps = SelectProps & {
 	hasLabel?: boolean;
 	defaultValueId?: number;
 };
+
 const SelectMaterialForm: React.FC<TProps> = ({
 	hasLabel = true,
 	// defaultValueId,
 	...props
 }) => {
 	const [data, setData] = useState<SelectProps["options"]>([]);
-	const [query] = useState({ page: 0, size: 100 });
-	// const [defaultValue, setDefaultValue] = useState<number | null>(
-	// 	defaultValueId || null
-	// );
-	// Using useQuery to fetch materials once
-	console.log("🚀 ~ SelectMaterialForm ~ data:", props.defaultValue);
+	const [query, setQuery] = useState<TQuery<TMaterialQuery>>({
+		page: 0,
+		size: 100,
+		isDeleted: { equals: false },
+	});
 
 	const {
 		data: materials,
@@ -38,22 +38,21 @@ const SelectMaterialForm: React.FC<TProps> = ({
 	useEffect(() => {
 		const options: { value: number; label: string; key: number }[] =
 			materials?.map((item: TCategory) => ({
+				...item,
 				value: item.id,
 				key: item.id,
 				label: item.name,
 			}));
 		if (options?.length) setData([...options]);
 	}, [refetch, materials]);
-	// useEffect(() => {
-	// 	setDefaultValue(defaultValue);
-	// }, [defaultValueId]);
+
 	return (
-		<Space direction="vertical">
+		<Space direction="vertical" className="w-full">
 			{hasLabel && <LabelCustom label="Chất liệu" required />}
 			<Select
 				status={props.status ? "error" : undefined}
 				size="large"
-				style={{ width: "100%" }}
+				className="min-w-28 "
 				placeholder="Chọn chất liệu"
 				disabled={isLoadingCategories}
 				options={data}
@@ -65,4 +64,4 @@ const SelectMaterialForm: React.FC<TProps> = ({
 	);
 };
 
-export default SelectMaterialForm;
+export default memo(SelectMaterialForm);

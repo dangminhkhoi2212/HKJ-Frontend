@@ -1,16 +1,15 @@
-"use server";
-import { Divider } from "antd";
-import Link from "next/link";
-import React from "react";
+import { Divider } from 'antd';
+import Link from 'next/link';
+import React from 'react';
 
-import { QUERY_CONST } from "@/const";
-import { keyCloakService } from "@/services";
-import { Frame } from "@/shared/Frame";
-import queryClientUtil from "@/utils/queryClientUtil";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { QUERY_CONST } from '@/const';
+import { keyCloakService } from '@/services';
+import { Frame } from '@/shared/Frame';
+import queryClientUtil from '@/utils/queryClientUtil';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 
-import AccountList from "./ui/AccountList";
-import TimeLineAccount from "./ui/TimeLine";
+import AccountList from './ui/AccountList';
+import TimeLineAccount from './ui/TimeLine';
 
 const hydrate = async () => {
 	const { defaultQuery } = QUERY_CONST;

@@ -4,7 +4,7 @@ import { KEY_CONST } from "@/const";
 import { TStatus } from "@/types";
 import { TPriority } from "@/types/priorityType";
 
-const { REQUIRED_FIELD_MESSAGE } = KEY_CONST;
+const { REQUIRED_FIELD_MESSAGE, REQUIRED_NUMBER_FIELD } = KEY_CONST;
 const projectSchema = yup.object({
 	id: yup.number().required(REQUIRED_FIELD_MESSAGE),
 	name: yup.string().required(REQUIRED_FIELD_MESSAGE),
@@ -25,11 +25,8 @@ const projectSchema = yup.object({
 		.mixed<TPriority>()
 		.oneOf(Object.keys(TPriority) as TPriority[])
 		.required(REQUIRED_FIELD_MESSAGE),
-	budget: yup
-		.number()
-		.required(REQUIRED_FIELD_MESSAGE)
-		.min(0, "Kinh phí phải lớn hơn 0"),
-	actualCost: yup.number(),
+
+	actualCost: yup.number().typeError(REQUIRED_NUMBER_FIELD),
 	qualityCheck: yup.boolean().required(REQUIRED_FIELD_MESSAGE),
 	notes: yup.string(),
 	category: yup.object({

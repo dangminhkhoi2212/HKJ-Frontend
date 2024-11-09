@@ -1,4 +1,5 @@
 export { default as accountService } from "./accountService";
+export { default as cartService } from "./cartService";
 export { default as hireService } from "./hireService";
 export { default as imageSearchAIService } from "./imageSearchAIService";
 export { default as imageService } from "./imageService";
@@ -7,6 +8,7 @@ export { default as jewelryService } from "./jewelryService";
 export { default as keyCloakService } from "./keyloakService";
 export { default as materialImageService } from "./materialImageService";
 export { default as materialService } from "./materialService";
+export { default as materialUsageService } from "./materialUsageService";
 export { default as orderImageService } from "./orderImageService";
 export { default as orderService } from "./orderService";
 export { default as positionService } from "./positionService";

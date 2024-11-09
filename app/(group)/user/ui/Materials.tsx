@@ -23,17 +23,17 @@ const Materials: React.FC<Props> = ({}) => {
 			<List
 				grid={{
 					gutter: 16,
-					xs: 1,
+					xs: 2,
 					sm: 2,
 					md: 4,
 					lg: 4,
 					xl: 6,
 					xxl: 3,
 				}}
-				className="flex justify-start"
+				className="flex justify-center items-center gap-4 overflow-auto"
 				dataSource={getMaterial.data}
 				renderItem={(item: TMaterial) => (
-					<List.Item>
+					<List.Item key={item.id} className="gap-4">
 						<MaterialCard material={item} />
 					</List.Item>
 				)}

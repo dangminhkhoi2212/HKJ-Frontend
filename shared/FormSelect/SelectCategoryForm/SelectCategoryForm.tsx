@@ -1,7 +1,7 @@
 "use client";
 import { Select, Space } from 'antd';
 import { SelectProps } from 'antd/lib';
-import React, { useEffect, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 
 import categoryService from '@/services/categoryService';
 import { LabelCustom } from '@/shared/FormCustom/InputCustom';
@@ -46,7 +46,7 @@ const SelectCategoryForm: React.FC<TProps> = ({
 			<Select
 				status={props.status ? "error" : undefined}
 				size="large"
-				style={{ width: "100%" }}
+				className="min-w-28"
 				placeholder="Chọn loại trang sức"
 				disabled={isLoadingCategories}
 				options={data}
@@ -57,4 +57,4 @@ const SelectCategoryForm: React.FC<TProps> = ({
 	);
 };
 
-export default SelectCategoryForm;
+export default memo(SelectCategoryForm);

@@ -9,6 +9,7 @@ export * from "./jewelryImageType";
 export * from "./jewelryType";
 export * from "./materialImageType";
 export * from "./materialType";
+export * from "./materialUsageType";
 export * from "./orderImageType";
 export * from "./orderType";
 export * from "./pageType";

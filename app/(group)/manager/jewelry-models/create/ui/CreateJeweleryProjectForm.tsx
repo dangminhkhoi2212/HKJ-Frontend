@@ -6,6 +6,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { KEY_CONST } from "@/const";
+import { useRouterCustom } from "@/hooks";
+import { routesManager } from "@/routes";
 import { jewelryService } from "@/services";
 import taskService from "@/services/taskService";
 import MapAnotations from "@/shared/Anotation/MapAnotation";
@@ -25,8 +27,7 @@ type TForm = {
 
 const CreateJeweleryProjectForm: React.FC = () => {
 	const jewelry = createJewelryStore((state) => state.jewelry);
-	const setJewelry = createJewelryStore((state) => state.setJewelry);
-	console.log("jewelry", jewelry);
+	const router = useRouterCustom().router;
 
 	const { setValue, getValues, handleSubmit } = useForm<TForm>();
 	const queryClient = useQueryClient();
@@ -117,8 +118,8 @@ const CreateJeweleryProjectForm: React.FC = () => {
 				});
 			},
 			onSuccess: (data: TJewelry) => {
-				message.success("Đã cập nhật dự án mới cho trang sức");
-				setJewelry(data);
+				message.success("Đã thêm dự án mới cho trang sức");
+				router.push(routesManager.jewelry);
 			},
 			onError(error, variables, context) {
 				message.error(KEY_CONST.ERROR_MESSAGE);

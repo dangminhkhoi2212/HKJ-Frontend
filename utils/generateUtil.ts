@@ -9,11 +9,9 @@ function generateSKU(model: TJewelry) {
 			.map((word) => word[0])
 			.join("")
 			.toUpperCase() || "N";
-	const isCustomCode = model?.isCustom ? "C" : "N";
-	const colorCode = model?.color ? model.color[0].toUpperCase() : "X";
 	const uniqueCode = model?.id;
 
-	return `${nameCode}${categoryCode}${isCustomCode}${colorCode}${uniqueCode}`;
+	return `${nameCode}${categoryCode}${uniqueCode}`;
 }
 const generate = {
 	generateSKU,

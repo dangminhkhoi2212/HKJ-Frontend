@@ -1,8 +1,8 @@
-import { MapPinned, Phone } from 'lucide-react';
-import Link from 'next/link';
-import React from 'react';
+import { MapPinned, Phone } from "lucide-react";
+import Link from "next/link";
+import React from "react";
 
-import { Logo } from '@/shared/Logo';
+import { Logo } from "@/shared/Logo";
 
 type Props = {};
 const Title: React.FC<{ title: string }> = ({ title }) => {
@@ -51,8 +51,8 @@ const Contact: React.FC<{}> = () => {
 const Footer: React.FC<Props> = ({}) => {
 	return (
 		<div className="bg-primary-950  flex flex-col justify-center items-center ">
-			<div className=" flex justify-evenly gap-10 p-4 md:px-10 md:my-4">
-				<div className="col-span-1 w-40">
+			<div className="flex-col flex md:flex-row justify-evenly gap-10 p-4 md:px-10 md:my-4">
+				<div className="col-span-1 md:w-40 flex justify-center items-center flex-row md:flex-col">
 					<Logo />
 					<p className="font-semibold mt-2">
 						Nâng tầm phong cách với trang sức thiết kế, thể hiện rõ

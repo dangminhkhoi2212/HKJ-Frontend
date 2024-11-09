@@ -3,9 +3,9 @@ import { Space, Steps } from "antd";
 import React, { useEffect } from "react";
 
 import { createJewelryStore } from "../store";
-import CreateBasicForm from "./CreateBasicForm";
 import CreateImageForm from "./CreateImagesForm";
 import CreateJewelryProject from "./CreateJeweleryProjectForm";
+import CreateBasicForm from "./CreateJewelryBasicForm";
 
 const items = [
 	{

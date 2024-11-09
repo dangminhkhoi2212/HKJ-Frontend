@@ -10,7 +10,7 @@ import { Sidebar } from "./Sidebar";
 type Props = { children: React.ReactNode };
 const AdminLayout: React.FC<Props> = ({ children }) => {
 	return (
-		<Layout className={cn("min-h-screen")} hasSider>
+		<Layout className={cn("h-screen min-w-[1200px]")} hasSider>
 			<Sidebar />
 			<AppContent>{children}</AppContent>
 		</Layout>

@@ -1,32 +1,45 @@
 "use client";
-import { App, Button, Form, Space, UploadFile } from 'antd';
-import { useCallback, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { App, Button, Form, Modal, Space, UploadFile } from "antd";
+import { useCallback, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import yup from "yup";
 
-import { KEY_CONST } from '@/const';
-import { materialService } from '@/services';
-import supabaseService from '@/services/supabaseService';
-import { InputCustom, LabelCustom } from '@/shared/FormCustom/InputCustom';
-import { InputImage } from '@/shared/FormCustom/InputImage';
-import { TMaterial } from '@/types';
-import { imageUtil } from '@/utils';
-import materialValidation from '@/validations/materialValidation';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { KEY_CONST } from "@/const";
+import { useRouterCustom } from "@/hooks";
+import { routesManager } from "@/routes";
+import { materialService } from "@/services";
+import supabaseService from "@/services/supabaseService";
+import {
+	InputCustom,
+	InputNumberCustom,
+	LabelCustom,
+} from "@/shared/FormCustom/InputCustom";
+import { InputImage } from "@/shared/FormCustom/InputImage";
+import NumberToWords from "@/shared/FormCustom/InputNumToWords/InputNumToWords";
+import { imageUtil } from "@/utils";
+import materialValidation from "@/validations/materialValidation";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
-type TForm = Omit<TMaterial, "coverImage"> & {
-	coverImage: UploadFile[];
-};
+const schema = materialValidation.materialSchema;
+
+type TForm = yup.InferType<yup.ObjectSchema<typeof schema>>["__outputType"];
 const initValueForm: TForm = {
 	id: 0,
 	name: "",
 	coverImage: [],
+	unit: "",
+	pricePerUnit: 0,
+	isDeleted: false,
 };
+
 const { convertToUploadFile } = imageUtil;
 
 const excludeIdSchema = materialValidation.materialSchema;
 const UpdateMaterial: React.FC<{ id: string }> = ({ id }) => {
 	const { message } = App.useApp();
+	const [showModal, setShowModal] = useState<boolean>(false);
+	const router = useRouterCustom().router;
 	const [form] = Form.useForm();
 
 	const {
@@ -52,11 +65,11 @@ const UpdateMaterial: React.FC<{ id: string }> = ({ id }) => {
 		queryKey: ["material", id],
 		queryFn: () => materialService.getOne(id),
 		enabled: !!id,
+		staleTime: 0,
 	});
 	useEffect(() => {
 		if (material) {
-			setValue("id", material.id);
-			setValue("name", material.name);
+			reset({ ...material, coverImage: [] });
 			setValue(
 				"coverImage",
 				material.coverImage
@@ -96,31 +109,59 @@ const UpdateMaterial: React.FC<{ id: string }> = ({ id }) => {
 
 		return null;
 	};
-	const createMaterialMutation = useMutation({
+	const updateMaterialMutation = useMutation({
 		mutationFn: async (data: TForm) => {
 			const imageCover = await handleUploadCoverImage(data.id);
 			const updateMaterial = await materialService.update({
-				...material,
+				...data,
 				coverImage: imageCover!,
 			});
 			return updateMaterial;
 		},
 		onSuccess: () => {
 			message.success("Cập nhật thành công");
+			router.push(routesManager.material);
 		},
 		onError(error) {
 			message.error(KEY_CONST.ERROR_MESSAGE);
 		},
 	});
-
+	const handleDelete = useMutation({
+		mutationFn: () =>
+			materialService.update({ ...material, isDeleted: true }),
+		onSuccess: () => {
+			message.success(`Đã xóa chất liệu ${material?.name} thành công`);
+			router.push(routesManager.material);
+		},
+		onError(error) {
+			message.error(KEY_CONST.ERROR_MESSAGE);
+		},
+	});
 	return (
 		<div>
+			<Modal
+				open={showModal}
+				onCancel={() => setShowModal(false)}
+				onOk={() => handleDelete.mutate()}
+				okButtonProps={{
+					loading: handleDelete.isPending,
+					type: "primary",
+					danger: true,
+				}}
+				cancelButtonProps={{ disabled: handleDelete.isPending }}
+				title="Xóa chất liệu"
+			>
+				<p>
+					Bạn có muốn xóa chất liệu{" "}
+					<span className="font-semibold">{material?.name}</span>
+				</p>
+			</Modal>
 			<Form
 				form={form}
 				layout="vertical"
 				className="flex flex-col gap-5"
 				onFinish={handleSubmit((data) =>
-					createMaterialMutation.mutate(data)
+					updateMaterialMutation.mutate(data)
 				)}
 			>
 				<InputCustom
@@ -131,6 +172,21 @@ const UpdateMaterial: React.FC<{ id: string }> = ({ id }) => {
 					errorMessage={errors.name?.message}
 					className="w-full max-w-44"
 				/>
+				<InputCustom
+					name="unit"
+					control={control}
+					placeholder={"Đơn vị"}
+					label="Đơn vị"
+					className="w-full max-w-44"
+				/>
+				<InputNumberCustom
+					name="pricePerUnit"
+					control={control}
+					label="Giá mỗi đơn vị"
+					className="w-full max-w-44"
+				/>
+				<NumberToWords number={watch("pricePerUnit")} />
+
 				<div className="">
 					<Space direction="vertical">
 						<LabelCustom label="Ảnh bìa" required />
@@ -144,11 +200,22 @@ const UpdateMaterial: React.FC<{ id: string }> = ({ id }) => {
 						</span>
 					</Space>
 				</div>
-				<div>
-					<Button htmlType="submit" type="primary">
+				<Space>
+					<Button
+						danger
+						type="primary"
+						onClick={() => setShowModal(true)}
+					>
+						Xóa
+					</Button>
+					<Button
+						htmlType="submit"
+						type="primary"
+						loading={updateMaterialMutation.isPending}
+					>
 						Cập nhật
 					</Button>
-				</div>
+				</Space>
 			</Form>
 		</div>
 	);

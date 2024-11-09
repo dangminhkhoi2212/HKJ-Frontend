@@ -1,10 +1,10 @@
-import { TCategory } from './categoryType';
-import { TFilter } from './filterType';
-import { TJewelry } from './jewelryType';
-import { TMaterial } from './materialType';
-import { TProject } from './projectType';
-import { TStatus } from './statusType';
-import { TUserExtra } from './userExtraType';
+import { TCategory } from "./categoryType";
+import { TFilter } from "./filterType";
+import { TJewelry } from "./jewelryType";
+import { TMaterial } from "./materialType";
+import { TProject } from "./projectType";
+import { TStatus } from "./statusType";
+import { TUserExtra } from "./userExtraType";
 
 export type TOrder = {
 	id: number;
@@ -39,4 +39,8 @@ export type TOrderUpdate = Partial<TOrderCreate> & { id: number };
 export type TOrderQuery = {
 	customerId?: TFilter;
 	status?: TFilter;
+	id?: TFilter;
+	orderDate?: TFilter;
+	expectedDeliveryDate?: TFilter;
+	actualDeliveryDate?: TFilter;
 };

@@ -1,24 +1,28 @@
 "use client";
-import { App, Button, Form, Space, Tag } from 'antd';
-import dayjs from 'dayjs';
-import dynamic from 'next/dynamic';
-import React from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import * as yup from 'yup';
+import { App, Button, Form, Space, Tag } from "antd";
+import dayjs from "dayjs";
+import dynamic from "next/dynamic";
+import React from "react";
+import { Controller, useForm } from "react-hook-form";
+import * as yup from "yup";
 
-import { KEY_CONST } from '@/const';
-import { useRouterCustom } from '@/hooks';
-import { useAccountStore } from '@/providers';
-import { routesManager } from '@/routes';
-import projectService from '@/services/projectService';
-import { InputCustom, InputNumberCustom, LabelCustom } from '@/shared/FormCustom/InputCustom';
-import { SelectCategoryForm } from '@/shared/FormSelect/SelectCategoryForm';
-import { TProject, TProjectCreate, TStatus } from '@/types';
-import { TPriority } from '@/types/priorityType';
-import { tagMapperUtil } from '@/utils';
-import projectValidation from '@/validations/projectValidation';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useMutation } from '@tanstack/react-query';
+import { KEY_CONST } from "@/const";
+import { useRouterCustom } from "@/hooks";
+import { useAccountStore } from "@/providers";
+import { routesManager } from "@/routes";
+import projectService from "@/services/projectService";
+import {
+	InputCustom,
+	InputNumberCustom,
+	LabelCustom,
+} from "@/shared/FormCustom/InputCustom";
+import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
+import { TProject, TProjectCreate, TStatus } from "@/types";
+import { TPriority } from "@/types/priorityType";
+import { tagMapperUtil } from "@/utils";
+import projectValidation from "@/validations/projectValidation";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useMutation } from "@tanstack/react-query";
 
 const { TPriorityMapper, TStatusMapper } = tagMapperUtil;
 const ReactQuill = dynamic(() => import("react-quill-new"), {
@@ -38,7 +42,6 @@ const initValue: TForm = {
 	},
 	expectDate: dayjs().add(1, "week").toISOString(),
 	priority: TPriority.MEDIUM,
-	budget: 0,
 	actualCost: 0,
 	qualityCheck: false,
 	notes: "",
@@ -111,14 +114,7 @@ const CreateBasicProject: React.FC<Props> = ({}) => {
 						type="date"
 						errorMessage={errors?.expectDate?.message}
 					/>
-					<InputNumberCustom
-						control={control}
-						name="budget"
-						label="Ngân sách"
-						toWords
-						className="w-52"
-						errorMessage={errors?.expectDate?.message}
-					/>
+
 					<InputNumberCustom
 						control={control}
 						name="actualCost"

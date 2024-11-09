@@ -5,16 +5,11 @@ import React from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 
+import { JewelryMaterialUsageForm } from "@/app/(group)/manager/jewelry-models/shared";
 import { KEY_CONST } from "@/const";
 import { useAccountStore } from "@/providers";
-import { jewelryService } from "@/services";
-import {
-	InputCustom,
-	InputNumberCustom,
-	LabelCustom,
-} from "@/shared/FormCustom/InputCustom";
-import NumberToWords from "@/shared/FormCustom/InputNumToWords/InputNumToWords";
-import { SelectMaterialForm } from "@/shared/FormSelect";
+import { jewelryService, materialUsageService } from "@/services";
+import { InputCustom, LabelCustom } from "@/shared/FormCustom/InputCustom";
 import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
 import jewelryValidation from "@/validations/jewelryValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -22,9 +17,15 @@ import { useMutation } from "@tanstack/react-query";
 
 import { createJewelryStore } from "../store";
 
-const CreateDescription = dynamic(() => import("./CreateDescription"), {
-	ssr: false,
-});
+const JewelryDescriptionForm = dynamic(
+	() =>
+		import("@/app/(group)/manager/jewelry-models/shared").then(
+			(mod) => mod.JewelryDescriptionForm
+		),
+	{
+		ssr: false,
+	}
+);
 const schema = jewelryValidation.jewelrySchema.omit([
 	"id",
 	"coverImage",
@@ -34,26 +35,30 @@ const schema = jewelryValidation.jewelrySchema.omit([
 	"sku",
 ]);
 type Props = {};
-
 type TFormJewelry = yup.InferType<
 	yup.ObjectSchema<typeof schema>
 >["__outputType"];
 const initValue: TFormJewelry = {
 	name: "",
-	weight: 0,
-	color: "",
 	active: true,
-	isCustom: false,
 	price: 0,
 	description: "",
 	category: { id: 0 },
-	material: { id: 0 },
+	materials: [
+		{
+			id: 0,
+			material: { id: 0, pricePerUnit: 0, unit: "" },
+			price: 0,
+			usage: 0,
+		},
+	],
 };
 const CreateBasicForm: React.FC<Props> = () => {
 	const account = useAccountStore((state) => state.account);
 	const methods = useForm<TFormJewelry>({
 		defaultValues: initValue,
 		resolver: yupResolver(schema),
+		mode: "onChange",
 	});
 	const {
 		control,
@@ -65,10 +70,13 @@ const CreateBasicForm: React.FC<Props> = () => {
 	console.log("🚀 ~ errors:", errors);
 	const { setJewelry, next } = createJewelryStore();
 	const message = App.useApp().message;
-	const { data, mutate, isPending } = useMutation({
+	const {
+		data,
+		mutate: handleCreate,
+		isPending,
+	} = useMutation({
 		mutationFn: async (data: TFormJewelry) => {
 			console.log("🚀 ~ mutate ~ data:", data);
-
 			const newJewelry = await jewelryService.create({
 				...data,
 				name: data.name.trim(),
@@ -78,6 +86,15 @@ const CreateBasicForm: React.FC<Props> = () => {
 				isCoverSearch: false,
 			});
 			console.log("🚀 ~ mutationFn: ~ newJewelry:", newJewelry);
+
+			await materialUsageService.createMultiple(
+				data.materials.map((item) => ({
+					material: { id: item.material.id },
+					usage: item.usage,
+					price: item.price,
+					jewelry: { id: newJewelry.id },
+				}))
+			);
 			const sku: string = "HKJ" + newJewelry.id;
 			return await jewelryService.updatePartical({
 				id: newJewelry.id,
@@ -96,14 +113,20 @@ const CreateBasicForm: React.FC<Props> = () => {
 		},
 	});
 
+	const handleSubmitTest = (data: TFormJewelry) => {
+		console.log("🚀 ~ handleSubmitTest ~ data:", data);
+		return {};
+	};
 	return (
 		<FormProvider {...methods}>
 			<Form
 				layout="vertical"
 				className="w-full flex flex-col gap-5"
-				onFinish={handleSubmit((data: TFormJewelry) => mutate(data))}
+				onFinish={handleSubmit((data: TFormJewelry) =>
+					handleCreate(data)
+				)}
 			>
-				<div className="grid grid-cols-1 md:grid-cols-2 w-full gap-5">
+				<div className="grid grid-cols-1 md:grid-cols-3 w-full gap-5">
 					<Space
 						direction="vertical"
 						className="col flex-col"
@@ -116,7 +139,7 @@ const CreateBasicForm: React.FC<Props> = () => {
 							placeholder="Tên trang sức"
 							errorMessage={errors?.name?.message!}
 						/>
-						<InputCustom
+						{/* <InputCustom
 							control={control}
 							name="color"
 							label="Màu sắc"
@@ -140,16 +163,11 @@ const CreateBasicForm: React.FC<Props> = () => {
 							errorMessage={errors?.price?.message!}
 							className="max-w-44"
 							suffix=" VND"
-						/>
-						<NumberToWords number={watch("price")} />
-					</Space>
-					<Space
-						className="col flex"
-						direction="vertical"
-						size="large"
-					>
+						/> */}
+
 						<Space direction="vertical">
 							<SelectCategoryForm
+								className="w-32"
 								placeholder="Chọn loại trang sức"
 								onChange={(value) => {
 									setValue("category.id", value, {
@@ -167,8 +185,9 @@ const CreateBasicForm: React.FC<Props> = () => {
 									errors?.category?.id?.message}
 							</span>
 						</Space>
-						<Space direction="vertical">
+						{/* <Space direction="vertical">
 							<SelectMaterialForm
+								className="w-32"
 								onChange={(value) => {
 									setValue("material.id", value, {
 										shouldValidate: true,
@@ -184,7 +203,7 @@ const CreateBasicForm: React.FC<Props> = () => {
 								{errors?.material?.message ||
 									errors?.material?.id?.message}
 							</span>
-						</Space>
+						</Space> */}
 						<Controller
 							control={control}
 							name="active"
@@ -204,7 +223,7 @@ const CreateBasicForm: React.FC<Props> = () => {
 								</Space>
 							)}
 						/>
-						<Controller
+						{/* <Controller
 							control={control}
 							name="isCustom"
 							render={({ field }) => (
@@ -222,12 +241,19 @@ const CreateBasicForm: React.FC<Props> = () => {
 									</Space>
 								</Space>
 							)}
-						/>
+						/> */}
+					</Space>
+					<Space
+						className="col-span-2 flex"
+						direction="vertical"
+						size="large"
+					>
+						<JewelryMaterialUsageForm />
 					</Space>
 				</div>
 
 				<div>
-					<CreateDescription />
+					<JewelryDescriptionForm />
 				</div>
 				<div className="flex justify-end">
 					<Button

@@ -1,14 +1,14 @@
 "use client";
-import { Button, Empty, List, Skeleton, TablePaginationConfig } from 'antd';
-import { RotateCcw } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { Button, Empty, List, Skeleton, TablePaginationConfig } from "antd";
+import { RotateCcw } from "lucide-react";
+import React, { useEffect, useState } from "react";
 
-import { QUERY_CONST } from '@/const';
-import { materialService } from '@/services';
-import { TMaterial } from '@/types';
-import { useQueries } from '@tanstack/react-query';
+import { QUERY_CONST } from "@/const";
+import { materialService } from "@/services";
+import { TMaterial, TMaterialImageQuery, TQuery } from "@/types";
+import { useQueries } from "@tanstack/react-query";
 
-import MaterialCard from './MaterialCard';
+import MaterialCard from "./MaterialCard";
 
 type Props = {};
 
@@ -16,17 +16,19 @@ const MaterialList: React.FC<Props> = () => {
 	const [pagination, setPagination] = useState<TablePaginationConfig>(
 		QUERY_CONST.initPagination
 	);
+	const [query, setQuery] = useState<TQuery<TMaterialImageQuery>>({
+		...QUERY_CONST.defaultQuery,
+	});
 
 	const [getMaterialQuery, getMaterialCountQuery] = useQueries({
 		queries: [
 			{
-				queryKey: ["material", { ...QUERY_CONST.defaultQuery }],
-				queryFn: () => materialService.get(QUERY_CONST.defaultQuery),
+				queryKey: ["material", query],
+				queryFn: () => materialService.get(query),
 			},
 			{
-				queryKey: ["material-count", { ...QUERY_CONST.defaultQuery }],
-				queryFn: () =>
-					materialService.getCount(QUERY_CONST.defaultQuery),
+				queryKey: ["material-count", query],
+				queryFn: () => materialService.getCount(query),
 			},
 		],
 	});
@@ -76,7 +78,7 @@ const MaterialList: React.FC<Props> = () => {
 										quantity: 0,
 										price: 0,
 										unit: "",
-										unitPrice: 0,
+										pricePerUnit: 0,
 										supplier: "",
 									}) as TMaterial
 							)

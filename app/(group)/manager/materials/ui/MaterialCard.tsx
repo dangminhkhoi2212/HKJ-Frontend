@@ -1,11 +1,12 @@
-import { Card, Image, Skeleton } from 'antd';
-import Link from 'next/link';
-import React from 'react';
+import { Button, Card } from "antd";
+import { PenIcon } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
 
-import { useRouterCustom } from '@/hooks';
-import { routesManager } from '@/routes';
-import { TMaterial } from '@/types';
-import { EditOutlined } from '@ant-design/icons';
+import { useRouterCustom } from "@/hooks";
+import { routesManager } from "@/routes";
+import { TMaterial } from "@/types";
 
 const { Meta } = Card;
 type Props = {
@@ -16,33 +17,29 @@ const MaterialCard: React.FC<Props> = ({ data }) => {
 
 	return (
 		<Card
-			className="overflow-hidden w-full min-w-40 min-h-28 max-w-60 "
+			className="overflow-hidden h-80 w-52 "
 			key={data.id}
 			cover={
 				<Image
 					alt="example"
 					src={data.coverImage}
-					preview={false}
-					placeholder={
-						<Skeleton.Image
-							active={true}
-							className="w-full h-full"
-						/>
-					}
-					className="min-h-full "
+					sizes="200px"
+					width={250}
+					height={250}
+					className="object-cover "
 				/>
 			}
 			actions={[
 				<Link
 					key={data.id}
 					href={routesManager.updateMaterial(data?.id!.toString())}
-					className="flex justify-center items-center"
+					className="flex justify-center items-center gap-2"
 				>
-					<EditOutlined key="edit" />
+					<Button icon={<PenIcon size={14} />} size="small"></Button>
 				</Link>,
 			]}
 		>
-			<Meta title={data.name} />
+			<Meta title={data.name} className="text-center" />
 		</Card>
 	);
 };

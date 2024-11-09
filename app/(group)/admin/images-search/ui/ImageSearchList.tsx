@@ -2,14 +2,14 @@
 import {
 	App,
 	Button,
-	Image,
 	Space,
 	Table,
 	TableColumnsType,
 	TableProps,
 	Tag,
 } from "antd";
-import { BadgeX, RotateCcw, ScanSearch } from "lucide-react";
+import { RotateCcw, ScanSearch } from "lucide-react";
+import Image from "next/image";
 import React, { useCallback, useEffect, useState } from "react";
 
 import { KEY_CONST, QUERY_CONST } from "@/const";
@@ -42,11 +42,24 @@ const columns: TableColumnsType<TJewelryImage> = [
 		render(value, record, index) {
 			return (
 				<Image
+					alt="Ảnh"
 					src={value}
 					width={50}
 					height={50}
 					className="rounded overflow-hidden border border-gray-200"
 				/>
+			);
+		},
+	},
+	{
+		title: "Sử dụng",
+		dataIndex: "isSearchImage",
+		key: "isSearchImage",
+		render(value, record, index) {
+			return value ? (
+				<Tag color="green">Đã dùng</Tag>
+			) : (
+				<Tag color="red">Chưa dùng</Tag>
 			);
 		},
 	},
@@ -64,11 +77,7 @@ const columns: TableColumnsType<TJewelryImage> = [
 			return <Tag className="text-xs">{value}</Tag>;
 		},
 	},
-	{
-		title: "Màu sắc",
-		dataIndex: ["jewelryModel", "color"],
-		key: "jewelryModel.color",
-	},
+
 	{
 		title: "Giá",
 		dataIndex: ["jewelryModel", "price"],
@@ -139,6 +148,9 @@ const JewelryList: React.FC = () => {
 	const rowSelection: TableRowSelection<TJewelryImage> = {
 		selectedRowKeys,
 		onChange: onSelectChange,
+		getCheckboxProps: (record: TJewelryImage) => ({
+			disabled: record.isSearchImage,
+		}),
 	};
 
 	const refresh = useCallback(() => {
@@ -147,6 +159,17 @@ const JewelryList: React.FC = () => {
 	}, []);
 	const handleSearch = (value: string) => {
 		setQuery({ ...query, jewelryModelId: { contains: value } });
+	};
+	const handleTableChange: TableProps<TJewelryImage>["onChange"] = (
+		pagination,
+		filters,
+		sorter
+	) => {
+		setQuery({
+			...query,
+			page: pagination.current! - 1,
+		});
+		setPagination(pagination);
 	};
 	const handleAllowSearch = async () => {
 		const images = jewelryModels?.filter((jewelry) =>
@@ -176,8 +199,8 @@ const JewelryList: React.FC = () => {
 		);
 	};
 	const allowSearchMutation = useMutation({
-		mutationFn: () => {
-			return Promise.all([handleAllowSearch(), updateInDB()]);
+		mutationFn: async () => {
+			return Promise.all([await handleAllowSearch(), await updateInDB()]);
 		},
 		onSuccess() {
 			message.success("Đã cho phép tìm kiếm");
@@ -207,17 +230,15 @@ const JewelryList: React.FC = () => {
 				>
 					Cho phép tìm kiếm
 				</Button>
-				<Button icon={<BadgeX size={18} />} danger>
-					Bỏ tìm kiếm
-				</Button>
 			</Space>
 			<Table<TJewelryImage>
 				columns={columns}
 				dataSource={jewelryModels}
 				rowKey="id"
-				pagination={{ position: ["bottomRight"] }}
+				pagination={pagination}
 				scroll={{ x: 1500, scrollToFirstRowOnChange: true }}
 				rowSelection={rowSelection}
+				onChange={handleTableChange}
 				loading={isLoadingjewelryModels || isLoadingjewelryModelsCount}
 			/>
 		</Space>

@@ -1,6 +1,7 @@
 "use client";
-import { Button, Image, Space, Table, TableProps, Tag } from "antd";
+import { Button, Space, Table, TableProps, Tag } from "antd";
 import { Pencil, RotateCcw, Trash } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 
@@ -8,17 +9,26 @@ import { QUERY_CONST } from "@/const";
 import { routesManager } from "@/routes";
 import { jewelryService } from "@/services";
 import { InputSearchCustom } from "@/shared/FormCustom/InputSearchCustom";
+import { SelectMaterialForm } from "@/shared/FormSelect";
+import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
 import { TQuery } from "@/types";
 import { TJewelry, TJewelryQuery } from "@/types/jewelryType";
 import { formatUtil } from "@/utils";
 import { useQueries } from "@tanstack/react-query";
 
+import { jewelryStore } from "../store";
+import DeleteJewelryModal from "./DeleteJewelryModal";
+
+const { defaultQuery, initPagination } = QUERY_CONST;
 const JewelryList: React.FC = () => {
+	const forceRefresh = jewelryStore((state) => state.forceRefresh);
+	const setForceRefresh = jewelryStore((state) => state.setForceRefresh);
+	const setJewelry = jewelryStore((state) => state.setJewelry);
 	const [query, setQuery] = React.useState<TQuery<TJewelryQuery>>({
-		...QUERY_CONST.defaultQuery,
+		...defaultQuery,
 	});
 	const [pagination, setPagination] = useState({
-		...QUERY_CONST.initPagination,
+		...initPagination,
 	});
 
 	const [
@@ -71,6 +81,7 @@ const JewelryList: React.FC = () => {
 			render(value, record, index) {
 				return (
 					<Image
+						alt="Ảnh bìa"
 						src={value}
 						width={50}
 						height={50}
@@ -85,11 +96,7 @@ const JewelryList: React.FC = () => {
 			key: "name",
 			width: 200,
 		},
-		{
-			title: "Màu sắc",
-			dataIndex: "color",
-			key: "color",
-		},
+
 		{
 			title: "Giá",
 			dataIndex: "price",
@@ -104,11 +111,7 @@ const JewelryList: React.FC = () => {
 			dataIndex: ["category", "name"],
 			key: "category.name",
 		},
-		{
-			title: "Chất liệu",
-			dataIndex: ["material", "name"],
-			key: "material.name",
-		},
+
 		{
 			title: "Tạo bởi",
 			dataIndex: "createdBy",
@@ -145,9 +148,10 @@ const JewelryList: React.FC = () => {
 					</Link>
 					<Button
 						danger
+						type="primary"
 						icon={<Trash size={16} />}
 						onClick={() => {
-							// setTemplateDelete(record);
+							setJewelry(record);
 						}}
 					/>
 				</Space>
@@ -170,10 +174,24 @@ const JewelryList: React.FC = () => {
 		refreshjewelryModelsCount();
 	}, []);
 	const handleSearch = (value: string) => {
-		setQuery({ ...query, name: { contains: value } });
+		setQuery((pre) => ({ ...pre, page: 0, name: { contains: value } }));
 	};
+	const onChangeMaterialSelect = (value: number) => {
+		setQuery((pre) => ({ ...pre, page: 0, materialId: { equals: value } }));
+	};
+	const onChangCategorySelect = (value: number) => {
+		setQuery((pre) => ({ ...pre, page: 0, categoryId: { equals: value } }));
+	};
+
+	useEffect(() => {
+		if (forceRefresh) {
+			refresh();
+			setForceRefresh(false);
+		}
+	}, [forceRefresh]);
 	return (
 		<Space direction="vertical" className="flex">
+			<DeleteJewelryModal />
 			<Space>
 				<Button
 					icon={<RotateCcw size={18} />}
@@ -182,6 +200,18 @@ const JewelryList: React.FC = () => {
 					Làm mới
 				</Button>
 				<InputSearchCustom handleSearch={handleSearch} />
+				<SelectMaterialForm
+					size="middle"
+					allowClear
+					hasLabel={false}
+					onChange={(value) => onChangeMaterialSelect(value)}
+				/>
+				<SelectCategoryForm
+					size="middle"
+					allowClear
+					hasLabel={false}
+					onChange={(value) => onChangCategorySelect(value)}
+				/>
 			</Space>
 			<Table
 				columns={columns}

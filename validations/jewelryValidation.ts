@@ -1,23 +1,34 @@
-import * as yup from 'yup';
+import * as yup from "yup";
 
-import { KEY_CONST } from '@/const';
+import { KEY_CONST } from "@/const";
 
-const { REQUIRED_FIELD_MESSAGE } = KEY_CONST;
+const { REQUIRED_FIELD_MESSAGE, REQUIRED_NUMBER_FIELD } = KEY_CONST;
+
+const material = yup.object({
+	id: yup
+		.number()
+		.min(1, REQUIRED_NUMBER_FIELD)
+		.required(REQUIRED_FIELD_MESSAGE),
+	unit: yup.string().required(REQUIRED_FIELD_MESSAGE),
+	pricePerUnit: yup
+		.number()
+		.typeError(REQUIRED_NUMBER_FIELD)
+		.min(0, REQUIRED_NUMBER_FIELD)
+		.positive(REQUIRED_NUMBER_FIELD)
+		.required(REQUIRED_FIELD_MESSAGE),
+});
 const jewelrySchema = yup.object({
 	id: yup.number().required(REQUIRED_FIELD_MESSAGE),
 	name: yup.string().required(REQUIRED_FIELD_MESSAGE),
 	sku: yup.string().required(REQUIRED_FIELD_MESSAGE),
-	weight: yup
-		.number()
-		.positive("Giá một đơn vị phải lớn hơn 0")
-		.required(REQUIRED_FIELD_MESSAGE),
-	color: yup.string().required(REQUIRED_FIELD_MESSAGE),
+
 	active: yup.boolean().required(REQUIRED_FIELD_MESSAGE),
-	isCustom: yup.boolean().required(REQUIRED_FIELD_MESSAGE),
 	price: yup
 		.number()
-		.required(REQUIRED_FIELD_MESSAGE)
-		.positive("Giá một đơn vị phải lớn hơn 0"),
+		.typeError(REQUIRED_NUMBER_FIELD)
+		.min(0, REQUIRED_NUMBER_FIELD)
+		.positive(REQUIRED_NUMBER_FIELD)
+		.required(REQUIRED_FIELD_MESSAGE),
 	coverImage: yup
 		.array()
 		.required(REQUIRED_FIELD_MESSAGE)
@@ -38,13 +49,42 @@ const jewelrySchema = yup.object({
 		})
 		.required(REQUIRED_FIELD_MESSAGE),
 	manager: yup
-		.object({ id: yup.number().min(1).required(REQUIRED_FIELD_MESSAGE) })
+		.object({
+			id: yup
+				.number()
+				.min(1, REQUIRED_FIELD_MESSAGE)
+				.required(REQUIRED_FIELD_MESSAGE),
+		})
 		.required(REQUIRED_FIELD_MESSAGE),
-	material: yup
-		.object({ id: yup.number().min(1).required(REQUIRED_FIELD_MESSAGE) })
+	materials: yup
+		.array(
+			yup.object({
+				id: yup.number().nullable(),
+				material: material,
+
+				price: yup
+					.number()
+					.typeError(REQUIRED_NUMBER_FIELD)
+					.min(0, REQUIRED_NUMBER_FIELD)
+					.positive(REQUIRED_NUMBER_FIELD)
+					.required(REQUIRED_FIELD_MESSAGE),
+				usage: yup
+					.number()
+					.typeError(REQUIRED_NUMBER_FIELD)
+					.min(0, REQUIRED_NUMBER_FIELD)
+					.positive(REQUIRED_NUMBER_FIELD)
+					.required(REQUIRED_FIELD_MESSAGE),
+			})
+		)
+
 		.required(REQUIRED_FIELD_MESSAGE),
 	project: yup
-		.object({ id: yup.number().min(1).required(REQUIRED_FIELD_MESSAGE) })
+		.object({
+			id: yup
+				.number()
+				.min(1, REQUIRED_FIELD_MESSAGE)
+				.required(REQUIRED_FIELD_MESSAGE),
+		})
 		.required(REQUIRED_FIELD_MESSAGE),
 });
 const jewelryValidation = {

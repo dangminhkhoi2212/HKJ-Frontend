@@ -71,7 +71,7 @@ const Security: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 		return () => {
 			// Optional: Add a destructor function here if needed
 		};
-	}, [status, getAccountData, account, router]);
+	}, [status, getAccountData, account, router, session]);
 
 	if (status === "loading") {
 		return <LoadingIntro />;

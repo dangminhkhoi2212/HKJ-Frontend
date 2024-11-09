@@ -20,7 +20,7 @@ const axiosInterceptor = () => {
 			config: InternalAxiosRequestConfig
 		): Promise<InternalAxiosRequestConfig> => {
 			const session = await getSession();
-			console.log("🚀 ~ axiosInterceptor ~ session:", session);
+			// console.log("🚀 ~ axiosInterceptor ~ session:", session);
 			const accessToken = session?.access_token;
 			if (accessToken) {
 				config.headers.Authorization = `Bearer ${accessToken}`;

@@ -1,8 +1,10 @@
-import { TAudit } from './auditType';
+import { TAudit } from "./auditType";
 
 export type TMaterial = {
 	id: number;
 	name: string;
+	unit: string;
+	pricePerUnit: number;
 	coverImage: string;
 } & TAudit;
 

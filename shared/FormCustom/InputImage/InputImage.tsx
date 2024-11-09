@@ -123,6 +123,9 @@ const InputImages: React.FC<TProps> = ({
 				<p className="p-0 m-0 text-red-500">{errorMessage}</p>
 			)}
 			<ImgCrop
+				modalTitle="Thêm ảnh"
+				modalOk="Xong"
+				modalCancel="Hủy"
 				rotationSlider
 				zoomSlider
 				aspectSlider

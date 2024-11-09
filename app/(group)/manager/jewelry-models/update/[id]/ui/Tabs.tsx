@@ -1,17 +1,17 @@
 // TabUpdateForm.tsx
 "use client";
-import { Empty, Spin, Tabs } from 'antd';
-import { useParams } from 'next/navigation';
-import React, { useEffect } from 'react';
+import { Empty, Spin, Tabs } from "antd";
+import { useParams } from "next/navigation";
+import React, { useEffect } from "react";
 
-import { useRouterCustom } from '@/hooks';
-import { jewelryService } from '@/services';
-import { useQuery } from '@tanstack/react-query';
+import { useRouterCustom } from "@/hooks";
+import { jewelryService, materialUsageService } from "@/services";
+import { useQuery } from "@tanstack/react-query";
 
-import { updateJewelryModelStore } from '../store';
-import UpdateBasicForm from './UpdateJewelryBasicForm';
-import UpdateImagesForm from './UpdateJewelryImagesForm';
-import UpdateProjectForm from './UpdateJewelryProjectForm';
+import { updateJewelryModelStore } from "../store";
+import UpdateBasicForm from "./UpdateJewelryBasicForm";
+import UpdateImagesForm from "./UpdateJewelryImagesForm";
+import UpdateProjectForm from "./UpdateJewelryProjectForm";
 
 const TabUpdateForm: React.FC = () => {
 	const params = useParams();
@@ -33,6 +33,13 @@ const TabUpdateForm: React.FC = () => {
 		// Thêm suspense nếu muốn loading UI được xử lý ở component cha
 	});
 
+	const { data: materials, isFetching: isFetchingMaterials } = useQuery({
+		queryKey: ["jewelry-material-usage", params.id],
+		queryFn: () =>
+			materialUsageService.get({ jewelryId: { equals: jewelry?.id } }),
+		enabled: !!jewelry?.id,
+		staleTime: 0,
+	});
 	const items = [
 		{
 			key: "basic",
@@ -51,19 +58,24 @@ const TabUpdateForm: React.FC = () => {
 		},
 	];
 	useEffect(() => {
-		if (jewelry) {
-			setJewelry(jewelry);
+		if (jewelry && materials) {
+			const newJewelry = {
+				...jewelry,
+				materials,
+			};
+
+			setJewelry(newJewelry!);
 		}
 		return () => {
 			reset();
 		};
-	}, [jewelry, isFetching]);
+	}, [jewelry, isFetching, isFetchingMaterials, materials]);
 	if (isError) {
 		return <Empty description="Không tìm thấy" />;
 	}
 
 	return (
-		<Spin spinning={isFetching}>
+		<Spin spinning={isFetching || isFetchingMaterials}>
 			<Tabs
 				tabPosition="left"
 				items={items}

@@ -3,7 +3,7 @@ export type TFilter = {
 	doesNotContain?: string | number;
 	equals?: string | number | boolean | number;
 	notEquals?: string | number;
-	in?: string | number[];
+	in?: string[] | number[];
 	notIn?: string | number[];
 	greaterThan?: string | number;
 	lessThan?: string | number;

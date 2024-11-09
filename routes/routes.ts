@@ -1,4 +1,5 @@
 export const routesUser = {
+	cart: "/user/cart",
 	home: "/user",
 	profile: "/user/profile",
 	product: "/user/products",

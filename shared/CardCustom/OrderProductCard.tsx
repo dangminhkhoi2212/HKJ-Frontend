@@ -1,8 +1,8 @@
-import { Card, Image, Skeleton, Tag } from 'antd';
-import React from 'react';
+import { Card, Image, Skeleton, Tag } from "antd";
+import React from "react";
 
-import { TJewelry } from '@/types';
-import { formatUtil } from '@/utils';
+import { TJewelry } from "@/types";
+import { formatUtil } from "@/utils";
 
 type Props = { jewelry: TJewelry };
 const { formatCurrency } = formatUtil;
@@ -17,6 +17,7 @@ const OrderProductCard: React.FC<Props> = ({ jewelry }) => {
 						alt={jewelry.name}
 						src={jewelry.coverImage}
 						preview={false}
+						sizes="80px"
 						placeholder={
 							<Skeleton.Image
 								active={true}

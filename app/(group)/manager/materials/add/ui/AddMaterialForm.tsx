@@ -1,17 +1,23 @@
 "use client";
-import { App, Button, Form, Space, UploadFile } from 'antd';
-import { useCallback, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { App, Button, Form, Space, UploadFile } from "antd";
+import { useCallback, useState } from "react";
+import { useForm } from "react-hook-form";
+import yup from "yup";
 
-import { useRouterCustom } from '@/hooks';
-import { materialImageService, materialService } from '@/services';
-import supabaseService from '@/services/supabaseService';
-import { InputCustom, LabelCustom } from '@/shared/FormCustom/InputCustom';
-import { InputImage } from '@/shared/FormCustom/InputImage';
-import { TMaterial } from '@/types';
-import materialValidation from '@/validations/materialValidation';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useMutation } from '@tanstack/react-query';
+import { useRouterCustom } from "@/hooks";
+import { materialImageService, materialService } from "@/services";
+import supabaseService from "@/services/supabaseService";
+import {
+	InputCustom,
+	InputNumberCustom,
+	LabelCustom,
+} from "@/shared/FormCustom/InputCustom";
+import { InputImage } from "@/shared/FormCustom/InputImage";
+import NumberToWords from "@/shared/FormCustom/InputNumToWords/InputNumToWords";
+import { TMaterial } from "@/types";
+import materialValidation from "@/validations/materialValidation";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useMutation } from "@tanstack/react-query";
 
 const items = [
 	{
@@ -24,15 +30,17 @@ const items = [
 		title: "Kết quả",
 	},
 ];
-type TForm = Omit<TMaterial, "coverImage" | "id"> & {
-	coverImage: UploadFile[];
-};
+const schema = materialValidation.materialSchema.omit(["id"]);
+
+type TForm = yup.InferType<yup.ObjectSchema<typeof schema>>["__outputType"];
 const initValueForm: TForm = {
 	name: "",
 	coverImage: [],
+	unit: "",
+	pricePerUnit: 0,
+	isDeleted: false,
 };
 
-const excludeIdSchema = materialValidation.materialSchema.omit(["id"]);
 const AddMaterialForm: React.FC<{}> = () => {
 	const { message } = App.useApp();
 	const [form] = Form.useForm();
@@ -51,7 +59,7 @@ const AddMaterialForm: React.FC<{}> = () => {
 		reset,
 		formState: { errors },
 	} = useForm<TForm>({
-		resolver: yupResolver(excludeIdSchema),
+		resolver: yupResolver(schema),
 		mode: "onChange",
 		defaultValues: initValueForm,
 	});
@@ -129,6 +137,7 @@ const AddMaterialForm: React.FC<{}> = () => {
 			const material = await materialService.create({
 				...data,
 				coverImage: "",
+				isDeleted: false,
 			});
 			const imageCover = await handleUploadCoverImage(material.id);
 			const updateMaterial = await materialService.update({
@@ -168,6 +177,20 @@ const AddMaterialForm: React.FC<{}> = () => {
 					errorMessage={errors.name?.message}
 					className="w-full max-w-44"
 				/>
+				<InputCustom
+					name="unit"
+					control={control}
+					placeholder={"Đơn vị"}
+					label="Đơn vị"
+					className="w-full max-w-44"
+				/>
+				<InputNumberCustom
+					name="pricePerUnit"
+					control={control}
+					label="Giá mỗi đơn vị"
+					className="w-full max-w-44"
+				/>
+				<NumberToWords number={watch("pricePerUnit")} />
 				<div className="">
 					<Space direction="vertical">
 						<LabelCustom label="Ảnh bìa" required />

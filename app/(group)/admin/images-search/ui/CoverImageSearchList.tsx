@@ -2,14 +2,14 @@
 import {
 	App,
 	Button,
-	Image,
 	Space,
 	Table,
 	TableColumnsType,
 	TableProps,
 	Tag,
 } from "antd";
-import { BadgeX, RotateCcw, ScanSearch } from "lucide-react";
+import { RotateCcw, ScanSearch } from "lucide-react";
+import Image from "next/image";
 import React, { useCallback, useEffect, useState } from "react";
 
 import { KEY_CONST, QUERY_CONST } from "@/const";
@@ -32,6 +32,7 @@ const columns: TableColumnsType<TJewelry> = [
 		render(value, record, index) {
 			return (
 				<Image
+					alt="Ảnh"
 					src={value}
 					width={50}
 					height={50}
@@ -46,7 +47,7 @@ const columns: TableColumnsType<TJewelry> = [
 		key: "isCoverSearch",
 		render(value, record, index) {
 			return value ? (
-				<Tag color="green">Sử dụng</Tag>
+				<Tag color="green">Đã dùng</Tag>
 			) : (
 				<Tag color="red">Chưa dùng</Tag>
 			);
@@ -72,20 +73,7 @@ const columns: TableColumnsType<TJewelry> = [
 		dataIndex: "name",
 		key: "name",
 	},
-	{
-		title: "Màu sắc",
-		dataIndex: "color",
-		key: "color",
-	},
-	{
-		title: "Giá",
-		dataIndex: "price",
-		key: "price",
 
-		render(value, record, index) {
-			return formatUtil.formatCurrency(value);
-		},
-	},
 	{
 		title: "Tạo bởi",
 		dataIndex: "createdBy",
@@ -159,9 +147,24 @@ const JewelryList: React.FC = () => {
 	const rowSelection: TableRowSelection<TJewelry> = {
 		selectedRowKeys,
 		onChange: onSelectChange,
+		getCheckboxProps: (record: TJewelry) => ({
+			disabled: record.isCoverSearch,
+			name: record.name,
+		}),
 	};
 	const handleSearch = (value: string) => {
 		setQuery({ ...query, name: { contains: value } });
+	};
+	const handleTableChange: TableProps<TJewelry>["onChange"] = (
+		pagination,
+		filters,
+		sorter
+	) => {
+		setQuery({
+			...query,
+			page: pagination.current! - 1,
+		});
+		setPagination(pagination);
 	};
 	const handleAllowSearch = async () => {
 		const images = jewelryModels?.filter((jewelry) =>
@@ -222,16 +225,14 @@ const JewelryList: React.FC = () => {
 				>
 					Cho phép tìm kiếm
 				</Button>
-				<Button icon={<BadgeX size={18} />} danger>
-					Bỏ tìm kiếm
-				</Button>
 			</Space>
 			<Table<TJewelry>
 				columns={columns}
 				dataSource={jewelryModels}
 				rowKey="id"
 				rowSelection={rowSelection}
-				pagination={{ position: ["bottomRight"] }}
+				onChange={handleTableChange}
+				pagination={pagination}
 				scroll={{ x: 1500, scrollToFirstRowOnChange: true }}
 				loading={isLoadingjewelryModels || isLoadingjewelryModelsCount}
 			/>

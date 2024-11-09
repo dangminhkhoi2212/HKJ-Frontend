@@ -11,7 +11,7 @@ type Props = {};
 
 const StorePicture: React.FC<Props> = ({}) => {
 	return (
-		<div className="flex flex-col justify-center items-center gap-4">
+		<div className="flex flex-col justify-center items-center gap-4 overflow-auto">
 			<div className="flex flex-col justify-center items-center">
 				<p className="text-2xl font-semibold">HÌNH ẢNH CỬA HÀNG</p>
 				<p className="italic text-lg font-light">
@@ -19,7 +19,7 @@ const StorePicture: React.FC<Props> = ({}) => {
 					HKJ.”
 				</p>
 			</div>
-			<div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 h-96 place-items-stretch gap-4 w-full">
+			<div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 max-h-96 place-items-stretch gap-4 w-full">
 				<div className="col-span-1 row-span-2">
 					<Image
 						src={sp1}
