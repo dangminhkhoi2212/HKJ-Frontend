@@ -1,7 +1,7 @@
-import { MenuProps } from 'antd';
-import { House, LayoutDashboard, ListOrdered, Truck } from 'lucide-react';
+import { MenuProps } from "antd";
+import { House, LayoutDashboard, ListOrdered, Truck } from "lucide-react";
 
-import { routesUser } from '@/routes';
+import { routesUser } from "@/routes";
 
 type MenuItem = Required<MenuProps>["items"][number];
 export const menuUser: MenuItem[] = [
@@ -23,7 +23,7 @@ export const menuUser: MenuItem[] = [
 		label: "Đơn hàng",
 	},
 	{
-		key: routesUser.createOrder(),
+		key: routesUser.createOrder,
 		icon: <ListOrdered size={18} />,
 		label: "Đặt hàng",
 	},

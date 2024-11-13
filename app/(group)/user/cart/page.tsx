@@ -31,14 +31,14 @@ const hydrate = async (acocuntId: string) => {
 
 	return dehydrate(queryClient);
 };
-const CartPage: React.FC<Props> = ({}) => {
+const CartPage: React.FC<Props> = async ({}) => {
 	const accountIDCookie = cookies().get(KEY_CONST.ACCOUNT_ID_COOKIE)?.value;
 	if (!accountIDCookie) {
 		return <p>Không tìm thấy khách hàng</p>;
 	}
 	return (
 		<div>
-			<HydrationBoundary state={hydrate(accountIDCookie)}>
+			<HydrationBoundary state={await hydrate(accountIDCookie)}>
 				<CartList />
 			</HydrationBoundary>
 		</div>

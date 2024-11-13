@@ -10,13 +10,14 @@ import { formatUtil } from "@/utils";
 type Props = { jewelry: TJewelry };
 const { formatCurrency } = formatUtil;
 const { Meta } = Card;
+
 const ProductCard: React.FC<Props> = ({ jewelry }) => {
 	return (
 		<Link href={routesUser.productDetail(jewelry.id)}>
 			<Card
-				className="flex flex-col justify-stretch items-center overflow-hidden h-72 max-w-60" // Set a fixed height for the card
+				className="flex flex-col justify-between items-center overflow-hidden h-[350px] w-full" // Ensure spacing between elements
 				cover={
-					<div className="size-40 relative  overflow-hidden">
+					<div className="size-56 relative overflow-hidden">
 						<Image
 							alt={jewelry.name}
 							src={jewelry.coverImage}
@@ -27,9 +28,11 @@ const ProductCard: React.FC<Props> = ({ jewelry }) => {
 					</div>
 				}
 			>
-				<div className="flex justify-around items-center flex-col gap-4">
-					<p className="font-semibold line-clamp-2">{jewelry.name}</p>
-					<div className=" flex justify-center">
+				<div className="flex flex-col justify-between flex-grow w-full gap-4">
+					<p className="font-semibold line-clamp-2 text-center">
+						{jewelry.name}
+					</p>
+					<div className="mt-auto flex justify-center">
 						<Tag
 							color="red"
 							bordered={false}

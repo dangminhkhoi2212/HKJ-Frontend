@@ -1,5 +1,6 @@
-@import "react-quill-new/dist/quill.snow.css";
-@import "gantt-task-react/dist/index.css";
+@import url(~quill/dist/quill.core.css);
+@import url(~quill/dist/quill.bubble.css);
+@import url(~quill/dist/quill.snow.css);
 @layer tailwind-base {
 	@tailwind base;
 }

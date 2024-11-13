@@ -50,7 +50,7 @@ const Contact: React.FC<{}> = () => {
 };
 const Footer: React.FC<Props> = ({}) => {
 	return (
-		<div className="bg-primary-950  flex flex-col justify-center items-center ">
+		<div className="bg-primary-950 w-full flex flex-col justify-center items-center ">
 			<div className="flex-col flex md:flex-row justify-evenly gap-10 p-4 md:px-10 md:my-4">
 				<div className="col-span-1 md:w-40 flex justify-center items-center flex-row md:flex-col">
 					<Logo />

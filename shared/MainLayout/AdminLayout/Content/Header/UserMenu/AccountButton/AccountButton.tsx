@@ -1,14 +1,16 @@
 "use client";
-import { Button, Divider, Dropdown, Spin, Tag, theme, Tooltip } from 'antd';
-import { MenuProps } from 'antd/lib';
-import { LogOut, UserRound } from 'lucide-react';
-import Link from 'next/link';
-import React from 'react';
+import { Button, Divider, Dropdown, Spin, Tag, theme, Tooltip } from "antd";
+import { MenuProps } from "antd/lib";
+import { LogOut, UserRound } from "lucide-react";
+import Link from "next/link";
+import React from "react";
 
-import { useAccount } from '@/hooks';
-import { useAccountStore } from '@/providers';
-import { routes } from '@/routes';
-import AvatarAccount from '@/shared/Account/AvatarAccount';
+import { useAccount } from "@/hooks";
+import { useAccountStore } from "@/providers";
+import { routes } from "@/routes";
+import AvatarAccount from "@/shared/Account/AvatarAccount";
+
+import CartButton from "./CartButton";
 
 const AccountButton: React.FC<{}> = () => {
 	const account = useAccountStore((state) => state.account);
@@ -40,7 +42,8 @@ const AccountButton: React.FC<{}> = () => {
 	};
 
 	return (
-		<div className="flex justify-center items-center ">
+		<div className="flex justify-center items-center gap-4 ">
+			<CartButton />
 			{account ? (
 				<Dropdown
 					trigger={["click"]}
@@ -61,7 +64,7 @@ const AccountButton: React.FC<{}> = () => {
 									htmlType="button"
 									className="w-full "
 									onClick={() => signOutAll()}
-									icon={<LogOut size={18} />}
+									icon={<LogOut size={14} />}
 								>
 									Đăng xuất
 								</Button>
@@ -73,7 +76,7 @@ const AccountButton: React.FC<{}> = () => {
 						title="Tài khoản"
 						className=" cursor-pointer flex  justify-center items-center"
 					>
-						<Button icon={<UserRound />} />
+						<Button icon={<UserRound size={14} />} />
 						<Tag
 							className="text-sm font-semibold p-2 text-center align-middle"
 							bordered={false}

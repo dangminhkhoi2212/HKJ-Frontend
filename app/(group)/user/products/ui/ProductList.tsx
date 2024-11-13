@@ -3,13 +3,13 @@ import { Card, List, Skeleton } from "antd";
 import React, { useEffect, useState } from "react";
 
 import { imageSearchAIService, jewelryService } from "@/services";
+import { ProductCard } from "@/shared/CardCustom";
 import { EmptyCustom } from "@/shared/EmptyCustom";
 import { imageSearchAIStore } from "@/stores";
 import { TJewelry } from "@/types";
 import { useQueries } from "@tanstack/react-query";
 
 import { projectStore } from "../store/ProdcutStore";
-import ProductCard from "./ProductCard";
 
 const ProductList: React.FC = () => {
 	const query = projectStore((state) => state.query);
@@ -60,8 +60,8 @@ const ProductList: React.FC = () => {
 					sm: 2,
 					md: 4,
 					lg: 4,
-					xl: 6,
-					xxl: 9,
+					xl: 5,
+					xxl: 5,
 				}}
 				dataSource={Array.from({ length: 10 }, (_, index) => index + 1)}
 				renderItem={(item, index) => (
@@ -99,8 +99,8 @@ const ProductList: React.FC = () => {
 				sm: 3,
 				md: 4,
 				lg: 4,
-				xl: 6,
-				xxl: 9,
+				xl: 5,
+				xxl: 5,
 			}}
 			dataSource={data}
 			renderItem={(item) => (

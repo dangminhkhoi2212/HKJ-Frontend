@@ -1,116 +1,187 @@
 "use client";
-import { Button, Divider, List, Skeleton, Space, Spin } from 'antd';
-import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import { App, Button, Space, Table, TableProps } from "antd";
+import { ArrowBigRight } from "lucide-react";
+import Link from "next/link";
+import React, { useCallback, useEffect, useState } from "react";
 
-import { QUERY_CONST } from '@/const';
-import { useRouterCustom } from '@/hooks';
-import { useAccountStore } from '@/providers';
-import { routesUser } from '@/routes';
-import { orderService } from '@/services';
-import { EmptyCustom } from '@/shared/EmptyCustom';
-import { TOrder, TOrderQuery, TQuery, TStatus } from '@/types';
-import { queryUtil } from '@/utils';
-import { useQueries } from '@tanstack/react-query';
+import { QUERY_CONST } from "@/const";
+import { useAccountStore } from "@/providers";
+import { routesUser } from "@/routes";
+import { cartService, orderService } from "@/services";
+import { TCartCRUD, TCartQuery, TOrder, TQuery } from "@/types";
+import { formatUtil, tagMapperUtil } from "@/utils";
+import { useMutation, useQueries } from "@tanstack/react-query";
 
-import OrderCard from './OrderCard';
+const { defaultQuery, initPagination } = QUERY_CONST;
+const { formatCurrency, formatDate } = formatUtil;
+const { TStatusColorMapper } = tagMapperUtil;
+const columns: TableProps<TOrder>["columns"] = [
+	{
+		title: "Mã đơn hàng",
+		dataIndex: "id",
+		key: "id",
+		width: 150,
+	},
 
-type Props = {};
-
-const defaultQuery = QUERY_CONST.defaultQuery;
-const { createSortOption } = queryUtil;
-const OrderList: React.FC<Props> = ({}) => {
+	{
+		title: "Ngày đặt",
+		dataIndex: "orderDate",
+		key: "orderDate",
+		render(value, record, index) {
+			return formatDate(value);
+		},
+	},
+	{
+		title: "Trạng thái",
+		dataIndex: "status",
+		key: "status",
+		render(value, record, index) {
+			return TStatusColorMapper(value);
+		},
+	},
+	{
+		title: "Ngày giao dự kiến",
+		dataIndex: "expectedDeliveryDate",
+		key: "expectedDeliveryDate",
+		render(value, record, index) {
+			return value ? formatDate(value) : "Chưa cập nhật";
+		},
+	},
+	{
+		title: "Ngày nhận hàng",
+		dataIndex: "actualDeliveryDate",
+		key: "actualDeliveryDate",
+		render(value, record, index) {
+			return value ? formatDate(value) : "Chưa nhận hàng";
+		},
+	},
+	{
+		title: "Tổng cộng",
+		dataIndex: "totalPrice",
+		key: "totalPrice",
+		render(value) {
+			return formatCurrency(value);
+		},
+	},
+	{
+		key: "actions",
+		render(value, record, index) {
+			return (
+				<Link href={routesUser.orderDetail(record.id)}>
+					<Button icon={<ArrowBigRight size={18} />}></Button>
+				</Link>
+			);
+		},
+	},
+];
+const OrderList: React.FC = () => {
 	const account = useAccountStore((state) => state.account);
-	console.log("🚀 ~ account:", account);
-	const { searchParams } = useRouterCustom();
-	const [pageSize, setPageSize] = useState<number>(Number.MAX_VALUE);
-	const [query, setQuery] = useState<TQuery<TOrderQuery>>({
+	const [query, setQuery] = React.useState<TQuery<TCartQuery>>({
 		...defaultQuery,
-		size: 2,
 		customerId: { equals: account?.id },
-		status: { equals: TStatus.NEW },
-		sort: createSortOption("createdDate")?.desc,
 	});
-	console.log("🚀 ~ query:", query);
-	const [data, setData] = useState<TOrder[]>([]);
-	const [getOrder, getOrderCount] = useQueries({
+	const [pagination, setPagination] = useState({
+		...initPagination,
+	});
+
+	const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+		console.log("selectedRowKeys changed: ", newSelectedRowKeys);
+	};
+
+	const message = App.useApp().message;
+	const [
+		{
+			data: carts,
+			refetch: refreshjewelryModels,
+			isLoading: isLoadingOrder,
+		},
+		{
+			data: cartCount,
+			refetch: refreshjewelryModelsCount,
+			isLoading: isLoadingOrderCount,
+		},
+	] = useQueries({
 		queries: [
 			{
 				queryKey: ["orders", query],
 				queryFn: () => orderService.get(query),
-				enabled: !!account,
+				staleTime: 0,
 			},
 			{
 				queryKey: ["orders-count", query],
 				queryFn: () => orderService.getCount(query),
-				enabled: !!account,
+				staleTime: 0,
 			},
 		],
 	});
-	const loadMoreData = () => {
-		setQuery((pre) => ({ ...pre, page: pre.page! + 1 }));
+
+	useEffect(() => {
+		setPagination({ ...pagination, total: cartCount! as number });
+	}, [cartCount]);
+
+	const updateCartItem = useMutation({
+		mutationFn: (data: TCartCRUD) => {
+			return cartService.updatePartical({
+				id: data.id,
+				quantity: data.quantity,
+			});
+		},
+		onError: () => {
+			message.error("Cập nhật giỏ hàng thất bại xin thử lại");
+		},
+	});
+	const deleteCartItem = useMutation({
+		mutationFn: (data: TCartCRUD) => {
+			return cartService.deleteOne(data.id!);
+		},
+		onSuccess(data, variables, context) {
+			refresh();
+		},
+		onError: () => {
+			message.error("Cập nhật giỏ hàng thất bại xin thử lại");
+		},
+	});
+
+	const handleTableChange: TableProps<TOrder>["onChange"] = (
+		pagination,
+		filters,
+		sorter
+	) => {
+		setQuery({
+			...query,
+			page: pagination.current! - 1,
+		});
+		setPagination(pagination);
 	};
-	useEffect(() => {
-		if (getOrder?.data?.length) {
-			setData((pre) => [...pre, ...getOrder.data]);
-		}
-	}, [getOrder.data]);
-	useEffect(() => {
-		if (getOrderCount?.data) {
-			setPageSize(getOrderCount?.data!);
-		}
-	}, [getOrderCount.data]);
 
-	useEffect(() => {
-		const status = searchParams.get("status");
-		if (status !== null && status in TStatus) {
-			setData([]);
-			setQuery((pre) => ({
-				...pre,
-				page: 0,
-				status: { equals: status },
-			}));
-		}
-	}, [searchParams]);
+	const refresh = useCallback(() => {
+		refreshjewelryModels();
+		refreshjewelryModelsCount();
+	}, []);
 
-	if (!data?.length) {
-		return (
-			<EmptyCustom
-				description={
-					<Space direction="vertical">
-						<p>Bạn chưa có đơn hàng nào</p>
-						<Link href={routesUser.createOrder()}>
-							<Button>Đặt hàng ngay</Button>
-						</Link>
-					</Space>
-				}
-			/>
-		);
-	}
+	const handleSearch = (value: string) => {
+		setQuery((pre) => ({ ...pre, page: 0, name: { contains: value } }));
+	};
+
+	const onChangeMaterialSelect = (value: number) => {
+		setQuery((pre) => ({ ...pre, page: 0, materialId: { equals: value } }));
+	};
+
+	const onChangCategorySelect = (value: number) => {
+		setQuery((pre) => ({ ...pre, page: 0, categoryId: { equals: value } }));
+	};
+
 	return (
-		<div id="scrollableDiv" className="h-full overflow-auto no-scrollbar">
-			<Spin
-				spinning={getOrder.isLoading || getOrderCount.isLoading}
-			></Spin>
-			<InfiniteScroll
-				dataLength={data.length}
-				next={() => loadMoreData()}
-				hasMore={data.length < pageSize}
-				loader={<Skeleton paragraph={{ rows: 3 }} active />}
-				endMessage={<Divider plain>Không còn dữ liệu 🤐</Divider>}
-				scrollableTarget="scrollableDiv"
-			>
-				<List
-					dataSource={data}
-					renderItem={(item, index) => (
-						<List.Item key={item.id}>
-							<OrderCard order={item} key={item.id} />
-						</List.Item>
-					)}
-				/>
-			</InfiniteScroll>
-		</div>
+		<Space direction="vertical" className="flex">
+			<Table<TOrder>
+				columns={columns}
+				dataSource={carts}
+				rowKey="id"
+				pagination={pagination}
+				onChange={handleTableChange}
+				loading={isLoadingOrder || isLoadingOrderCount}
+			/>
+		</Space>
 	);
 };
 

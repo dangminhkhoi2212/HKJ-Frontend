@@ -134,6 +134,7 @@ const JewelryList: React.FC = () => {
 			},
 		],
 	});
+
 	useEffect(() => {
 		setPagination({ ...pagination, total: orderCount as number });
 	}, [orderCount]);

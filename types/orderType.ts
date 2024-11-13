@@ -6,8 +6,15 @@ import { TProject } from "./projectType";
 import { TStatus } from "./statusType";
 import { TUserExtra } from "./userExtraType";
 
+export type TCartItemSession = {
+	id: number;
+	coverImage: string;
+	quantity: number;
+	price: number;
+};
 export type TOrder = {
 	id: number;
+	quantity: number;
 	orderDate: string;
 	expectedDeliveryDate: string;
 	actualDeliveryDate: string;

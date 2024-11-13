@@ -1,60 +1,85 @@
 "use client";
-import { App, Button, Form, Space, Spin, Tag } from 'antd';
-import { UploadFile } from 'antd/lib';
-import dayjs from 'dayjs';
-import dynamic from 'next/dynamic';
-import React, { useEffect, useMemo, useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
-import * as yup from 'yup';
+import { App, Card, Col, Form, Row, Spin, Typography } from "antd";
+import { UploadFile } from "antd/lib";
+import dayjs from "dayjs";
+import React, { useEffect, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import * as yup from "yup";
 
-import { useRouterCustom } from '@/hooks';
-import { useAccountStore } from '@/providers';
-import { jewelryService, orderImageService, orderService } from '@/services';
-import supabaseService from '@/services/supabaseService';
-import { LabelCustom } from '@/shared/FormCustom/InputCustom';
-import { InputImage } from '@/shared/FormCustom/InputImage';
-import { SelectMaterialForm } from '@/shared/FormSelect';
-import { AccountDisplay } from '@/shared/FormSelect/AccountForm';
-import { SelectCategoryForm } from '@/shared/FormSelect/SelectCategoryForm';
-import { TOrderCreate, TOrderImageCreate, TStatus } from '@/types';
-import orderValidation from '@/validations/orderValidation';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { KEY_CONST } from "@/const";
+import { useRouterCustom } from "@/hooks";
+import { useAccountStore } from "@/providers";
+import { orderImageService, orderService } from "@/services";
+import orderItemService from "@/services/orderItemService";
+import supabaseService from "@/services/supabaseService";
+import { AccountDisplay } from "@/shared/FormSelect/AccountForm";
+import { OrderDateInfo, OrderItemForm } from "@/shared/OrderForm";
+import OrderDetailAction from "@/shared/OrderForm/OrderDetailAction";
+import {
+	TCartItemSession,
+	TJewelry,
+	TOrderCreate,
+	TOrderImageCreate,
+	TStatus,
+} from "@/types";
+import { TOrderItemCreate } from "@/types/orderItemType";
+import orderValidation from "@/validations/orderValidation";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useMutation } from "@tanstack/react-query";
 
-import { createOrderStore } from '../store';
-import ProductCard from './ProductCard';
+import { createOrderStore } from "../store";
 
-const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
+const { Title } = Typography;
 const schema = orderValidation.orderSchema.pick([
 	"orderDate",
-	"specialRequests",
 	"status",
 	"customer",
-	"jewelry",
-	"category",
-	"material",
+	"orderItems",
+	"totalPrice",
 ]);
-type TForm = yup.InferType<yup.ObjectSchema<typeof schema>>["__outputType"];
-const initValues: TForm = {
+export type TFormOrder = yup.InferType<
+	yup.ObjectSchema<typeof schema>
+>["__outputType"];
+const initValues: TFormOrder = {
 	orderDate: dayjs().toISOString(),
-	specialRequests: "",
 	status: TStatus.NEW,
 	customer: { id: 0 },
-	category: { id: 0 },
-	material: { id: 0 },
-	jewelry: { id: null },
+	totalPrice: 0,
+	orderItems: [
+		{
+			id: 0,
+			quantity: 1,
+			price: null,
+			specialRequests: "Không",
+			notes: "",
+			project: null,
+			jewelry: null,
+			category: { id: 0 },
+			material: { id: 0 },
+			images: [],
+		},
+	],
 };
 type Props = {};
 
 const CreateOrderBasicForm: React.FC<Props> = ({}) => {
+	const [cartItemSession, setCartItemSession] = useState<
+		TCartItemSession[] | null
+	>(null);
 	const { searchParams } = useRouterCustom();
 	const account = useAccountStore((state) => state.account);
 	const [images, setImages] = useState<UploadFile[] | null>(null);
 	const next = createOrderStore((state) => state.next);
+	const [products, setProducts] = useState<TJewelry[] | null>(null);
 	const pId: string | null = searchParams.get("pId");
-	const methods = useForm<TForm>({
+	const quantity: number =
+		searchParams.get("quantity") === null
+			? 1
+			: Number.parseInt(searchParams?.get("quantity")!, 10);
+	const methods = useForm<TFormOrder>({
 		defaultValues: { ...initValues, customer: { id: account?.id } },
 		resolver: yupResolver(schema),
+		mode: "onChange",
 	});
 	const {
 		setValue,
@@ -69,66 +94,87 @@ const CreateOrderBasicForm: React.FC<Props> = ({}) => {
 			setValue("customer.id", account?.id!);
 		}
 	}, [account]);
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			const productSession = window.sessionStorage.getItem(
+				KEY_CONST.PLACE_ORDER_PRODUCT
+			);
+			if (productSession) {
+				const products: TCartItemSession[] = JSON.parse(productSession);
+				console.log("🚀 ~ useEffect ~ products:", products);
 
-	const createOrder = (data: TForm) => {
+				const totalPrice = products?.reduce(
+					(total, item) => total + item.price * item.quantity,
+					0
+				);
+				setValue("totalPrice", totalPrice);
+				setValue(
+					"orderItems",
+					products.map((item) => ({
+						id: item.id,
+						jewelry: { id: item.id },
+						product: { ...item, id: item.id },
+						quantity: item.quantity,
+						price: item.price,
+						specialRequests: "Không",
+						notes: "",
+						project: null,
+						material: null,
+						category: null,
+						images: [],
+					}))
+				);
+				setCartItemSession(products);
+			}
+		}
+	}, [setProducts, setValue, quantity]);
+
+	const createOrder = (data: TFormOrder) => {
 		const dataConvert: TOrderCreate = {
 			...data,
 			orderDate: dayjs(data.orderDate).toISOString(),
 			customer: { id: data.customer.id },
-			jewelry: pId ? { id: Number.parseInt(pId) } : null,
-			material: data?.material?.id ? { id: data?.material?.id } : null,
-			category: data?.category?.id ? { id: data?.category?.id } : null,
-			totalPrice: getProduct?.data?.price,
 		};
 		console.log("🚀 ~ dataConvert:", dataConvert);
 		return orderService.create(dataConvert);
 	};
-	const getProduct = useQuery({
-		queryKey: ["product", pId],
-		queryFn: () => {
-			return jewelryService.getOne(pId!);
-		},
-		enabled: !!pId,
-	});
 
-	useEffect(() => {
-		if (getProduct.isSuccess) {
-			setValue("jewelry.id", getProduct.data.id);
-			setValue("category.id", getProduct.data.category.id);
-		}
-	}, [getProduct.data]);
+	const createOrderItem = async (data: TFormOrder, orderId: number) => {
+		const { orderItems } = data;
+		const dataConvert = orderItems.map(async (item, index) => {
+			const { id, ...rest } = item;
+			const newOrderItem = await orderItemService.create({
+				...rest,
 
-	const handleOnChange = (
-		newFileList: UploadFile[],
-		file: UploadFile<any>
-	) => {
-		setImages(newFileList);
+				order: { id: orderId },
+			} as TOrderItemCreate);
+			await uploadImages(newOrderItem.id, item?.images || []);
+			return newOrderItem;
+		});
+
+		return Promise.all(dataConvert);
 	};
-	const uploadImages = async (orderId: number): Promise<string[] | null> => {
+
+	const uploadImages = async (orderItemId: number, images: UploadFile[]) => {
 		if (images && images.length > 0) {
 			const folder = supabaseService.createImagesFolder(
 				"orders",
-				orderId
+				orderItemId
 			);
-			return await supabaseService.uploadMultiple(images, folder);
-		}
-		return null;
-	};
-	const createOrerImages = async (orderId: number): Promise<void> => {
-		const urls = await uploadImages(orderId);
-		if (urls) {
-			const data: TOrderImageCreate[] = urls.map((url) => ({
-				url: url,
-				order: { id: orderId },
-			}));
-			await orderImageService.createMultiple(data);
+			const urls = await supabaseService.uploadMultiple(images, folder);
+			if (urls) {
+				const data: TOrderImageCreate[] = urls.map((url) => ({
+					url: url,
+					orderItem: { id: orderItemId },
+				}));
+				await orderImageService.createMultiple(data);
+			}
 		}
 	};
 	const createMutation = useMutation({
-		mutationFn: async (data: TForm) => {
+		mutationFn: async (data: TFormOrder) => {
 			const order = await createOrder(data);
-			await createOrerImages(order.id);
-			return order;
+			return await Promise.all([await createOrderItem(data, order.id)]);
 		},
 		onSuccess: () => {
 			message.success("Đã tạo đơn hàng thành công");
@@ -138,102 +184,37 @@ const CreateOrderBasicForm: React.FC<Props> = ({}) => {
 			message.error("Tạo đơn hàng thất bại. Xin thử lại");
 		},
 	});
-	const renderForm = useMemo(() => {
-		if (!getProduct.data) {
-			return (
-				<>
-					<Space direction="vertical">
-						<SelectCategoryForm
-							status={
-								errors.category?.message ||
-								errors.category?.id?.message
-									? "error"
-									: ""
-							}
-							onChange={(value) =>
-								setValue("category.id", value, {
-									shouldValidate: true,
-								})
-							}
-						/>
-						<span className="text-red-500">
-							{errors.category?.message ||
-								errors.category?.id?.message}
-						</span>
-					</Space>
-					<Space direction="vertical">
-						<SelectMaterialForm
-							status={
-								errors.material?.message ||
-								errors.material?.id?.message
-									? "error"
-									: ""
-							}
-							onChange={(value) =>
-								setValue("material.id", value, {
-									shouldValidate: true,
-								})
-							}
-						/>
-						<span className="text-red-500">
-							{errors.material?.message ||
-								errors.material?.id?.message}
-						</span>
-					</Space>
-				</>
-			);
-		}
-		return <></>;
-	}, [getProduct.data, errors]);
+	const test = (data: TFormOrder) => {
+		console.log("🚀 ~ test ~ data:", data);
+		// createOrderItem(data, 1);
+	};
+
 	return (
 		<Spin spinning={createMutation.isPending}>
 			<FormProvider {...methods}>
 				<Form
 					layout="vertical"
-					onFinish={handleSubmit((data) =>
-						createMutation.mutate(data)
+					onFinish={handleSubmit(
+						(data) => createMutation.mutate(data)
+						// test(data)
 					)}
 					className="flex flex-col gap-4"
 				>
 					{account && <AccountDisplay account={account} />}
-					<div className="grid grid-cols-1 md:grid-cols-1  gap-4">
-						<div className="flex flex-col gap-4">
-							{renderForm}
-							<Spin spinning={createMutation.isPending}>
-								<Space direction="vertical" className="flex">
-									<LabelCustom label="Cung cấp thêm hình ảnh" />
-									<Tag className="text-wrap italic">
-										Hình ảnh này giúp chúng tôi có thể tạo
-										ra sản phẩm giống ý bạn hơn
-									</Tag>
-									<InputImage onChange={handleOnChange} />
-								</Space>
-							</Spin>
-							<Space direction="vertical" className="flex">
-								<LabelCustom
-									label="Yêu cầu cụ thể"
-									required={true}
-								/>
-								<ReactQuill
-									onChange={(value) =>
-										setValue("specialRequests", value)
-									}
-									placeholder='Nếu không có yêu cầu hãy ghi "Không"'
-								/>
-								{errors.specialRequests?.message && (
-									<span className="text-red-500">
-										{errors.specialRequests?.message}
-									</span>
-								)}
-							</Space>
-						</div>
-						<ProductCard />
-					</div>
-					<div className="flex justify-end">
-						<Button type="primary" htmlType="submit">
-							Đặt hàng
-						</Button>
-					</div>
+					<Row gutter={[16, 16]}>
+						<Col span={16}>
+							<OrderItemForm products={cartItemSession} />
+						</Col>
+						<Col span={8}>
+							<Card>
+								<Title level={4}>Chi tiết</Title>
+								<div className="flex flex-col gap-2">
+									<OrderDateInfo />
+									<OrderDetailAction />
+								</div>
+							</Card>
+						</Col>
+					</Row>
 				</Form>
 			</FormProvider>
 		</Spin>

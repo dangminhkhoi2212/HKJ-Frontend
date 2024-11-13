@@ -35,20 +35,21 @@ const ImageSearchButton: React.FC = () => {
 
 	return (
 		<Tooltip title="Tìm kiếm với hình ảnh ">
-			<ImgCrop
-				modalTitle="Tìm kiếm hình ảnh"
-				modalOk="Tìm kiếm"
-				modalCancel="Hủy"
-				rotationSlider
-				zoomSlider
-				aspectSlider
-				showReset
-				maxZoom={10}
-			>
-				<Upload beforeUpload={beforeUpload} showUploadList={false}>
-					<Button icon={<Image size={14} />}></Button>
-				</Upload>
-			</ImgCrop>
+			<div>
+				<ImgCrop
+					modalTitle="Tìm kiếm hình ảnh"
+					modalOk="Tìm kiếm"
+					modalCancel="Hủy"
+					rotationSlider
+					zoomSlider
+					showReset
+					maxZoom={10}
+				>
+					<Upload beforeUpload={beforeUpload} showUploadList={false}>
+						<Button icon={<Image size={14} />}></Button>
+					</Upload>
+				</ImgCrop>
+			</div>
 		</Tooltip>
 	);
 };

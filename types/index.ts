@@ -1,5 +1,6 @@
 export * from "./accountType";
 export * from "./auditType";
+export * from "./cartType";
 export * from "./categoryType";
 export * from "./employeeType";
 export * from "./formType";
@@ -11,6 +12,7 @@ export * from "./materialImageType";
 export * from "./materialType";
 export * from "./materialUsageType";
 export * from "./orderImageType";
+export * from "./orderItemType";
 export * from "./orderType";
 export * from "./pageType";
 export * from "./postionType";

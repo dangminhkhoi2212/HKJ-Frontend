@@ -1,10 +1,12 @@
 "use client";
 
 import { App } from "antd";
+import Cookies from "js-cookie";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 
+import { KEY_CONST } from "@/const";
 import { useAccountStore } from "@/providers";
 import { routes } from "@/routes";
 import { getAccount } from "@/services/accountService";
@@ -54,6 +56,10 @@ const Security: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 		try {
 			const accountData: TAccountInfo = await getAccount();
 			// localStorage.setItem("account", JSON.stringify(accountData));
+			Cookies.set(
+				KEY_CONST.ACCOUNT_ID_COOKIE,
+				JSON.stringify(accountData.id)
+			);
 			setAccount(accountData);
 		} catch (error) {
 			console.log("🚀 ~ getAccountData ~ error:", error);

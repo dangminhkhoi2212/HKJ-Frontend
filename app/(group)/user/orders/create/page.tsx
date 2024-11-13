@@ -22,7 +22,7 @@ const hydrate = async (productId?: string) => {
 };
 const CreateOrderPage: React.FC<Props> = ({ searchParams }) => {
 	return (
-		<div className="mx-4 md:mx-20">
+		<div className="">
 			<HydrationBoundary state={hydrate(searchParams?.pId!)}>
 				<OrderProcessingForm />
 			</HydrationBoundary>

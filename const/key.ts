@@ -7,6 +7,8 @@ const AUTH_TOKEN_KEY = "access-token";
 const ERROR_MESSAGE = "Đã có lỗi xảy ra vui lòng thử lại";
 const ACCOUNT_ID_COOKIE = "account-id";
 const REQUIRED_NUMBER_FIELD = "Giá trị phải lơn hơn 0";
+
+const PLACE_ORDER_PRODUCT = "order-product";
 const keyConst = {
 	LANGUAGE_KEY,
 	DATE_FORMAT,
@@ -17,6 +19,7 @@ const keyConst = {
 	ERROR_MESSAGE,
 	ACCOUNT_ID_COOKIE,
 	REQUIRED_NUMBER_FIELD,
+	PLACE_ORDER_PRODUCT,
 };
 
 export default keyConst;

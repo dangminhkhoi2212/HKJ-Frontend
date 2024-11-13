@@ -4,12 +4,12 @@ import { TOrder } from "./orderType";
 export type TOrderImage = {
 	id: number;
 	url: string;
-	order: TOrder;
+	orderItem: TOrder;
 };
 export type TOrderImageCreate = {
 	url: string;
-	order: { id: number };
+	orderItem: { id: number };
 };
 export type TOrderImageQuery = {
-	orderId?: TFilter;
+	orderItemId?: TFilter;
 };

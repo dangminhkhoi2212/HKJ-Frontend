@@ -6,10 +6,7 @@ export const routesUser = {
 	productDetail: (id: string | number) => `/user/products/${id}`,
 	order: `/user/orders`,
 	orderDetail: (orderId: string | number) => `/user/orders/${orderId}`,
-	createOrder: (productId?: string | number) =>
-		productId
-			? `/user/orders/create?pId=${productId}`
-			: "/user/orders/create",
+	createOrder: "/user/orders/create",
 };
 export const routesAdmin = {
 	positions: "/admin/positions",

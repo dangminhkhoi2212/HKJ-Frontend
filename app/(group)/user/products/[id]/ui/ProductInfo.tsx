@@ -1,28 +1,87 @@
-import { Button, InputNumber, Space, Tag } from "antd";
-import { Receipt, ShoppingCart } from "lucide-react";
-import Link from "next/link";
-import React, { useState } from "react";
+"use client";
+import { App, Button, InputNumber, Space, Tag } from "antd";
+import { CreditCard, ShoppingCart } from "lucide-react";
+import React, { useEffect, useState } from "react";
 
+import { KEY_CONST } from "@/const";
+import { useRouterCustom } from "@/hooks";
+import { useAccountStore } from "@/providers";
 import { routesUser } from "@/routes";
+import { cartService } from "@/services";
 import { LabelCustom } from "@/shared/FormCustom/InputCustom";
 import { formatUtil } from "@/utils";
+import { useMutation } from "@tanstack/react-query";
 
+import { cartStore } from "../../../cart/store";
 import { productDetailStore } from "../store";
 import ProductImages from "./ProductImages";
 
 type Props = {};
 
 const ProductInfo: React.FC<Props> = ({}) => {
+	const setForceRefresh = cartStore((state) => state.setForceRefresh);
+	const reset = cartStore((state) => state.reset);
 	const [quantity, setQuantity] = useState<number>(0);
 	const jewelry = productDetailStore((state) => state.jewelry);
+	const account = useAccountStore((state) => state.account);
+	const message = App.useApp().message;
+	const router = useRouterCustom().router;
 
-	// const handleAddCart = useMutation({
-	//     mutationFn: () => {
-	//         return cartService.create({
-	//             quantity: quantity,
-	//         });
-	//     },
-	// })
+	const addCart = async () => {
+		const existedCartList = await cartService.get({
+			customerId: { equals: account?.id },
+			productId: { equals: jewelry?.id },
+			isDeleted: { equals: false },
+		});
+		const existedCart = existedCartList[0];
+
+		if (existedCart) {
+			await cartService.updatePartical({
+				id: existedCart.id,
+				quantity: existedCart.quantity + quantity,
+			});
+		} else
+			await cartService.create({
+				quantity: quantity,
+				customer: { id: account?.id! },
+				product: { id: jewelry?.id! },
+			});
+	};
+	const handleAddCart = useMutation({
+		mutationFn: async () => {
+			if (quantity === 0) {
+				message.error("Vui nhập số lượng");
+				throw new Error(KEY_CONST.ERROR_MESSAGE);
+			}
+			return await addCart();
+		},
+		onSuccess(data, variables, context) {
+			message.success("Đã thêm vào giỏ hàng");
+			setForceRefresh(true);
+			router.push(routesUser.cart);
+		},
+		onError(error, variables, context) {
+			message.error(KEY_CONST.ERROR_MESSAGE);
+		},
+	});
+
+	const handlePlace = () => {
+		if (typeof window === undefined) {
+			return;
+		}
+
+		const data = JSON.stringify([
+			{
+				...jewelry,
+			},
+		]);
+		window.sessionStorage.setItem(KEY_CONST.PLACE_ORDER_PRODUCT, data);
+	};
+	useEffect(() => {
+		return () => {
+			reset();
+		};
+	}, []);
 	return (
 		<div className="flex flex-col gap-4 p-5">
 			<div className="flex flex-col gap-4">
@@ -50,9 +109,9 @@ const ProductInfo: React.FC<Props> = ({}) => {
 					<LabelCustom label="Số lượng" />
 					<InputNumber
 						min={1}
-						max={10}
+						max={20}
 						size="large"
-						defaultValue={0}
+						defaultValue={1}
 						value={quantity}
 						onChange={(value) => setQuantity(value || 0)}
 					/>
@@ -64,26 +123,22 @@ const ProductInfo: React.FC<Props> = ({}) => {
 						size="large"
 						icon={<ShoppingCart size={18} />}
 						onClick={() => {
-							// handleAddCart()
+							handleAddCart.mutate();
 						}}
 					>
 						Thêm vào giỏ hàng
 					</Button>
 
 					<div className="col-span-1 flex">
-						<Link
-							href={routesUser.createOrder(jewelry?.id)}
+						<Button
+							type="primary"
+							size="large"
+							icon={<CreditCard size={18} />}
 							className="w-full"
+							onClick={() => handlePlace()}
 						>
-							<Button
-								type="primary"
-								size="large"
-								icon={<Receipt size={18} />}
-								className="w-full"
-							>
-								Đặt ngay
-							</Button>
-						</Link>
+							Đặt ngay
+						</Button>
 					</div>
 				</div>
 			</div>

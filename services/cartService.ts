@@ -1,33 +1,33 @@
 import axiosInterceptor from "@/config/axiosInterceptor";
-import { TJewelry, TJewelryCreate, TJewelryCRUD, TQuery } from "@/types";
+import { TCart, TCartCRUD, TCartQuery, TQuery } from "@/types";
 import { formatUtil } from "@/utils";
 
 const interceptor = axiosInterceptor();
-export const get = async (query: TQuery<{}>): Promise<TJewelry[]> => {
+export const get = async (query: TQuery<TCartQuery>): Promise<TCart[]> => {
 	return (
 		await interceptor.get("/hkj-carts", {
 			params: formatUtil.objectOneDegree(query),
 		})
 	).data;
 };
-const getOne = async (id: number | string): Promise<TJewelry> => {
+const getOne = async (id: number | string): Promise<TCart> => {
 	return (
 		await axiosInterceptor().get(`/hkj-carts/${id}`, {
 			params: { isDeleted: false },
 		})
 	).data;
 };
-export const getCount = async (query: TQuery<{}>): Promise<number> => {
+export const getCount = async (query: TQuery<TCartQuery>): Promise<number> => {
 	return (
 		await interceptor.get("/hkj-carts/count", {
 			params: formatUtil.objectOneDegree(query),
 		})
 	).data;
 };
-export const update = async (data: TJewelryCRUD) => {
+export const update = async (data: TCartCRUD) => {
 	return (await interceptor.put(`/hkj-carts/${data.id}`, data)).data;
 };
-export const updatePartical = async (data: Partial<TJewelryCRUD>) => {
+export const updatePartical = async (data: Partial<TCartCRUD>) => {
 	return (await interceptor.patch(`/hkj-carts/${data.id}`, data)).data;
 };
 export const deleteOne = async (id: number) => {
@@ -38,7 +38,7 @@ export const deleteOne = async (id: number) => {
 		})
 	).data;
 };
-export const create = async (data: TJewelryCreate): Promise<TJewelry> => {
+export const create = async (data: TCartCRUD): Promise<TCart> => {
 	return (
 		await interceptor.post("/hkj-carts", {
 			...data,
