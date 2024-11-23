@@ -12,7 +12,7 @@ import { useQueries } from "@tanstack/react-query";
 
 const { AUTHORIZATIONS } = AUTHORIZATIONS_CONST;
 type TPros = {
-	onChange?: (selectedPosition: TProject) => void;
+	onChange?: (selectedPosition: TProject | null) => void;
 };
 
 const SelectProjectForm: React.FC<TPros> = ({ onChange }) => {
@@ -65,11 +65,18 @@ const SelectProjectForm: React.FC<TPros> = ({ onChange }) => {
 		}
 		setShowModel(false);
 	};
+	const handleDelete = () => {
+		setShowModel(false);
+		if (onChange) {
+			onChange(null);
+		}
+	};
 	return (
 		<div className="flex flex-col">
-			<Space direction="vertical">
-				<LabelCustom label="Chọn dự án" required />
+			<LabelCustom label="Chọn dự án" required />
+			<Space direction="horizontal">
 				<Button onClick={() => setShowModel(true)}>Chọn</Button>
+				<Button onClick={() => handleDelete()}>Xóa</Button>
 			</Space>
 			<Modal
 				open={showModel}

@@ -1,7 +1,6 @@
 import { Descriptions, Space } from "antd";
 import { DescriptionsProps } from "antd/lib";
 import React from "react";
-import { NumericFormat } from "react-number-format";
 import { v4 as uuidv4 } from "uuid";
 
 import { TProject } from "@/types";
@@ -24,23 +23,21 @@ const DisplayProject: React.FC<Props> = ({ project }) => {
 			children: project?.name,
 			span: 1,
 		},
-		{
-			key: uuidv4(),
-			label: "Kiểm tra chất lượng",
-			children: project?.qualityCheck ? "Đã kiểm định" : "Chưa kiểm định",
-			span: 1,
-		},
 
 		{
 			key: uuidv4(),
 			label: "Ngày thực hiện",
-			children: formatUtil.formatDate(project?.startDate),
+			children: formatUtil.formatDate(project?.startDate, {
+				removeTime: true,
+			}),
 			span: 1,
 		},
 		{
 			key: uuidv4(),
 			label: "Ngày hoàn thành",
-			children: formatUtil.formatDate(project?.endDate),
+			children: formatUtil.formatDate(project?.endDate, {
+				removeTime: true,
+			}),
 			span: 1,
 		},
 		{
@@ -55,14 +52,6 @@ const DisplayProject: React.FC<Props> = ({ project }) => {
 					</span>
 					<span>{project?.manager?.phone}</span>
 				</Space>
-			),
-			span: 1,
-		},
-		{
-			key: uuidv4(),
-			label: "Giá thành dự án",
-			children: (
-				<NumericFormat value={project?.actualCost} displayType="text" />
 			),
 			span: 1,
 		},

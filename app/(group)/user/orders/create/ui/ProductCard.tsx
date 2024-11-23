@@ -3,10 +3,9 @@ import React from "react";
 
 import { useRouterCustom } from "@/hooks";
 import { jewelryService } from "@/services";
+import { ProductCard } from "@/shared/CardCustom";
 import { LabelCustom } from "@/shared/FormCustom/InputCustom";
 import { useQuery } from "@tanstack/react-query";
-
-import ProductCard from "../../../products/ui/ProductCard";
 
 type Props = {};
 

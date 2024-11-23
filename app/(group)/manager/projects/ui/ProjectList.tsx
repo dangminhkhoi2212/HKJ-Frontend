@@ -8,9 +8,9 @@ import {
 	TablePaginationConfig,
 	TableProps,
 } from "antd";
-import { Pencil, RotateCcw, Trash } from "lucide-react";
+import { Pencil, RotateCcw } from "lucide-react";
 import Link from "next/link";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { QUERY_CONST } from "@/const";
 import { useRouterCustom } from "@/hooks";
@@ -22,6 +22,7 @@ import { formatUtil, tagMapperUtil } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 
 import { projectStore } from "../store";
+import ProjectDeleteButton from "./ProjectDeleteButton";
 
 const {
 	TStatusColorMapper,
@@ -65,73 +66,78 @@ const ProjectList: React.FC<TProps> = () => {
 			},
 		});
 	};
+	const refresh = useCallback(() => {
+		refetch();
+		refetchCount();
+	}, []);
 
-	const columns: TableProps<TProject>["columns"] = [
-		{
-			title: "Dự án",
-			dataIndex: "name",
-			key: "name",
-		},
-		{
-			title: "Loại",
-			dataIndex: "category",
-			key: "category",
-			render: (value) => value?.name,
-		},
-		{
-			title: "Tạo bởi",
-			dataIndex: "createdBy",
-			key: "createdBy",
-		},
-		{
-			title: "Trạng thái",
-			dataIndex: "status",
-			key: "status",
-			render(value, record, index) {
-				return TStatusColorMapper(value);
+	const columns: TableProps<TProject>["columns"] = useMemo(() => {
+		return [
+			{
+				title: "Dự án",
+				dataIndex: "name",
+				key: "name",
 			},
-		},
-		{
-			title: "Ưu tiên",
-			dataIndex: "priority",
-			key: "priority",
-			render(value, record, index) {
-				return TPriorityColorMapper(value);
+			{
+				title: "Loại",
+				dataIndex: "category",
+				key: "category",
+				render: (value) => value?.name,
+				width: 150,
 			},
-		},
-		{
-			title: "Ngày tạo",
-			dataIndex: "createdDate",
-			key: "createdDate",
-			render: (value) => formatUtil.formatDate(value),
-		},
-		{
-			title: "Ngày chỉnh sửa",
-			dataIndex: "lastModifiedDate",
-			key: "lastModifiedDate",
-			render: (value) => formatUtil.formatDate(value),
-		},
-		{
-			title: "Tùy chọn",
-			dataIndex: "actions",
-			key: "actions",
-			fixed: "right",
-			render: (_, record) => (
-				<Space>
-					<Link href={routesManager.updateProject(record.id)}>
-						<Button icon={<Pencil size={16} />} />
-					</Link>
-					<Button
-						danger
-						icon={<Trash size={16} />}
-						onClick={() => {
-							setProjectDelete(record);
-						}}
-					/>
-				</Space>
-			),
-		},
-	];
+			{
+				title: "Tạo bởi",
+				dataIndex: "createdBy",
+				key: "createdBy",
+				width: 150,
+			},
+			{
+				title: "Trạng thái",
+				dataIndex: "status",
+				key: "status",
+				render(value, record, index) {
+					return TStatusColorMapper(value);
+				},
+			},
+			{
+				title: "Ưu tiên",
+				dataIndex: "priority",
+				key: "priority",
+				render(value, record, index) {
+					return TPriorityColorMapper(value);
+				},
+			},
+			{
+				title: "Ngày tạo",
+				dataIndex: "createdDate",
+				key: "createdDate",
+				render: (value) => formatUtil.formatDate(value),
+			},
+			{
+				title: "Ngày chỉnh sửa",
+				dataIndex: "lastModifiedDate",
+				key: "lastModifiedDate",
+				render: (value) => formatUtil.formatDate(value),
+			},
+			{
+				title: "Tùy chọn",
+				dataIndex: "actions",
+				key: "actions",
+				fixed: "right",
+				render: (_, record) => (
+					<Space>
+						<Link href={routesManager.updateProject(record.id)}>
+							<Button icon={<Pencil size={16} />} />
+						</Link>
+						<ProjectDeleteButton
+							project={record}
+							refresh={refresh}
+						/>
+					</Space>
+				),
+			},
+		];
+	}, [refresh, routesManager]);
 
 	// Handle expanded row changes
 
@@ -148,10 +154,6 @@ const ProjectList: React.FC<TProps> = () => {
 		queryKey: ["projects-count", { ...query }],
 		queryFn: () => projectService.getCount(query),
 	});
-	const refresh = useCallback(() => {
-		refetch();
-		refetchCount();
-	}, []);
 
 	return (
 		<div>
@@ -208,6 +210,7 @@ const ProjectList: React.FC<TProps> = () => {
 				}
 				pagination={pagination}
 				onChange={handleTableChange}
+				scroll={{ x: "max-content" }}
 				// expandable={{
 				// 	expandedRowRender: (record) => {
 				// 		if (isLoading) return <Spin />;

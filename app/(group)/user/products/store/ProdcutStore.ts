@@ -13,9 +13,13 @@ const initValues: TState = {
 	query: {
 		...QUERY_CONST.defaultQuery,
 		isDeleted: { equals: false },
+		active: { equals: true },
 		size: 30,
 	},
-	pagination: QUERY_CONST.initPagination,
+	pagination: {
+		...QUERY_CONST.initPagination,
+		pageSize: 30,
+	},
 	toggleRefresh: false,
 };
 type TActions = {
@@ -29,7 +33,9 @@ export const projectStore = create<TState & TActions>((set, get) => ({
 	...initValues,
 	setToggleRefresh: () => set({ toggleRefresh: !get().toggleRefresh }),
 
-	setPagination: (value) => set({ pagination: value }),
+	setPagination: (value) =>
+		set({ pagination: { ...get().pagination, ...value } }),
+
 	setQuery: (value) => set({ query: { ...get().query, ...value } }),
 
 	reset: () => {

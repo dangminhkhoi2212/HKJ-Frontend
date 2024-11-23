@@ -14,12 +14,11 @@ const orderItemSchema = yup.object({
 		.min(1, REQUIRED_FIELD_MESSAGE)
 		.required(REQUIRED_FIELD_MESSAGE),
 	specialRequests: yup.string().max(5000, "Tối đa 5000 kí tự"),
-	notes: yup.string().max(5000, "Tối đa 5000 kí tự"),
+	notes: yup.string().max(5000, "Tối đa 5000 kí tự").nullable(),
 	price: priceValidation(),
-	project: objectIdNullable("project"),
 
 	jewelry: objectIdNullable("jewelry"),
-	material: objectIdNullable("material"),
+	// material: objectIdNullable("material"),
 	category: objectIdNullable("category"),
 	images: yup.array(),
 });

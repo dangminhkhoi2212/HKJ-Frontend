@@ -1,10 +1,13 @@
-import { Button, Layout, theme } from 'antd';
-import React from 'react';
+import { Button, Layout, theme } from "antd";
+import React from "react";
 
-import { RoleTag, SearchHeader, UserMenu } from '@/shared/MainLayout/AdminLayout/Content/Header';
-import useStypeStore from '@/stores/style';
-import { cn } from '@/utils/cn';
-import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import {
+	RoleTag,
+	UserMenu,
+} from "@/shared/MainLayout/AdminLayout/Content/Header";
+import useStypeStore from "@/stores/style";
+import { cn } from "@/utils/cn";
+import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 
 const { Header } = Layout;
 type Props = {};
@@ -36,7 +39,6 @@ const AppHeader: React.FC<Props> = () => {
 					height: 32,
 				}}
 			/>
-			<SearchHeader />
 			<div className="flex justify-center items-center gap-4">
 				<RoleTag />
 				<UserMenu />

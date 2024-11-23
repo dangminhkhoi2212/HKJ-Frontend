@@ -30,7 +30,7 @@ const Materials: React.FC<Props> = ({}) => {
 					xl: 6,
 					xxl: 3,
 				}}
-				className="flex justify-center items-center gap-4 overflow-auto"
+				className="flex justify-center items-center gap-4"
 				dataSource={getMaterial.data}
 				renderItem={(item: TMaterial) => (
 					<List.Item key={item.id} className="gap-4">

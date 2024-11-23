@@ -1,5 +1,6 @@
 const LANGUAGE_KEY = "vi";
 const DATE_FORMAT = "DD/MM/YYYY";
+const MONTH_FORMAT = "MM/YYYY";
 const TIME_FORMAT = "HH:mm";
 const DATE_TIME_FORMAT = "DD/MM/YYYY HH:mm";
 const REQUIRED_FIELD_MESSAGE = "Không bỏ trống ô này";
@@ -20,6 +21,7 @@ const keyConst = {
 	ACCOUNT_ID_COOKIE,
 	REQUIRED_NUMBER_FIELD,
 	PLACE_ORDER_PRODUCT,
+	MONTH_FORMAT,
 };
 
 export default keyConst;

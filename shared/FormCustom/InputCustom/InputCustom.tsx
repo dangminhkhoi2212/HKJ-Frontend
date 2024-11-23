@@ -1,15 +1,15 @@
 "use client";
-import { DatePicker, Form, Input, Select } from 'antd';
-import { TextAreaProps } from 'antd/es/input';
-import { SelectProps } from 'antd/lib';
-import dayjs, { Dayjs } from 'dayjs';
-import dynamic from 'next/dynamic';
-import React from 'react';
-import { Control, Controller } from 'react-hook-form';
+import { DatePicker, Form, Input, Select } from "antd";
+import { TextAreaProps } from "antd/es/input";
+import { SelectProps } from "antd/lib";
+import dayjs, { Dayjs } from "dayjs";
+import dynamic from "next/dynamic";
+import React from "react";
+import { Control, Controller } from "react-hook-form";
 
-import { KEY_CONST } from '@/const';
+import { KEY_CONST } from "@/const";
 
-import { LabelCustom } from './LabelCustom';
+import { LabelCustom } from "./LabelCustom";
 
 import type { InputProps } from "antd/lib/input";
 const ReactQuill = dynamic(() => import("react-quill-new"), {
@@ -90,8 +90,8 @@ const InputCustom: React.FC<InputCustomProps> = ({
 						onChange={(dates) => {
 							if (dates)
 								field.onChange({
-									startDate: dates![0],
-									endDate: dates![1],
+									startDate: dates![0]?.hour(0),
+									endDate: dates![1]?.hour(23),
 								});
 						}}
 						size="large"

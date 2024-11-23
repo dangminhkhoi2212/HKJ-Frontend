@@ -1,19 +1,20 @@
 "use client";
-import { Divider, Layout, Menu, MenuProps } from 'antd';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import { Divider, Layout, Menu, MenuProps } from "antd";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import React, { useMemo } from "react";
 
-import { AUTHORIZATIONS_CONST } from '@/const';
-import { useAccountStore } from '@/providers';
-import { Logo } from '@/shared/Logo';
-import useStyleStore from '@/stores/style';
+import { AUTHORIZATIONS_CONST } from "@/const";
+import { useAccountStore } from "@/providers";
+import { Logo } from "@/shared/Logo";
+import useStyleStore from "@/stores/style";
 
-import { menuAdmin, menuEmployee, menuManager, menuUser } from './menus';
+import { menuAdmin, menuEmployee, menuManager, menuUser } from "./menus";
 
 const { Sider } = Layout;
 const AUTHORIZATIONS = AUTHORIZATIONS_CONST.AUTHORIZATIONS;
 type MenuItem = Required<MenuProps>["items"][number];
+
 // Helper to render the correct menu based on the role
 const renderMenu = (role: string | null | undefined): MenuProps["items"] => {
 	switch (role) {
@@ -42,34 +43,29 @@ const convertMenu = (menu: MenuItem[]): MenuItem[] => {
 		}
 	});
 };
+
 const Sidebar: React.FC<{}> = () => {
 	const pathname = usePathname(); // Current path
-	const [menus, setMenus] = useState<MenuItem[]>([]);
 	const account = useAccountStore((state) => state.account);
+	const collapsed = useStyleStore((state) => state.collapsed);
 
-	const collapsed: boolean = useStyleStore((state) => state.collapsed);
-	const [defaultSelectedKey, setDefaultSelectedKey] = useState<
-		string | undefined
-	>();
-	useEffect(() => {
+	// Memoized menus based on the user's role
+	const menus = useMemo(() => {
 		if (account) {
 			const menuItems: MenuProps["items"] = renderMenu(
-				account?.authorities![0]
+				account.authorities![0]
 			);
-			setMenus(convertMenu(menuItems!) || []);
+			return convertMenu(menuItems || []);
 		}
+		return [];
 	}, [account]);
-	useEffect(() => {
-		const menu = menus?.find((item: MenuItem) => {
-			return (
-				pathname === item?.key?.toString() ||
-				pathname.startsWith(item?.key?.toString()!)
-			);
-		});
 
-		setDefaultSelectedKey(
-			menu?.key?.toString() || menus![0]?.key?.toString()
-		);
+	// Dynamically set the default selected key
+	const defaultSelectedKey = useMemo(() => {
+		const matchedItem = menus?.reverse()?.find((item: MenuItem) => {
+			return pathname.startsWith(item?.key?.toString()!);
+		});
+		return matchedItem?.key?.toString() || menus?.[0]?.key?.toString();
 	}, [menus, pathname]);
 
 	return (
@@ -81,8 +77,7 @@ const Sidebar: React.FC<{}> = () => {
 			<Menu
 				theme="light"
 				mode="inline"
-				defaultSelectedKeys={[defaultSelectedKey?.toString()!]}
-				selectedKeys={[defaultSelectedKey?.toString()!]}
+				selectedKeys={[defaultSelectedKey!]}
 				items={menus}
 			/>
 		</Sider>

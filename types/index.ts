@@ -4,6 +4,7 @@ export * from "./cartType";
 export * from "./categoryType";
 export * from "./employeeType";
 export * from "./formType";
+export * from "./ganttTaskType";
 export * from "./imageSearchAIType";
 export * from "./imageType";
 export * from "./jewelryImageType";

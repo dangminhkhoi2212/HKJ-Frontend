@@ -15,13 +15,14 @@ import { useMutation } from "@tanstack/react-query";
 import { cartStore } from "../../../cart/store";
 import { productDetailStore } from "../store";
 import ProductImages from "./ProductImages";
+import ProductMaterialUsage from "./ProductMaterialUsage";
 
 type Props = {};
 
 const ProductInfo: React.FC<Props> = ({}) => {
 	const setForceRefresh = cartStore((state) => state.setForceRefresh);
 	const reset = cartStore((state) => state.reset);
-	const [quantity, setQuantity] = useState<number>(0);
+	const [quantity, setQuantity] = useState<number>(1);
 	const jewelry = productDetailStore((state) => state.jewelry);
 	const account = useAccountStore((state) => state.account);
 	const message = App.useApp().message;
@@ -73,9 +74,11 @@ const ProductInfo: React.FC<Props> = ({}) => {
 		const data = JSON.stringify([
 			{
 				...jewelry,
+				quantity,
 			},
 		]);
 		window.sessionStorage.setItem(KEY_CONST.PLACE_ORDER_PRODUCT, data);
+		router.push(routesUser.createOrder);
 	};
 	useEffect(() => {
 		return () => {
@@ -100,10 +103,13 @@ const ProductInfo: React.FC<Props> = ({}) => {
 						</Tag>
 					))}
 				</Space> */}
-				<div>
-					<Tag className="text-2xl" color="red">
-						{formatUtil.formatCurrency(jewelry?.price!)}
-					</Tag>
+				<div className="inline-flex flex-col gap-4">
+					<div>
+						<Tag className="text-2xl" color="red">
+							{formatUtil.formatCurrency(jewelry?.price!)}
+						</Tag>
+					</div>
+					<ProductMaterialUsage productId={jewelry?.id!} />
 				</div>
 				<Space direction="vertical">
 					<LabelCustom label="Số lượng" />
@@ -113,7 +119,7 @@ const ProductInfo: React.FC<Props> = ({}) => {
 						size="large"
 						defaultValue={1}
 						value={quantity}
-						onChange={(value) => setQuantity(value || 0)}
+						onChange={(value) => setQuantity(value || 1)}
 					/>
 				</Space>
 

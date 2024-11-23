@@ -1,18 +1,19 @@
 "use client";
 import { Button, Empty, Skeleton, Space, Switch } from "antd";
 import dayjs from "dayjs";
-import { Gantt, Task, ViewMode } from "gantt-task-react";
-import { Plus, RotateCcw } from "lucide-react";
+import { Gantt, ViewMode } from "gantt-task-react";
+import { RotateCcw } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 
 import { useRouterCustom } from "@/hooks";
 import taskService from "@/services/taskService";
 import MapAnotations from "@/shared/Anotation/MapAnotation";
-import { TPriority, TTask } from "@/types";
+import { GantTaskTooltipCustom } from "@/shared/GanttTaskCustom";
+import { TGanttTaskCustom, TPriority, TStatus, TTask } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 
 import { updateProjectStore } from "../store";
-import CreateTask from "./CreateTask";
+import CreateTaskButton from "./CreateTaskButton";
 import UpdateTask from "./UpdateTask";
 
 type Props = {};
@@ -45,12 +46,12 @@ const UpdateProcessing: React.FC<Props> = ({}) => {
 		show: false,
 		task: null,
 	});
-	const [tasksGantt, setTasksGantt] = useState<Task[]>([]);
+	const [tasksGantt, setTasksGantt] = useState<TGanttTaskCustom[]>([]);
 	console.log("🚀 ~ tasksGantt:", tasksGantt);
 	const [showList, setShowList] = React.useState(true);
 	const {
 		data: tasks,
-		refetch,
+		refetch: refresh,
 		isPending,
 		isFetching,
 		isSuccess,
@@ -66,7 +67,7 @@ const UpdateProcessing: React.FC<Props> = ({}) => {
 	});
 	useEffect(() => {
 		if (isSuccess) {
-			const tasksChart: Task[] = [
+			const tasksChart: TGanttTaskCustom[] = [
 				{
 					start: dayjs(project?.startDate).toDate(),
 					end: dayjs(project?.endDate).toDate(),
@@ -78,10 +79,14 @@ const UpdateProcessing: React.FC<Props> = ({}) => {
 					isDisabled: false,
 					styles: {
 						progressColor: colorPriority(project!.priority!),
+						backgroundSelectedColor: colorPriority(
+							project?.priority!
+						),
 					},
+					more: { status: project?.status! },
 				},
 			];
-			tasks?.forEach((task: TTask) => {
+			tasks?.forEach((task: TTask, index: number) => {
 				tasksChart.push({
 					start: dayjs(task?.assignedDate!).toDate(),
 					end: dayjs(task?.expectDate).toDate(),
@@ -89,18 +94,25 @@ const UpdateProcessing: React.FC<Props> = ({}) => {
 					project: task?.name,
 					id: task.id.toString(),
 					type: "task",
-					progress: 100,
+					progress: task.status === TStatus.COMPLETED ? 100 : 0,
 					isDisabled: false,
+					dependencies: [
+						index === 0
+							? project?.id?.toString()!
+							: tasks[index - 1].id.toString(),
+					],
 					styles: {
 						progressColor: colorPriority(task.priority!),
+						backgroundSelectedColor: colorPriority(task.priority!),
 					},
+					more: { status: task?.status! },
 				});
 			});
 			setTasksGantt(tasksChart);
 		} else {
 			console.log("🚀 ~ useEffect ~ error:", error);
 		}
-	}, [tasks, refetch, project]);
+	}, [tasks, refresh, project]);
 
 	const renderGantt = useMemo(() => {
 		if (isPending || isFetching) {
@@ -115,7 +127,7 @@ const UpdateProcessing: React.FC<Props> = ({}) => {
 			return (
 				<Gantt
 					tasks={tasksGantt}
-					locale="vi" // Sets locale to Vietnamese (if supported)
+					locale="vie" // Sets locale to Vietnamese (if supported)
 					headerHeight={60}
 					columnWidth={60}
 					// Custom labels for translation
@@ -129,6 +141,9 @@ const UpdateProcessing: React.FC<Props> = ({}) => {
 						});
 					}}
 					viewMode={ViewMode.Day}
+					TooltipContent={({ task }) => (
+						<GantTaskTooltipCustom task={task} />
+					)}
 				/>
 			);
 		}
@@ -137,12 +152,11 @@ const UpdateProcessing: React.FC<Props> = ({}) => {
 	return (
 		<div>
 			<Space direction="vertical" className="flex" size={"large"}>
-				<CreateTask />
 				{showUpdateTask?.task && <UpdateTask />}
 				<Space className="flex justify-between">
 					<Button
 						icon={<RotateCcw size={18} />}
-						onClick={() => refetch()}
+						onClick={() => refresh()}
 					>
 						Làm mới
 					</Button>
@@ -155,13 +169,7 @@ const UpdateProcessing: React.FC<Props> = ({}) => {
 						/>
 						{showList ? "Hiển thị danh sách" : "Ẩn danh sách"}
 					</Space>
-					<Button
-						icon={<Plus size={18} />}
-						type="primary"
-						onClick={() => setShowCreateTask(true)}
-					>
-						Giao việc
-					</Button>
+					<CreateTaskButton refresh={refresh} />
 				</Space>
 				<Space>
 					<MapAnotations />

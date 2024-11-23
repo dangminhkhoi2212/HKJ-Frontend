@@ -31,7 +31,7 @@ const OrderDetailPage: React.FC<Props> = ({ params: { id } }) => {
 	if (!id) return <EmptyCustom />;
 	return (
 		<Frame title="Cập nhật đơn hàng">
-			<div className={"mx-4 sm:mx-20"}>
+			<div className={""}>
 				<HydrationBoundary state={hydrate(id)}>
 					<HandleOrder id={id} />
 				</HydrationBoundary>

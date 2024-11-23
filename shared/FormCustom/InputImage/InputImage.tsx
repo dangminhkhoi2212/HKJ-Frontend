@@ -128,7 +128,6 @@ const InputImages: React.FC<TProps> = ({
 				modalCancel="Hủy"
 				rotationSlider
 				zoomSlider
-				aspectSlider
 				showReset
 				maxZoom={10}
 			>

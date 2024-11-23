@@ -1,8 +1,6 @@
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { getSession } from "next-auth/react";
 
-const TIMEOUT = 1 * 60 * 1000;
-axios.defaults.timeout = TIMEOUT;
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_SERVER_API_URL;
 
 const headers = {

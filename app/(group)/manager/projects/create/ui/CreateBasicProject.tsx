@@ -2,7 +2,7 @@
 import { App, Button, Form, Space, Tag } from "antd";
 import dayjs from "dayjs";
 import dynamic from "next/dynamic";
-import React from "react";
+import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 
@@ -11,12 +11,7 @@ import { useRouterCustom } from "@/hooks";
 import { useAccountStore } from "@/providers";
 import { routesManager } from "@/routes";
 import projectService from "@/services/projectService";
-import {
-	InputCustom,
-	InputNumberCustom,
-	LabelCustom,
-} from "@/shared/FormCustom/InputCustom";
-import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
+import { InputCustom, LabelCustom } from "@/shared/FormCustom/InputCustom";
 import { TProject, TProjectCreate, TStatus } from "@/types";
 import { TPriority } from "@/types/priorityType";
 import { tagMapperUtil } from "@/utils";
@@ -37,16 +32,13 @@ const initValue: TForm = {
 	name: "",
 	description: "",
 	date: {
-		startDate: dayjs().toISOString(),
-		endDate: dayjs().add(1, "week").toISOString(),
+		startDate: dayjs().hour(0).toISOString(),
+		endDate: dayjs().add(1, "week").hour(23).toISOString(),
 	},
-	expectDate: dayjs().add(1, "week").toISOString(),
+	expectDate: dayjs().add(1, "week").hour(23).toISOString(),
 	priority: TPriority.MEDIUM,
-	actualCost: 0,
-	qualityCheck: false,
 	notes: "",
 	status: TStatus.NEW,
-	category: { id: 0, name: "" },
 	manager: { id: 0 },
 };
 
@@ -62,14 +54,20 @@ const CreateBasicProject: React.FC<Props> = ({}) => {
 		defaultValues: { ...initValue, manager: { id: account?.id } },
 		resolver: yupResolver(schema),
 	});
+
+	useEffect(() => {
+		if (account) {
+			setValue("manager.id", account?.id!);
+		}
+	}, [account]);
 	const { router } = useRouterCustom();
+	console.log("🚀 ~ errors:", errors);
 
 	const { data, mutate, isPending } = useMutation({
 		mutationFn: (data: TForm) => {
 			const dataConvert: TProjectCreate = {
 				...data,
 				coverImage: "",
-				category: { id: data.category.id },
 				startDate: dayjs(data.date.startDate).toISOString(),
 				endDate: dayjs(data.date.endDate).toISOString(),
 			};
@@ -98,12 +96,19 @@ const CreateBasicProject: React.FC<Props> = ({}) => {
 						label="Tên dự án"
 						placeholder="Tên dự án"
 						errorMessage={errors?.name?.message}
+						extra={
+							<Tag color="green" className="text-wrap my-2">
+								Có thể sử dụng mã đơn hàng để đặt tên giúp dàng
+								tìm kiếm
+							</Tag>
+						}
 					/>
 					<InputCustom
 						control={control}
 						name="date"
 						label="Thời gian dự án"
 						type="rangeDate"
+						className="w-60"
 						errorMessage={errors?.date?.message}
 					/>
 
@@ -112,21 +117,8 @@ const CreateBasicProject: React.FC<Props> = ({}) => {
 						name="expectDate"
 						label="Thời gian mong đợi hoàn thành"
 						type="date"
+						className="w-60"
 						errorMessage={errors?.expectDate?.message}
-					/>
-
-					<InputNumberCustom
-						control={control}
-						name="actualCost"
-						label="Giá trị thực tế sản phẩm"
-						toWords
-						className="w-52"
-						errorMessage={errors?.expectDate?.message}
-						extra={
-							<Tag color="green" className="text-wrap my-2">
-								Bạn có thể cập nhật sau khi hoàn thành dự án
-							</Tag>
-						}
 					/>
 				</Space>
 				<Space direction="vertical" className="flex" size={"large"}>
@@ -159,26 +151,6 @@ const CreateBasicProject: React.FC<Props> = ({}) => {
 						className="w-40"
 						errorMessage={errors?.priority?.message}
 					/>
-
-					<Space direction="vertical">
-						<SelectCategoryForm
-							placeholder="Chọn loại trang sức"
-							onChange={(value) => {
-								setValue("category.id", value, {
-									shouldValidate: true,
-								});
-							}}
-							status={
-								(errors?.category?.message ||
-									errors?.category?.id?.message) &&
-								"error"
-							}
-						/>
-						<span className="text-red-500">
-							{errors?.category?.message ||
-								errors?.category?.id?.message}
-						</span>
-					</Space>
 				</Space>
 			</div>
 			<div>

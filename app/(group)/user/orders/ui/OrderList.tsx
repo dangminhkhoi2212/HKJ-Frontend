@@ -1,5 +1,5 @@
 "use client";
-import { App, Button, Space, Table, TableProps } from "antd";
+import { App, Button, Space, Table, TableProps, Tag } from "antd";
 import { ArrowBigRight } from "lucide-react";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
@@ -60,7 +60,7 @@ const columns: TableProps<TOrder>["columns"] = [
 		dataIndex: "totalPrice",
 		key: "totalPrice",
 		render(value) {
-			return formatCurrency(value);
+			return value ? formatCurrency(value) : <Tag>Đang xử lý</Tag>;
 		},
 	},
 	{

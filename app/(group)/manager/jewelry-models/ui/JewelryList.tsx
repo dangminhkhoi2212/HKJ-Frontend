@@ -1,11 +1,13 @@
 "use client";
 import { Button, Space, Table, TableProps, Tag } from "antd";
+import { PaginationProps } from "antd/lib";
 import { Pencil, RotateCcw, Trash } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 
 import { QUERY_CONST } from "@/const";
+import { useRouterCustom } from "@/hooks";
 import { routesManager } from "@/routes";
 import { jewelryService } from "@/services";
 import { InputSearchCustom } from "@/shared/FormCustom/InputSearchCustom";
@@ -19,44 +21,7 @@ import { useQueries } from "@tanstack/react-query";
 import { jewelryStore } from "../store";
 import DeleteJewelryModal from "./DeleteJewelryModal";
 
-const { defaultQuery, initPagination } = QUERY_CONST;
-const JewelryList: React.FC = () => {
-	const forceRefresh = jewelryStore((state) => state.forceRefresh);
-	const setForceRefresh = jewelryStore((state) => state.setForceRefresh);
-	const setJewelry = jewelryStore((state) => state.setJewelry);
-	const [query, setQuery] = React.useState<TQuery<TJewelryQuery>>({
-		...defaultQuery,
-	});
-	const [pagination, setPagination] = useState({
-		...initPagination,
-	});
-
-	const [
-		{
-			data: jewelryModels,
-			refetch: refreshjewelryModels,
-			isLoading: isLoadingjewelryModels,
-		},
-		{
-			data: jewelryModelsCount,
-			refetch: refreshjewelryModelsCount,
-			isLoading: isLoadingjewelryModelsCount,
-		},
-	] = useQueries({
-		queries: [
-			{
-				queryKey: ["jewelry-model", { ...query }],
-				queryFn: () => jewelryService.get(query),
-			},
-			{
-				queryKey: ["jewelry-model-count", { ...query }],
-				queryFn: () => jewelryService.getCount(query),
-			},
-		],
-	});
-	useEffect(() => {
-		setPagination({ ...pagination, total: jewelryModelsCount as number });
-	}, [jewelryModelsCount]);
+const createColumn = ({ setJewelry }: any) => {
 	const columns: TableProps<TJewelry>["columns"] = [
 		{
 			title: "ID",
@@ -158,6 +123,52 @@ const JewelryList: React.FC = () => {
 			),
 		},
 	];
+	return columns;
+};
+
+const { defaultQuery, initPagination } = QUERY_CONST;
+const JewelryList: React.FC = () => {
+	const forceRefresh = jewelryStore((state) => state.forceRefresh);
+	const setForceRefresh = jewelryStore((state) => state.setForceRefresh);
+	const setJewelry = jewelryStore((state) => state.setJewelry);
+	const { searchParams, updatePathname, pathname } = useRouterCustom();
+	const [query, setQuery] = React.useState<TQuery<TJewelryQuery>>({
+		...defaultQuery,
+		size: 30,
+	});
+	const [pagination, setPagination] = useState<PaginationProps>({
+		...initPagination,
+		showSizeChanger: false,
+		pageSize: 30,
+	});
+
+	const [
+		{
+			data: jewelryModels,
+			refetch: refreshjewelryModels,
+			isLoading: isLoadingjewelryModels,
+		},
+		{
+			data: jewelryModelsCount,
+			refetch: refreshjewelryModelsCount,
+			isLoading: isLoadingjewelryModelsCount,
+		},
+	] = useQueries({
+		queries: [
+			{
+				queryKey: ["jewelry-model", { ...query }],
+				queryFn: () => jewelryService.get(query),
+			},
+			{
+				queryKey: ["jewelry-model-count", { ...query }],
+				queryFn: () => jewelryService.getCount(query),
+			},
+		],
+	});
+	useEffect(() => {
+		setPagination({ ...pagination, total: jewelryModelsCount as number });
+	}, [jewelryModelsCount]);
+
 	const handleTableChange: TableProps<TJewelry>["onChange"] = (
 		pagination,
 		filters,
@@ -177,10 +188,17 @@ const JewelryList: React.FC = () => {
 		setQuery((pre) => ({ ...pre, page: 0, name: { contains: value } }));
 	};
 	const onChangeMaterialSelect = (value: number) => {
-		setQuery((pre) => ({ ...pre, page: 0, materialId: { equals: value } }));
+		updatePathname({
+			query: { materialId: value, categoryId: query.categoryId?.equals },
+
+			type: "replace",
+		});
 	};
 	const onChangCategorySelect = (value: number) => {
-		setQuery((pre) => ({ ...pre, page: 0, categoryId: { equals: value } }));
+		updatePathname({
+			query: { categoryId: value, materialId: query.materialId?.equals },
+			type: "replace",
+		});
 	};
 
 	useEffect(() => {
@@ -189,8 +207,24 @@ const JewelryList: React.FC = () => {
 			setForceRefresh(false);
 		}
 	}, [forceRefresh]);
+
+	useEffect(() => {
+		const materialId = searchParams.get("materialId");
+		const categoryId = searchParams.get("categoryId");
+		setQuery((pre) => ({
+			...pre,
+			page: 0,
+			materialId: { equals: materialId ? Number(materialId) : null },
+		}));
+
+		setQuery((pre) => ({
+			...pre,
+			page: 0,
+			categoryId: { equals: categoryId ? Number(categoryId) : null },
+		}));
+	}, [searchParams]);
 	return (
-		<Space direction="vertical" className="flex">
+		<Space direction="vertical" className="flex flex-col">
 			<DeleteJewelryModal />
 			<Space>
 				<Button
@@ -204,22 +238,33 @@ const JewelryList: React.FC = () => {
 					size="middle"
 					allowClear
 					hasLabel={false}
+					value={query.materialId?.equals}
 					onChange={(value) => onChangeMaterialSelect(value)}
 				/>
 				<SelectCategoryForm
 					size="middle"
 					allowClear
 					hasLabel={false}
+					value={query.categoryId?.equals}
 					onChange={(value) => onChangCategorySelect(value)}
 				/>
+
+				<p className="text-sm text-gray-500 font-medium">
+					Kết quả tìm thấy: {jewelryModelsCount || 0} sản phẩm.
+				</p>
 			</Space>
 			<Table
-				columns={columns}
+				columns={createColumn(setJewelry)}
 				dataSource={jewelryModels}
 				rowKey="id"
 				pagination={pagination}
+				sticky
 				onChange={handleTableChange}
-				scroll={{ x: 1800, scrollToFirstRowOnChange: true }}
+				scroll={{
+					x: "max-content",
+					y: 350,
+					scrollToFirstRowOnChange: true,
+				}}
 				loading={isLoadingjewelryModels || isLoadingjewelryModelsCount}
 			/>
 		</Space>

@@ -20,7 +20,7 @@ const columns: TableProps<TOrder>["columns"] = [
 		title: "Mã đơn hàng",
 		dataIndex: "id",
 		key: "id",
-		width: 100,
+		width: 150,
 	},
 
 	{
@@ -31,11 +31,7 @@ const columns: TableProps<TOrder>["columns"] = [
 			return <p>{value?.firstName + " " + value?.lastName}</p>;
 		},
 	},
-	{
-		title: "Loại trang sức",
-		dataIndex: ["category", "name"],
-		key: "category",
-	},
+
 	{
 		title: "Trạng thái",
 		dataIndex: "status",

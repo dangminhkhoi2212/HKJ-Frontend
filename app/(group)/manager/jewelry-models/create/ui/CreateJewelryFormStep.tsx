@@ -15,7 +15,7 @@ const items = [
 		title: "Hình ảnh",
 	},
 	{
-		title: "Kết quả",
+		title: "Dự án",
 	},
 ];
 type Props = {};

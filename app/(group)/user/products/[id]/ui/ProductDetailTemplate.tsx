@@ -1,15 +1,14 @@
 "use client";
-import React, { useEffect } from 'react';
+import React, { useEffect } from "react";
 
-import { jewelryService } from '@/services';
-import { EmptyCustom } from '@/shared/EmptyCustom';
-import { useQuery } from '@tanstack/react-query';
+import { jewelryService } from "@/services";
+import { EmptyCustom } from "@/shared/EmptyCustom";
+import { useQuery } from "@tanstack/react-query";
 
-import { productDetailStore } from '../store';
-import ProductDescription from './ProductDescription';
-import ProductGallery from './ProductGallery';
-import ProductInfo from './ProductInfo';
-import ProductProject from './ProductProject';
+import { productDetailStore } from "../store";
+import ProductDescription from "./ProductDescription";
+import ProductGallery from "./ProductGallery";
+import ProductInfo from "./ProductInfo";
 
 type Props = { id: string };
 
@@ -44,7 +43,6 @@ const ProductDetailTempate: React.FC<Props> = ({ id }) => {
 				</div>
 			</div>
 			<ProductDescription />
-			<ProductProject />
 		</div>
 	);
 };

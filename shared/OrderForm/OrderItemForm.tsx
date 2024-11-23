@@ -10,11 +10,12 @@ import {
 
 import { LabelCustom } from "@/shared/FormCustom/InputCustom";
 import { InputImage } from "@/shared/FormCustom/InputImage";
-import { SelectCategoryForm, SelectMaterialForm } from "@/shared/FormSelect";
+import { SelectCategoryForm } from "@/shared/FormSelect";
 import { TCartItemSession, TJewelry, TStatus } from "@/types";
 
 import { OrderProductCard } from "../CardCustom";
 import { ImagePreview } from "../ImagePreview";
+import OrderNoteForm from "./OrderNoteForm";
 import OrderSpecialRequesteForm from "./OrderSpecialRequestForm";
 
 type TRole = "user" | "manager";
@@ -30,26 +31,27 @@ type TForm = {
 		project: { id: number } | null;
 		jewelry: { id: number } | null;
 		category: { id: number } | null;
-		material: { id: number } | null;
+		// material: { id: number } | null;
 		product: { id: number } | null;
 		images: UploadFile[];
 	}[];
 	totalPrice: number;
 	status: TStatus;
 };
-
-const allowChange = (
+export const allowUserChange = (
+	orderId: number,
+	status: TStatus,
+	role: TRole
+) => status === TStatus.NEW && !orderId && role === "user";
+export const allowManagerChange = (
 	orderId?: number,
 	status?: TStatus,
-	role: TRole = "user"
+	role: TRole = "manager"
 ) => {
-	if (role == "user" && !orderId) {
-		return status === TStatus.NEW;
-	}
-	if (role === "manager" && !orderId) {
-		return status === TStatus.IN_PROCESS || status === TStatus.NEW;
-	}
-	return false;
+	return (
+		(status === TStatus.IN_PROCESS || status === TStatus.NEW) &&
+		role === "manager"
+	);
 };
 
 const RenderImageForm: React.FC<{
@@ -106,9 +108,13 @@ const OrderItemForm: React.FC<Props> = ({ products, role = "user" }) => {
 		setImages(newFileList);
 		setValue(`orderItems.${index}.images`, newFileList);
 	};
-	const allowChangeForm = useMemo(
-		() => allowChange(orderId, orderStatus, role),
-		[orderId, orderStatus, role, allowChange]
+	const allowManagerChangeForm = useMemo(
+		() => allowManagerChange(orderId, orderStatus, role),
+		[orderId, orderStatus, role, allowManagerChange]
+	);
+	const allowUserChangeForm = useMemo(
+		() => allowUserChange(orderId!, orderStatus, role),
+		[orderId, orderStatus, role, allowUserChange]
 	);
 	const handleChangeCategory = (
 		index: number,
@@ -120,16 +126,16 @@ const OrderItemForm: React.FC<Props> = ({ products, role = "user" }) => {
 			category: { id: value },
 		});
 	};
-	const handleChangeMaterial = (
-		index: number,
-		value: number,
-		field: TForm["orderItems"][number]
-	) => {
-		update(index, {
-			...field,
-			material: { id: value },
-		});
-	};
+	// const handleChangeMaterial = (
+	// 	index: number,
+	// 	value: number,
+	// 	field: TForm["orderItems"][number]
+	// ) => {
+	// 	update(index, {
+	// 		...field,
+	// 		material: { id: value },
+	// 	});
+	// };
 
 	const renderOption = useCallback(
 		(
@@ -158,13 +164,13 @@ const OrderItemForm: React.FC<Props> = ({ products, role = "user" }) => {
 							onChange={(value) =>
 								handleChangeCategory(index, value, field)
 							}
-							disabled={!allowChangeForm}
+							disabled={!allowUserChangeForm}
 						/>
 						<span className="text-red-500">
 							{errors?.orderItems?.[index]?.category?.id?.message}
 						</span>
 					</Space>
-					<Space direction="vertical">
+					{/* <Space direction="vertical">
 						<SelectMaterialForm
 							value={field?.material?.id || null}
 							status={
@@ -176,12 +182,12 @@ const OrderItemForm: React.FC<Props> = ({ products, role = "user" }) => {
 							onChange={(value) =>
 								handleChangeMaterial(index, value, field)
 							}
-							disabled={!allowChangeForm}
+							disabled={!allowUserChangeForm}
 						/>
 						<span className="text-red-500">
 							{errors?.orderItems?.[index]?.material?.id?.message}
 						</span>
-					</Space>
+					</Space> */}
 				</>
 			);
 		},
@@ -232,7 +238,7 @@ const OrderItemForm: React.FC<Props> = ({ products, role = "user" }) => {
 												field
 											)
 										}
-										disabled={!allowChangeForm}
+										disabled={!allowUserChangeForm}
 									/>
 								)}
 							/>
@@ -244,7 +250,7 @@ const OrderItemForm: React.FC<Props> = ({ products, role = "user" }) => {
 								phẩm giống ý bạn hơn
 							</Tag>
 							<RenderImageForm
-								allowChangeForm={allowChangeForm}
+								allowChangeForm={allowUserChangeForm}
 								index={index}
 								field={field}
 								handleOnChange={handleOnChangeImage}
@@ -253,8 +259,15 @@ const OrderItemForm: React.FC<Props> = ({ products, role = "user" }) => {
 						<OrderSpecialRequesteForm
 							control={control}
 							name={`orderItems.${index}.specialRequests`}
-							disabled={!allowChangeForm}
+							disabled={!allowUserChangeForm}
 						/>
+						{orderId && (
+							<OrderNoteForm
+								control={control}
+								name={`orderItems.${index}.notes`}
+								disabled={!allowManagerChangeForm}
+							/>
+						)}
 					</div>
 				</Card>
 			))}

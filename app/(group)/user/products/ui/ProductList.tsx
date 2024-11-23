@@ -1,7 +1,10 @@
 "use client";
-import { Card, List, Skeleton } from "antd";
+import { Card, List, Pagination, Skeleton } from "antd";
+import { PaginationProps } from "antd/lib";
 import React, { useEffect, useState } from "react";
 
+import { QUERY_CONST } from "@/const";
+import { useRouterCustom } from "@/hooks";
 import { imageSearchAIService, jewelryService } from "@/services";
 import { ProductCard } from "@/shared/CardCustom";
 import { EmptyCustom } from "@/shared/EmptyCustom";
@@ -11,16 +14,27 @@ import { useQueries } from "@tanstack/react-query";
 
 import { projectStore } from "../store/ProdcutStore";
 
+const { initPagination } = QUERY_CONST;
 const ProductList: React.FC = () => {
 	const query = projectStore((state) => state.query);
+	const setQuery = projectStore((state) => state.setQuery);
 	const image = imageSearchAIStore((state) => state.file);
 	const [data, setData] = useState<TJewelry[]>([]);
-
+	const [pagination, setPagination] = useState<PaginationProps>({
+		...QUERY_CONST.initPagination,
+		pageSize: 30,
+	});
+	const { updatePathname } = useRouterCustom();
 	const queries = useQueries({
 		queries: [
 			{
 				queryKey: ["products", query, image?.name],
 				queryFn: () => jewelryService.get(query),
+				enabled: !image,
+			},
+			{
+				queryKey: ["products-count", query, image?.name],
+				queryFn: () => jewelryService.getCount(query),
 				enabled: !image,
 			},
 			{
@@ -32,7 +46,7 @@ const ProductList: React.FC = () => {
 		],
 	});
 
-	const [getJewelrys, getJewelryAI] = queries;
+	const [getJewelrys, getJewelrysCount, getJewelryAI] = queries;
 
 	useEffect(() => {
 		if (getJewelrys.isSuccess) {
@@ -49,6 +63,20 @@ const ProductList: React.FC = () => {
 		}
 	}, [image]);
 
+	useEffect(() => {
+		if (getJewelrysCount.data) {
+			setPagination((pre) => ({ ...pre, total: getJewelrysCount.data }));
+		}
+	}, [getJewelrysCount.data]);
+	const handleOnChangePagination: PaginationProps["onChange"] = (
+		page: number,
+		pageSize: number
+	) => {
+		console.log("🚀 ~ pageSize:", pageSize);
+		console.log("🚀 ~ page:", page);
+		setPagination((pre) => ({ ...pre, current: page }));
+		updatePathname({ query: { page: page - 1 }, type: "replace" });
+	};
 	const isLoading = getJewelrys.isFetching || getJewelryAI.isFetching;
 
 	if (isLoading) {
@@ -92,23 +120,30 @@ const ProductList: React.FC = () => {
 	}
 
 	return (
-		<List
-			grid={{
-				gutter: 16,
-				xs: 2,
-				sm: 3,
-				md: 4,
-				lg: 4,
-				xl: 5,
-				xxl: 5,
-			}}
-			dataSource={data}
-			renderItem={(item) => (
-				<List.Item className="h-full" key={item.id}>
-					<ProductCard jewelry={item} />
-				</List.Item>
-			)}
-		/>
+		<div className="flex flex-col">
+			<List
+				grid={{
+					gutter: 16,
+					xs: 2,
+					sm: 3,
+					md: 4,
+					lg: 4,
+					xl: 5,
+					xxl: 5,
+				}}
+				dataSource={data}
+				renderItem={(item) => (
+					<List.Item className="h-full" key={item.id}>
+						<ProductCard jewelry={item} />
+					</List.Item>
+				)}
+			/>
+			<Pagination
+				align="center"
+				{...pagination}
+				onChange={handleOnChangePagination}
+			/>
+		</div>
 	);
 };
 

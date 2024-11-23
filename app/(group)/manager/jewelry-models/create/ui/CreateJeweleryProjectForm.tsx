@@ -1,7 +1,7 @@
 "use client";
 import { App, Button, Empty, Form, Skeleton, Space, Spin, Switch } from "antd";
 import dayjs from "dayjs";
-import { Gantt, Task } from "gantt-task-react";
+import { Gantt } from "gantt-task-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -13,7 +13,8 @@ import taskService from "@/services/taskService";
 import MapAnotations from "@/shared/Anotation/MapAnotation";
 import DisplayProject from "@/shared/FormSelect/SelectProjectForm/DisplayProject";
 import SelectProjectForm from "@/shared/FormSelect/SelectProjectForm/SelectProjectForm";
-import { TJewelry, TProject, TTask } from "@/types";
+import { GantTaskTooltipCustom } from "@/shared/GanttTaskCustom";
+import { TGanttTaskCustom, TJewelry, TProject, TTask } from "@/types";
 import { tagMapperUtil } from "@/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -22,7 +23,7 @@ import { createJewelryStore } from "../store";
 const { colorPriority } = tagMapperUtil;
 type TForm = {
 	id: number;
-	project: { id: number };
+	project: { id: number } | null;
 };
 
 const CreateJeweleryProjectForm: React.FC = () => {
@@ -32,7 +33,7 @@ const CreateJeweleryProjectForm: React.FC = () => {
 	const { setValue, getValues, handleSubmit } = useForm<TForm>();
 	const queryClient = useQueryClient();
 	const [project, setProject] = useState<TProject | null>(null);
-	const [tasksGantt, setTasksGantt] = useState<Task[]>([]);
+	const [tasksGantt, setTasksGantt] = useState<TGanttTaskCustom[]>([]);
 	const [showList] = useState(true);
 
 	const [switchProject, setSwitchProject] = useState<boolean>(true);
@@ -56,7 +57,7 @@ const CreateJeweleryProjectForm: React.FC = () => {
 
 	useEffect(() => {
 		if (isTasksSuccess && project) {
-			const tasksChart: Task[] = [
+			const tasksChart: TGanttTaskCustom[] = [
 				{
 					start: dayjs(project.startDate).toDate(),
 					end: dayjs(project.endDate).toDate(),
@@ -67,6 +68,7 @@ const CreateJeweleryProjectForm: React.FC = () => {
 					progress: 100,
 					isDisabled: false,
 					styles: { progressColor: colorPriority(project.priority!) },
+					more: { status: project.status! },
 				},
 				...tasks!.map((task: TTask) => ({
 					start: dayjs(task.assignedDate!).toDate(),
@@ -78,6 +80,7 @@ const CreateJeweleryProjectForm: React.FC = () => {
 					progress: 100,
 					isDisabled: false,
 					styles: { progressColor: colorPriority(task.priority!) },
+					more: { status: task.status! },
 				})),
 			];
 			setTasksGantt(tasksChart);
@@ -96,22 +99,28 @@ const CreateJeweleryProjectForm: React.FC = () => {
 					headerHeight={60}
 					columnWidth={60}
 					listCellWidth={switchProject ? "155px" : ""}
+					TooltipContent={({ task }) => (
+						<GantTaskTooltipCustom task={task} />
+					)}
 				/>
 			);
 		}
 		return <Empty description="Chưa có dữ liệu" />;
 	}, [tasksGantt, switchProject]);
 
-	const handleSelectProject = (data: TProject) => {
+	const handleSelectProject = (data: TProject | null) => {
 		setProject(data);
-		setValue("project.id", data.id, { shouldValidate: true });
+		if (!data) {
+			setTasksGantt([]);
+			setValue("project", null, { shouldValidate: true });
+			return;
+		}
+		setValue("project.id", data?.id!, { shouldValidate: true });
 	};
 
 	const { mutate: updateProject, isPending: isUpdateProjectLoading } =
 		useMutation({
 			mutationFn: (data: TForm) => {
-				console.log("data", data);
-
 				return jewelryService.updatePartical({
 					// ...jewelry!,
 					...data!,
@@ -126,10 +135,17 @@ const CreateJeweleryProjectForm: React.FC = () => {
 			},
 		});
 
+	const handelAddProject = (data: TForm) => {
+		if (!data?.project?.id) {
+			return;
+		}
+		updateProject(data);
+	};
+
 	return (
 		<Spin spinning={isUpdateProjectLoading}>
 			<Form
-				onFinish={handleSubmit((data) => updateProject(data))}
+				onFinish={handleSubmit((data) => handelAddProject(data))}
 				layout="vertical"
 			>
 				<Space direction="vertical" className="flex ">

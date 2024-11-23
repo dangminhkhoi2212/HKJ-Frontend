@@ -1,5 +1,11 @@
 import axiosInterceptor from "@/config/axiosInterceptor";
-import { TOrderItem, TOrderItemCreate, TOrderItemQuery, TQuery } from "@/types";
+import {
+	TOrderItem,
+	TOrderItemCreate,
+	TOrderItemQuery,
+	TOrderItemUpdate,
+	TQuery,
+} from "@/types";
 import { formatUtil } from "@/utils";
 
 const interceptor = axiosInterceptor();
@@ -19,6 +25,9 @@ const getCount = async (query: TQuery<TOrderItemQuery>): Promise<number> => {
 };
 const update = async (data: TOrderItem) => {
 	return (await interceptor.put(`/hkj-order-items/${data.id}`, data)).data;
+};
+const updatePartical = async (data: TOrderItemUpdate) => {
+	return (await interceptor.patch(`/hkj-order-items/${data.id}`, data)).data;
 };
 const deleteOne = async (id: number) => {
 	return (
@@ -52,5 +61,6 @@ const orderItemService = {
 	deleteOne,
 	createMultiple,
 	deleteMultiple,
+	updatePartical,
 };
 export default orderItemService;

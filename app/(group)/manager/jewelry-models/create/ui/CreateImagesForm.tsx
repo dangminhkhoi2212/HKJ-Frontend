@@ -124,14 +124,6 @@ const CreateImageForm: React.FC<{}> = () => {
 				</div>
 				<Space className="flex justify-end">
 					<Button
-						disabled={isPending}
-						onClick={() => {
-							next();
-						}}
-					>
-						Xong
-					</Button>
-					<Button
 						type="primary"
 						htmlType="submit"
 						loading={isPending}

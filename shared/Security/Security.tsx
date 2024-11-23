@@ -1,18 +1,18 @@
 "use client";
 
-import { App } from "antd";
-import Cookies from "js-cookie";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+import { App } from 'antd';
+import Cookies from 'js-cookie';
+import { signOut, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import React, { useCallback, useEffect } from 'react';
 
-import { KEY_CONST } from "@/const";
-import { useAccountStore } from "@/providers";
-import { routes } from "@/routes";
-import { getAccount } from "@/services/accountService";
-import { TAccountInfo } from "@/types";
+import { KEY_CONST } from '@/const';
+import { useAccountStore } from '@/providers';
+import { routes } from '@/routes';
+import { getAccount } from '@/services/accountService';
+import { TAccountInfo } from '@/types';
 
-import LoadingIntro from "../Loading/LoadingIntro";
+import LoadingIntro from '../Loading/LoadingIntro';
 
 const Security: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	const router = useRouter();
@@ -20,64 +20,30 @@ const Security: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	const setAccount = useAccountStore((state) => state.setAccount);
 	const account = useAccountStore((state) => state.account);
 	const { data: session, status } = useSession();
-	console.log("🚀 session~ status:", status);
 
-	// useEffect(() => {
-	// 	let storedAccount = null;
-	// 	// Fetch the account from localStorage on the client side
-	// 	if (typeof window !== "undefined") {
-	// 		storedAccount = localStorage.getItem("account");
-	// 	}
-
-	// 	const getAccountData = async () => {
-	// 		try {
-	// 			const accountData: TAccountInfo = await getAccount();
-	// 			localStorage.setItem("account", JSON.stringify(accountData));
-	// 			setAccount(accountData);
-	// 		} catch (error) {
-	// 			console.log("🚀 ~ getAccountData ~ error:", error);
-	// 			// message.error("Đăng nhập thất bại");
-	// 			router.push(routes.signIn);
-	// 		}
-	// 	};
-
-	// 	if (status === "unauthenticated") {
-	// 		router.push(routes.signIn);
-	// 	} else if (session?.error === "RefreshAccessTokenError") {
-	// 		signOut({ callbackUrl: routes.signIn });
-	// 	} else if (!storedAccount && status === "authenticated") {
-	// 		getAccountData();
-	// 	} else if (storedAccount && status === "authenticated") {
-	// 		setAccount(JSON.parse(storedAccount));
-	// 	}
-	// }, [session, status, message, router]);
-
-	const getAccountData = async () => {
+	const getAccountData = useCallback(async () => {
 		try {
 			const accountData: TAccountInfo = await getAccount();
-			// localStorage.setItem("account", JSON.stringify(accountData));
 			Cookies.set(
 				KEY_CONST.ACCOUNT_ID_COOKIE,
 				JSON.stringify(accountData.id)
 			);
 			setAccount(accountData);
 		} catch (error) {
-			console.log("🚀 ~ getAccountData ~ error:", error);
-			// message.error("Đăng nhập thất bại");
-			// router.push(routes.signIn);
+			console.error("Failed to fetch account data:", error);
+			message.error("Đăng nhập thất bại. Vui lòng thử lại.");
 		}
-	};
+	}, [setAccount, message, router]);
 
 	useEffect(() => {
-		if (status === "authenticated" && !account && session.access_token) {
+		if (status === "authenticated" && !account) {
 			getAccountData();
 		} else if (status === "unauthenticated") {
 			router.push(routes.signIn);
+		} else if (session?.error === "RefreshAccessTokenError") {
+			signOut({ callbackUrl: routes.signIn });
 		}
-		return () => {
-			// Optional: Add a destructor function here if needed
-		};
-	}, [status, getAccountData, account, router, session]);
+	}, [status, account, getAccountData, router, session]);
 
 	if (status === "loading") {
 		return <LoadingIntro />;

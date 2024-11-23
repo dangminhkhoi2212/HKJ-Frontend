@@ -26,16 +26,8 @@ const projectSchema = yup.object({
 		.oneOf(Object.keys(TPriority) as TPriority[])
 		.required(REQUIRED_FIELD_MESSAGE),
 
-	actualCost: yup.number().typeError(REQUIRED_NUMBER_FIELD),
-	qualityCheck: yup.boolean().required(REQUIRED_FIELD_MESSAGE),
 	notes: yup.string(),
-	category: yup.object({
-		id: yup
-			.number()
-			.min(1, REQUIRED_FIELD_MESSAGE)
-			.required(REQUIRED_FIELD_MESSAGE),
-		name: yup.string(),
-	}),
+
 	jewelry: yup.object({
 		id: yup.number().nullable(),
 		name: yup.string(),

@@ -1,83 +1,68 @@
 "use client";
-import { App, Button, Form, Modal, Space, Spin, Tag } from "antd";
+import { App, Card, Col, Form, Row, Spin, Typography } from "antd";
 import dayjs from "dayjs";
-import dynamic from "next/dynamic";
-import React, { memo, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import React, { useEffect, useMemo, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 
-import ProductCard from "@/app/(group)/user/products/ui/ProductCard";
+import { QUERY_CONST } from "@/const";
 import { useRouterCustom } from "@/hooks";
-import { routesManager } from "@/routes";
-import { jewelryService, orderImageService, orderService } from "@/services";
-import { EmptyCustom } from "@/shared/EmptyCustom";
-import {
-	InputCustom,
-	InputNumberCustom,
-	LabelCustom,
-} from "@/shared/FormCustom/InputCustom";
-import NumberToWords from "@/shared/FormCustom/InputNumToWords/InputNumToWords";
+import { useAccountStore } from "@/providers";
+import { orderImageService, orderService } from "@/services";
+import orderItemService from "@/services/orderItemService";
 import { AccountDisplay } from "@/shared/FormSelect/AccountForm";
-import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
-import { ImagePreview } from "@/shared/ImagePreview";
-import { TAccountInfo, TOrder, TStatus } from "@/types";
-import { formatUtil, tagMapperUtil } from "@/utils";
+import {
+	allowManagerChange,
+	OrderDateInfo,
+	OrderItemForm,
+	OrderProject,
+	OrderTotalPrice,
+} from "@/shared/OrderForm";
+import OrderDetailAction from "@/shared/OrderForm/OrderDetailAction";
+import { TOrderItem, TStatus } from "@/types";
+import { imageUtil } from "@/utils";
 import orderValidation from "@/validations/orderValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useMutation, useQueries } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
-const { TStatusMapper } = tagMapperUtil;
-const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
-const schema = orderValidation.orderSchema.pick([
-	"orderDate",
-	"specialRequests",
-	"status",
-	"customer",
-	"jewelry",
-	"category",
-	"totalPrice",
-	"expectedDeliveryDate",
-	"id",
-]);
+const { defaultQuery } = QUERY_CONST;
+const schema = orderValidation.orderSchema;
 type TForm = yup.InferType<yup.ObjectSchema<typeof schema>>["__outputType"];
 const initValues: TForm = {
 	id: 0,
 	orderDate: dayjs().toISOString(),
-	specialRequests: "",
+	expectedDeliveryDate: dayjs().toISOString(),
 	status: TStatus.NEW,
-	customer: { id: 0 },
-	category: { id: 0 },
-	jewelry: { id: null },
 	totalPrice: 0,
-	expectedDeliveryDate: dayjs().add(1, "day").toISOString(),
+	actualDeliveryDate: "",
+	customer: { id: 0 },
+	project: null,
+	orderItems: [
+		{
+			id: 0,
+			jewelry: null,
+			quantity: 1,
+			price: null,
+			specialRequests: "Không",
+			notes: "",
+			category: { id: 0 },
+			// material: { id: 0 },
+		},
+	],
 };
 type Props = { id: string };
 
-const { formatDate } = formatUtil;
-const isActiveStatus = (status: TStatus): boolean => {
-	return status === TStatus.NEW || status === TStatus.IN_PROCESS;
-};
-const Allow: React.FC<{ allow: boolean; status: TStatus }> = ({
-	allow,
-	status,
-}) => {
-	console.log("🚀 ~ allow:", allow);
-	if (allow) return null;
-	return (
-		<div className="flex my-4">
-			<Tag color="red" className="flex text-xl">
-				Đơn hàng này đã &quot;{TStatusMapper(status)}&quot;, bạn không
-				thể cập nhật
-			</Tag>
-		</div>
-	);
-};
-const AllowMemo = memo(Allow);
-const HandleOrder: React.FC<Props> = ({ id }) => {
-	const [showModal, setShowModal] = useState<boolean>(false);
-	const [account, setAccount] = useState<TAccountInfo | null>(null);
-	const [allow, setAllow] = useState<boolean>(() => true);
+const { convertToUploadFile } = imageUtil;
+const { Title } = Typography;
+const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 	const { router } = useRouterCustom();
+	const [showModal, setShowModal] = useState<boolean>(false);
+	const [showModalRecive, setShowModalRecive] = useState<boolean>(false);
+	const account = useAccountStore((state) => state.account);
+	const methods = useForm<TForm>({
+		defaultValues: { ...initValues, customer: { id: account?.id } },
+		resolver: yupResolver(schema),
+	});
 	const {
 		control,
 		getValues,
@@ -86,259 +71,154 @@ const HandleOrder: React.FC<Props> = ({ id }) => {
 		reset,
 		watch,
 		formState: { errors },
-	} = useForm<TForm>({
-		resolver: yupResolver(schema),
-	});
-	console.log("🚀 ~ errors:", errors);
-
+	} = useMemo(() => methods, [methods]);
 	const message = App.useApp().message;
 
-	const [getOrder, getProduct, getOrderImages] = useQueries({
-		queries: [
-			{
-				queryKey: ["order", id],
-				queryFn: () => {
-					return orderService.getOne(id);
-				},
-				enabled: !!id,
-				refetchOnMount: true,
-				staleTime: 0,
-			},
-			{
-				queryKey: ["product", getValues("jewelry.id")],
-				queryFn: () => {
-					return jewelryService.getOne(getValues("jewelry.id")!);
-				},
-				enabled: !!getValues("jewelry.id"),
-				refetchOnMount: true,
-				staleTime: 0,
-			},
-			{
-				queryKey: ["order-image", id],
-				queryFn: () => {
-					return orderImageService.get({
-						orderId: { equals: id },
-					});
-				},
-				enabled: !!id,
-				refetchOnMount: true,
-				staleTime: 0,
-			},
-		],
+	console.log("🚀 ~ errors:", errors);
+	useEffect(() => {
+		if (account) {
+			setValue("customer.id", account?.id!);
+		}
+	}, [account]);
+	const getOrder = useQuery({
+		queryKey: ["order", id],
+		queryFn: () => orderService.getOne(id),
+		enabled: !!id,
+		staleTime: 0,
 	});
+	const allowChangeForm = useMemo(() => {
+		if (!getOrder.data) return false;
+		const data = getOrder.data;
+		return allowManagerChange(data.id, data.status, "manager");
+	}, [getOrder.data, allowManagerChange]);
+
+	const getOrderItems = async () => {
+		try {
+			const orderItems = await orderItemService.get({
+				...defaultQuery,
+				orderId: { equals: id },
+			});
+
+			const orderItemsWithImages = orderItems.map(async (orderItem) => {
+				return {
+					...orderItem,
+					images: await orderImageService.get({
+						...defaultQuery,
+						orderItemId: { equals: orderItem.id },
+					}),
+				};
+			});
+			const orderItemsWithImagesResolved: TOrderItem[] =
+				await Promise.all(orderItemsWithImages);
+			return orderItemsWithImagesResolved;
+		} catch (error) {
+			console.log("🚀 ~ getOrderItems ~ error:", error);
+			message.error("Không thể lấy dữ liệu của đơn hàng");
+		}
+	};
+	const { data: orderItems, isFetching: isFetchingOrderItems } = useQuery({
+		queryKey: ["order-items", id],
+		queryFn: () => getOrderItems(),
+		enabled: !!id,
+		staleTime: 0,
+	});
+	console.log("🚀 ~ orderItems:", orderItems);
 
 	useEffect(() => {
-		if (getOrder.data) {
-			const data: TOrder = getOrder.data;
-			const account = { ...data?.customer };
+		if (orderItems) {
 			reset({
 				...getOrder.data,
-				jewelry: { id: getOrder?.data?.jewelry?.id },
+				orderItems: orderItems.map((item) => ({
+					...item,
+					id: item?.id!,
+					material: item?.material?.id
+						? { id: item?.material?.id }
+						: null,
+					category: item?.category?.id
+						? { id: item?.category?.id }
+						: null,
+					project: item?.project?.id
+						? { id: item?.project?.id }
+						: null,
+					jewelry: item?.jewelry?.id
+						? { id: item?.jewelry?.id }
+						: null,
+					images:
+						item?.images?.map((image) =>
+							convertToUploadFile(image)
+						) || [],
+				})),
 			});
-			setAccount({
-				...account,
-				firstName: account?.user?.firstName!,
-				lastName: account?.user?.lastName!,
-				email: account?.user?.email!,
-			});
-			setAllow(isActiveStatus(data.status));
 		}
-	}, [getOrder.data, getOrder.refetch]);
-	const updateOrder = useMutation({
-		mutationFn: (data: TForm) => {
-			console.log("🚀 ~ data:", data);
-
-			return orderService.updatePartical({
-				...data,
-				jewelry: data?.jewelry?.id ? { id: data?.jewelry?.id! } : null,
+	}, [orderItems]);
+	const updateOrderItems = async (data: TForm) => {
+		return data.orderItems?.map((item) => {
+			return orderItemService.updatePartical({
+				id: item?.id! as number,
+				notes: item?.notes!,
 			});
+		});
+	};
+	const updateMutation = useMutation({
+		mutationFn: async (data: TForm) => {
+			return await Promise.all([
+				updateOrderItems(data),
+				orderService.updatePartical({
+					id: data?.id,
+					status: data.status,
+					expectedDeliveryDate: data.expectedDeliveryDate,
+					project: data?.project?.id ? { id: data.project.id } : null,
+				}),
+			]);
 		},
 		onSuccess: () => {
-			message.success("Cập nhật đơn hàng thành công");
-			router.push(routesManager.order);
+			message.success("Đã cập nhật đơn hàng thành công");
+		},
+		onError(error) {
+			message.error("Cập nhật hàng thất bại. Xin thử lại");
 		},
 	});
-	const handleCancel = useMutation({
-		mutationFn: () => {
-			return orderService.updatePartical({
-				id: Number.parseInt(id),
-				status: TStatus.CANCEL,
-			});
-		},
-		onSuccess: () => {
-			message.success("Đã hủy đơn hàng");
-		},
-		onError: () => {
-			message.error("Đã có lỗi xảy ra. Vui lòng thử lại");
-		},
-	});
-	if (!getOrder.data) {
-		return <EmptyCustom />;
-	}
 	return (
 		<Spin
 			spinning={
 				getOrder.isLoading ||
-				getProduct.isLoading ||
-				getOrderImages.isLoading ||
-				updateOrder.isPending ||
-				handleCancel.isPending
+				isFetchingOrderItems ||
+				getOrder.isFetching ||
+				updateMutation.isPending
 			}
 		>
-			<AllowMemo allow={allow} status={getOrder.data?.status!} />
-			<Modal
-				title="Hủy đơn hàng"
-				open={showModal}
-				onCancel={() => setShowModal(false)}
-				onOk={() => handleCancel.mutate()}
-				okButtonProps={{
-					danger: true,
-					loading: handleCancel.isPending,
-				}}
-				cancelButtonProps={{
-					disabled: handleCancel.isPending,
-				}}
-				okText="Đồng ý"
-				cancelText="Hủy"
-			>
-				<p>Bạn có muốn hủy đơn hàng này?</p>
-			</Modal>
-			<Form
-				layout="vertical"
-				onFinish={handleSubmit((data) => updateOrder.mutate(data))}
-				className="flex flex-col gap-4"
-			>
-				{account && <AccountDisplay account={account} />}
-
-				<div className="grid grid-cols-1 md:grid-cols-2  gap-4">
-					<div className="flex flex-col gap-4">
-						<div className="flex  flex-col items-start gap-4 ">
-							<p className="text-xl font-semibold">
-								Ngày đặt:{" "}
-								{formatDate(getOrder?.data?.orderDate!)}
-							</p>
-							<div className="grid grid-cols-2 gap-4">
+			<FormProvider {...methods}>
+				<Form
+					layout="vertical"
+					className="flex flex-col gap-6"
+					onFinish={handleSubmit(
+						(data) => updateMutation.mutate(data)
+						// test(data)
+					)}
+				>
+					{account && <AccountDisplay account={account} />}
+					<Row gutter={[16, 16]}>
+						<Col span={16} className="flex flex-col gap-4">
+							<OrderProject role="manager" />
+							<OrderItemForm role="manager" />
+						</Col>
+						<Col span={8}>
+							<Card>
+								<Title level={4}>Chi tiết</Title>
 								<div className="flex flex-col gap-2">
-									<LabelCustom
-										label="Ngày dự kiến giao"
-										required
+									<OrderDateInfo
+										allowManagerChange={allowChangeForm}
 									/>
-									<InputCustom
-										control={control}
-										placeholder={"Ngày dự kiến giao"}
-										name="expectedDeliveryDate"
-										type="date"
-									/>
+									<OrderTotalPrice role={"manager"} />
+									<OrderDetailAction role="manager" />
 								</div>
-							</div>
-						</div>
-						<InputCustom
-							control={control}
-							name="status"
-							label="Trạng thái"
-							type="select"
-							options={Object.entries(TStatus).map(
-								([key, value]) => ({
-									label: TStatusMapper(value),
-									value: key,
-								})
-							)}
-							className="w-40"
-						/>
-						{getOrder?.data?.category?.id && (
-							<Space direction="vertical">
-								<SelectCategoryForm
-									status={
-										errors.category?.message ||
-										errors.category?.id?.message
-											? "error"
-											: ""
-									}
-									value={getOrder.data?.category?.id}
-									onChange={(value) =>
-										setValue("category.id", value, {
-											shouldValidate: true,
-										})
-									}
-								/>
-								<div>
-									<InputNumberCustom
-										control={control}
-										name="totalPrice"
-										label="Tổng tiền thanh toán"
-										required
-										placeholder="Tổng tiền"
-									/>
-									<NumberToWords
-										number={watch("totalPrice")}
-									/>
-								</div>
-								<span className="text-red-500">
-									{errors.category?.message ||
-										errors.category?.id?.message}
-								</span>
-							</Space>
-						)}
-						<Space direction="vertical" className="flex">
-							<LabelCustom label="Cung cấp thêm hình ảnh" />
-							<Tag className="text-wrap italic">
-								Hình ảnh này giúp chúng tôi có thể tạo ra sản
-								phẩm giống ý bạn hơn
-							</Tag>
-							<ImagePreview
-								images={getOrderImages?.data?.map(
-									(item) => item.url
-								)}
-							/>
-						</Space>
-					</div>
-					<div>
-						<Space direction="vertical" className="flex">
-							<LabelCustom
-								label="Yêu cầu cụ thể"
-								required={true}
-							/>
-							<ReactQuill
-								readOnly
-								value={getValues("specialRequests")}
-								onChange={(value) =>
-									setValue("specialRequests", value)
-								}
-							/>
-							{errors.specialRequests?.message && (
-								<span className="text-red-500">
-									{errors.specialRequests?.message}
-								</span>
-							)}
-						</Space>
-						{getProduct?.data! && (
-							<ProductCard jewelry={getProduct?.data!} />
-						)}
-					</div>
-				</div>
-
-				{allow && (
-					<div className="flex justify-end gap-4">
-						<Button
-							type="primary"
-							danger
-							onClick={() => setShowModal(true)}
-							loading={handleCancel.isPending}
-						>
-							Hủy đơn hàng
-						</Button>
-						<Button
-							type="primary"
-							htmlType="submit"
-							loading={updateOrder.isPending}
-						>
-							Cập nhật
-						</Button>
-					</div>
-				)}
-			</Form>
+							</Card>
+						</Col>
+					</Row>
+				</Form>
+			</FormProvider>
 		</Spin>
 	);
 };
 
-export default HandleOrder;
+export default CreateOrderBasicForm;

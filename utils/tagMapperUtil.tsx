@@ -1,6 +1,6 @@
-import { Tag } from 'antd';
+import { Tag } from "antd";
 
-import { TPriority, TStatus } from '@/types';
+import { TPriority, TStatus } from "@/types";
 
 const TPriorityMapper = (key: TPriority): string => {
 	switch (key) {
@@ -39,7 +39,7 @@ const TStatusMapper = (key: TStatus): string => {
 		case TStatus.LATED:
 			return "Trễ";
 		case TStatus.CANCEL:
-			return "Đã hủy";
+			return "Hủy";
 		default:
 			return "Mới";
 	}

@@ -14,7 +14,7 @@ import { AccountDisplay } from "@/shared/FormSelect/AccountForm";
 import { OrderDateInfo, OrderItemForm } from "@/shared/OrderForm";
 import OrderDetailAction from "@/shared/OrderForm/OrderDetailAction";
 import { TOrderItem, TStatus } from "@/types";
-import { formatUtil, imageUtil } from "@/utils";
+import { imageUtil } from "@/utils";
 import orderValidation from "@/validations/orderValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useQuery } from "@tanstack/react-query";
@@ -28,7 +28,7 @@ const initValues: TForm = {
 	expectedDeliveryDate: dayjs().toISOString(),
 	actualDeliveryDate: dayjs().toISOString(),
 	status: TStatus.NEW,
-	totalPrice: 0,
+	totalPrice: null,
 	customer: { id: 0 },
 	orderItems: [
 		{
@@ -45,12 +45,9 @@ const initValues: TForm = {
 	],
 };
 type Props = { id: string };
-const allowCancel = (status: TStatus): boolean => {
-	return status === TStatus.NEW;
-};
+
 const { convertToUploadFile } = imageUtil;
 const { Title } = Typography;
-const { formatDate } = formatUtil;
 const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 	const { router } = useRouterCustom();
 	const [showModal, setShowModal] = useState<boolean>(false);

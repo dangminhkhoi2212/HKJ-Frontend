@@ -10,8 +10,6 @@ import { useAccountStore } from "@/providers";
 import { routes } from "@/routes";
 import AvatarAccount from "@/shared/Account/AvatarAccount";
 
-import CartButton from "./CartButton";
-
 const AccountButton: React.FC<{}> = () => {
 	const account = useAccountStore((state) => state.account);
 	const { signOutAll } = useAccount();
@@ -43,7 +41,6 @@ const AccountButton: React.FC<{}> = () => {
 
 	return (
 		<div className="flex justify-center items-center gap-4 ">
-			<CartButton />
 			{account ? (
 				<Dropdown
 					trigger={["click"]}

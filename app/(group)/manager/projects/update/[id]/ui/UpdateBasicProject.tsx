@@ -1,5 +1,5 @@
 "use client";
-import { App, Button, Form, Space, Spin, Tag } from "antd";
+import { App, Button, Form, Space, Spin } from "antd";
 import dayjs from "dayjs";
 import dynamic from "next/dynamic";
 import React, { useEffect } from "react";
@@ -10,12 +10,7 @@ import { KEY_CONST } from "@/const";
 import { useRouterCustom } from "@/hooks";
 import { useAccountStore } from "@/providers";
 import projectService from "@/services/projectService";
-import {
-	InputCustom,
-	InputNumberCustom,
-	LabelCustom,
-} from "@/shared/FormCustom/InputCustom";
-import { SelectCategoryForm } from "@/shared/FormSelect/SelectCategoryForm";
+import { InputCustom, LabelCustom } from "@/shared/FormCustom/InputCustom";
 import { TProject, TProjectUpdate, TStatus } from "@/types";
 import { TPriority } from "@/types/priorityType";
 import { tagMapperUtil } from "@/utils";
@@ -44,11 +39,8 @@ const initValue: TForm = {
 	},
 	expectDate: dayjs().add(1, "week").toISOString(),
 	priority: TPriority.MEDIUM,
-	actualCost: 0,
-	qualityCheck: false,
 	notes: "",
 	status: TStatus.NEW,
-	category: { id: 0, name: "" },
 
 	manager: { id: 0 },
 };
@@ -175,27 +167,6 @@ const UpdateBasicProject: React.FC<Props> = ({}) => {
 							type="date"
 							errorMessage={errors?.expectDate?.message}
 						/>
-						<InputNumberCustom
-							control={control}
-							name="budget"
-							label="Ngân sách"
-							toWords
-							className="w-52"
-							errorMessage={errors?.expectDate?.message}
-						/>
-						<InputNumberCustom
-							control={control}
-							name="actualCost"
-							label="Giá trị thực tế sản phẩm"
-							toWords
-							className="w-52"
-							errorMessage={errors?.expectDate?.message}
-							extra={
-								<Tag color="green" className="text-wrap my-2">
-									Bạn có thể cập nhật sau khi hoàn thành dự án
-								</Tag>
-							}
-						/>
 					</Space>
 					<Space direction="vertical" className="flex" size={"large"}>
 						<InputCustom
@@ -227,27 +198,6 @@ const UpdateBasicProject: React.FC<Props> = ({}) => {
 							className="w-40"
 							errorMessage={errors?.priority?.message}
 						/>
-
-						<Space direction="vertical">
-							<SelectCategoryForm
-								placeholder="Chọn loại trang sức"
-								onChange={(value) => {
-									setValue("category.id", value, {
-										shouldValidate: true,
-									});
-								}}
-								defaultValue={project?.category?.id}
-								status={
-									(errors?.category?.message ||
-										errors?.category?.id?.message) &&
-									"error"
-								}
-							/>
-							<span className="text-red-500">
-								{errors?.category?.message ||
-									errors?.category?.id?.message}
-							</span>
-						</Space>
 					</Space>
 				</div>
 				<div>

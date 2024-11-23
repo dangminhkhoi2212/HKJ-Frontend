@@ -147,10 +147,10 @@ const JewelryList: React.FC = () => {
 	const rowSelection: TableRowSelection<TJewelry> = {
 		selectedRowKeys,
 		onChange: onSelectChange,
-		getCheckboxProps: (record: TJewelry) => ({
-			disabled: record.isCoverSearch,
-			name: record.name,
-		}),
+		// getCheckboxProps: (record: TJewelry) => ({
+		// 	disabled: record.isCoverSearch,
+		// 	name: record.name,
+		// }),
 	};
 	const handleSearch = (value: string) => {
 		setQuery({ ...query, name: { contains: value } });

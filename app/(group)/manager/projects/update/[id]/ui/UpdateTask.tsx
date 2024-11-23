@@ -1,23 +1,24 @@
-import { DatePicker, Form, message, Modal, Space, Spin } from 'antd';
-import dayjs from 'dayjs';
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import * as yup from 'yup';
+import { DatePicker, Form, message, Modal, Space, Spin } from "antd";
+import dayjs from "dayjs";
+import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import * as yup from "yup";
 
-import { KEY_CONST } from '@/const';
-import { useRouterCustom } from '@/hooks';
-import taskService from '@/services/taskService';
-import { InputCustom } from '@/shared/FormCustom/InputCustom';
-import { AccountDisplay } from '@/shared/FormSelect/AccountForm';
-import { SelectEmployeeForm } from '@/shared/FormSelect/SelectEmployeeForm';
-import { TEmployee, TPriority, TStatus } from '@/types';
-import { TTask, TTaskUpdate } from '@/types/taskType';
-import { tagMapperUtil } from '@/utils';
-import taskValidation from '@/validations/taskValidation';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { KEY_CONST } from "@/const";
+import { useRouterCustom } from "@/hooks";
+import taskService from "@/services/taskService";
+import { InputCustom, LabelCustom } from "@/shared/FormCustom/InputCustom";
+import { SelectStatusForm } from "@/shared/FormSelect";
+import { AccountDisplay } from "@/shared/FormSelect/AccountForm";
+import { SelectEmployeeForm } from "@/shared/FormSelect/SelectEmployeeForm";
+import { TEmployee, TPriority, TStatus } from "@/types";
+import { TTask, TTaskUpdate } from "@/types/taskType";
+import { tagMapperUtil } from "@/utils";
+import taskValidation from "@/validations/taskValidation";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { updateProjectStore } from '../store';
+import { updateProjectStore } from "../store";
 
 const { TPriorityMapper, TStatusMapper } = tagMapperUtil;
 const { RangePicker } = DatePicker;
@@ -124,19 +125,25 @@ const UpdateTask: React.FC<Props> = ({}) => {
 						maxDate={dayjs(project?.endDate)}
 					/>
 
-					<InputCustom
-						control={control}
-						name="status"
-						label="Trạng thái"
-						type="select"
-						options={Object.entries(TStatus).map(
-							([key, value]) => ({
-								label: TStatusMapper(value),
-								value: key,
-							})
-						)}
-						className="w-40"
-					/>
+					<Space direction="vertical">
+						<LabelCustom label="Trạng thái" />
+						<Controller
+							name="status"
+							control={control}
+							render={({ field }) => (
+								<SelectStatusForm
+									{...field}
+									size="large"
+									allowClear={false}
+									ignoreStatus={[
+										TStatus.DELIVERED,
+										TStatus.NEW,
+									]}
+									className="w-40"
+								/>
+							)}
+						/>
+					</Space>
 					<InputCustom
 						control={control}
 						name="priority"

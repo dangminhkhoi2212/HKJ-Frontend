@@ -1,4 +1,4 @@
-import { Button, message, Tooltip, Upload } from "antd";
+import { Button, message, Tag, Upload } from "antd";
 import ImgCrop from "antd-img-crop";
 import { Image } from "lucide-react";
 import React from "react";
@@ -34,23 +34,38 @@ const ImageSearchButton: React.FC = () => {
 	};
 
 	return (
-		<Tooltip title="Tìm kiếm với hình ảnh ">
-			<div>
-				<ImgCrop
-					modalTitle="Tìm kiếm hình ảnh"
-					modalOk="Tìm kiếm"
-					modalCancel="Hủy"
-					rotationSlider
-					zoomSlider
-					showReset
-					maxZoom={10}
-				>
-					<Upload beforeUpload={beforeUpload} showUploadList={false}>
-						<Button icon={<Image size={14} />}></Button>
-					</Upload>
-				</ImgCrop>
-			</div>
-		</Tooltip>
+		<div>
+			<ImgCrop
+				modalTitle="Tìm kiếm hình ảnh"
+				modalProps={{
+					footer(originNode, extra) {
+						return (
+							<div className="flex flex-col justify-end gap-4">
+								<div>
+									<Tag color="yellow">
+										Hãy chọn rõ chi tiết để nâng cao độ
+										chính xác khi tìm kiếm
+									</Tag>
+								</div>
+								<div className="flex justify-end gap-4">
+									{originNode}
+								</div>
+							</div>
+						);
+					},
+				}}
+				modalOk="Tìm kiếm"
+				modalCancel="Hủy"
+				rotationSlider
+				zoomSlider
+				showReset
+				maxZoom={10}
+			>
+				<Upload beforeUpload={beforeUpload} showUploadList={false}>
+					<Button icon={<Image size={14} />}></Button>
+				</Upload>
+			</ImgCrop>
+		</div>
 	);
 };
 

@@ -20,6 +20,7 @@ export const routesEmpoloyee = {
 };
 
 export const routesManager = {
+	home: "/manager/",
 	employees: "/manager/employees",
 	order: "/manager/orders",
 	template: "/manager/templates",

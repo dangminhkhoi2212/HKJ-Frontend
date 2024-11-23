@@ -1,24 +1,10 @@
-import { MenuProps } from "antd";
+import { MenuProps } from 'antd';
 import {
-	Atom,
-	FolderClosed,
-	Gem,
-	Images,
-	LayoutDashboard,
-	LineChart,
-	ListOrdered,
-	MessageCircle,
-	Notebook,
-	NotepadTextDashed,
-	PackageSearch,
-	SquareUser,
-	Truck,
-	User,
-	UserCog,
-	Users,
-} from "lucide-react";
+    Atom, FolderClosed, Gem, Home, Images, LayoutDashboard, LineChart, ListOrdered, MessageCircle,
+    Notebook, PackageSearch, SquareUser, Truck, User, UserCog, Users
+} from 'lucide-react';
 
-import { routesAdmin, routesEmpoloyee, routesManager } from "@/routes";
+import { routesAdmin, routesEmpoloyee, routesManager } from '@/routes';
 
 type MenuItem = Required<MenuProps>["items"][number];
 export const menuUser: MenuItem[] = [
@@ -58,6 +44,11 @@ export const menuEmployee: MenuItem[] = [
 ];
 export const menuManager: MenuItem[] = [
 	{
+		key: routesManager.home,
+		icon: <Home size={18} />,
+		label: "Trang chủ",
+	},
+	{
 		key: routesManager.project,
 		icon: <FolderClosed size={18} />,
 		label: "Dự án",
@@ -86,11 +77,6 @@ export const menuManager: MenuItem[] = [
 		key: routesManager.category,
 		icon: <Notebook size={18} />,
 		label: "Loại trang sức",
-	},
-	{
-		key: routesManager.template,
-		icon: <NotepadTextDashed size={18} />,
-		label: "Bản mẫu dự án",
 	},
 ];
 export const menuAdmin: MenuProps["items"] = [

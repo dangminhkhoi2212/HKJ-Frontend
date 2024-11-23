@@ -37,6 +37,7 @@ const Filter: React.FC<Props> = ({}) => {
 	const image = imageSearchAIStore((state) => state.file);
 	const setQuery = projectStore((state) => state.setQuery);
 	const query = projectStore((state) => state.query);
+	const setPagination = projectStore((state) => state.setPagination);
 	const reset = projectStore((state) => state.reset);
 	const [priceRange, setPriceRange] = useState<number[]>([
 		minPrice,
@@ -49,11 +50,20 @@ const Filter: React.FC<Props> = ({}) => {
 		const textSearch = searchParams?.get("textSearch");
 		const materialId = searchParams?.get("materialId");
 		const categoryId = searchParams?.get("categoryId");
+		const page = searchParams?.get("page");
+		const size = searchParams?.get("size");
+
 		if (textSearch) setQuery({ name: { contains: textSearch } });
 		if (materialId)
 			setQuery({ materialId: { equals: Number(materialId) } });
 		if (categoryId)
 			setQuery({ categoryId: { equals: Number(categoryId) } });
+		if (page) {
+			const current = Number(page);
+			setQuery({ page: current });
+		}
+		if (size) setQuery({ size: Number(size) });
+
 		return () => {
 			reset();
 		};

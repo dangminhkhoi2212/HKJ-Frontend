@@ -12,5 +12,6 @@ export { default as materialUsageService } from "./materialUsageService";
 export { default as orderImageService } from "./orderImageService";
 export { default as orderService } from "./orderService";
 export { default as positionService } from "./positionService";
+export { default as statisticService } from "./statisticService";
 export { default as userExtraService } from "./userExtraService";
 export { default as userService } from "./userService";

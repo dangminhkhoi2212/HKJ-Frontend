@@ -13,7 +13,11 @@ import { orderImageService, orderService } from "@/services";
 import orderItemService from "@/services/orderItemService";
 import supabaseService from "@/services/supabaseService";
 import { AccountDisplay } from "@/shared/FormSelect/AccountForm";
-import { OrderDateInfo, OrderItemForm } from "@/shared/OrderForm";
+import {
+	OrderDateInfo,
+	OrderItemForm,
+	OrderTotalPrice,
+} from "@/shared/OrderForm";
 import OrderDetailAction from "@/shared/OrderForm/OrderDetailAction";
 import {
 	TCartItemSession,
@@ -36,15 +40,17 @@ const schema = orderValidation.orderSchema.pick([
 	"customer",
 	"orderItems",
 	"totalPrice",
+	"expectedDeliveryDate",
 ]);
 export type TFormOrder = yup.InferType<
 	yup.ObjectSchema<typeof schema>
 >["__outputType"];
 const initValues: TFormOrder = {
 	orderDate: dayjs().toISOString(),
+	expectedDeliveryDate: dayjs().add(14, "day").toISOString(),
 	status: TStatus.NEW,
 	customer: { id: 0 },
-	totalPrice: 0,
+	totalPrice: null,
 	orderItems: [
 		{
 			id: 0,
@@ -52,10 +58,9 @@ const initValues: TFormOrder = {
 			price: null,
 			specialRequests: "Không",
 			notes: "",
-			project: null,
 			jewelry: null,
 			category: { id: 0 },
-			material: { id: 0 },
+			// material: { id: 0 },
 			images: [],
 		},
 	],
@@ -127,11 +132,16 @@ const CreateOrderBasicForm: React.FC<Props> = ({}) => {
 				setCartItemSession(products);
 			}
 		}
+		return () => {
+			if (typeof window !== "undefined")
+				window.sessionStorage.removeItem(KEY_CONST.PLACE_ORDER_PRODUCT);
+		};
 	}, [setProducts, setValue, quantity]);
 
 	const createOrder = (data: TFormOrder) => {
 		const dataConvert: TOrderCreate = {
 			...data,
+			totalPrice: data?.totalPrice!,
 			orderDate: dayjs(data.orderDate).toISOString(),
 			customer: { id: data.customer.id },
 		};
@@ -210,6 +220,7 @@ const CreateOrderBasicForm: React.FC<Props> = ({}) => {
 								<Title level={4}>Chi tiết</Title>
 								<div className="flex flex-col gap-2">
 									<OrderDateInfo />
+									<OrderTotalPrice role={"user"} />
 									<OrderDetailAction />
 								</div>
 							</Card>
