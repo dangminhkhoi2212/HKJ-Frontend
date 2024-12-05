@@ -1,21 +1,22 @@
 "use client";
 
-import { App } from 'antd';
-import Cookies from 'js-cookie';
-import { signOut, useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import React, { useCallback, useEffect } from 'react';
+import { App } from "antd";
+import Cookies from "js-cookie";
+import { signOut, useSession } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useCallback, useEffect } from "react";
 
-import { KEY_CONST } from '@/const';
-import { useAccountStore } from '@/providers';
-import { routes } from '@/routes';
-import { getAccount } from '@/services/accountService';
-import { TAccountInfo } from '@/types';
+import { KEY_CONST } from "@/const";
+import { useAccountStore } from "@/providers";
+import { routes } from "@/routes";
+import { getAccount } from "@/services/accountService";
+import { TAccountInfo } from "@/types";
 
-import LoadingIntro from '../Loading/LoadingIntro';
+import LoadingIntro from "../Loading/LoadingIntro";
 
 const Security: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	const router = useRouter();
+	const pathname = usePathname();
 	const { message } = App.useApp();
 	const setAccount = useAccountStore((state) => state.setAccount);
 	const account = useAccountStore((state) => state.account);
@@ -36,18 +37,17 @@ const Security: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	}, [setAccount, message, router]);
 
 	useEffect(() => {
-		if (status === "authenticated" && !account) {
+		if (pathname === routes.signIn) return;
+		if (status === "authenticated" && !account?.id) {
 			getAccountData();
 		} else if (status === "unauthenticated") {
 			router.push(routes.signIn);
 		} else if (session?.error === "RefreshAccessTokenError") {
 			signOut({ callbackUrl: routes.signIn });
 		}
-	}, [status, account, getAccountData, router, session]);
+	}, [status, account?.id, getAccountData, router, session, pathname]);
 
-	if (status === "loading") {
-		return <LoadingIntro />;
-	}
+	if (!account && pathname !== routes.signIn) return <LoadingIntro />;
 
 	return <>{children}</>;
 };

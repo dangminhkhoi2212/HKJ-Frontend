@@ -61,4 +61,5 @@ export type TJewelryQuery = {
 	materialId?: TFilter;
 	isCoverSearch?: TFilter;
 	active?: TFilter;
+	id?: TFilter;
 };

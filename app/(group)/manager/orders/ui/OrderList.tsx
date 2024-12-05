@@ -188,7 +188,7 @@ const JewelryList: React.FC = () => {
 	};
 
 	const handleSearch = (value: string) => {
-		setQuery({ ...query, id: { contains: value } });
+		setQuery({ ...query, id: { equals: value } });
 	};
 	return (
 		<Space direction="vertical" className="flex ">
@@ -223,7 +223,11 @@ const JewelryList: React.FC = () => {
 				rowKey="id"
 				pagination={pagination}
 				onChange={handleTableChange}
-				scroll={{ x: 1500, scrollToFirstRowOnChange: true }}
+				scroll={{
+					x: "max-content",
+					y: 350,
+					scrollToFirstRowOnChange: true,
+				}}
 				loading={isLoadingOrders || isLoadingOrderCount}
 			/>
 		</Space>

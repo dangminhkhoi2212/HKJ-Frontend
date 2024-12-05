@@ -75,7 +75,7 @@ const AccountButton: React.FC<{}> = () => {
 					>
 						<Button icon={<UserRound size={14} />} />
 						<Tag
-							className="text-sm font-semibold p-2 text-center align-middle"
+							className="hidden md:block text-sm font-semibold p-2 text-center align-middle"
 							bordered={false}
 						>
 							{account.firstName + " " + account.lastName}

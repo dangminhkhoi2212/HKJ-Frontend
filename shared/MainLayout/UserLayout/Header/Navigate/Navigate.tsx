@@ -1,12 +1,12 @@
 "use client";
-import { Menu, MenuProps } from 'antd';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import { Menu, MenuProps } from "antd";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
-import { menuUser } from './menu';
+import { menuUser } from "./menu";
 
-type Props = {};
+type Props = { mode?: MenuProps["mode"] };
 type MenuItem = Required<MenuProps>["items"][number];
 
 const convertMenu = (menu: MenuItem[]): MenuItem[] => {
@@ -21,7 +21,7 @@ const convertMenu = (menu: MenuItem[]): MenuItem[] => {
 		}
 	});
 };
-const UserNavigate: React.FC<Props> = ({}) => {
+const UserNavigate: React.FC<Props> = ({ mode = "horizontal" }) => {
 	const pathname = usePathname(); // Current path
 	const [menus, setMenus] = useState<MenuItem[]>(
 		convertMenu(menuUser!) || []
@@ -40,7 +40,7 @@ const UserNavigate: React.FC<Props> = ({}) => {
 	return (
 		<Menu
 			theme="light"
-			mode="horizontal"
+			mode={mode}
 			disabledOverflow={true}
 			defaultSelectedKeys={[defaultSelectedKey?.toString()!]}
 			selectedKeys={[defaultSelectedKey?.toString()!]}

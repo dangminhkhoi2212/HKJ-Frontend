@@ -245,10 +245,12 @@ const OrderItemForm: React.FC<Props> = ({ products, role = "user" }) => {
 						</Space>
 						<Space direction="vertical" className="flex">
 							<LabelCustom label="Cung cấp thêm hình ảnh" />
-							<Tag className="text-wrap italic">
-								Hình ảnh này giúp chúng tôi có thể tạo ra sản
-								phẩm giống ý bạn hơn
-							</Tag>
+							{role === "user" && (
+								<Tag className="text-wrap italic">
+									Hình ảnh này giúp chúng tôi có thể tạo ra
+									sản phẩm giống ý bạn hơn
+								</Tag>
+							)}
 							<RenderImageForm
 								allowChangeForm={allowUserChangeForm}
 								index={index}
@@ -260,6 +262,7 @@ const OrderItemForm: React.FC<Props> = ({ products, role = "user" }) => {
 							control={control}
 							name={`orderItems.${index}.specialRequests`}
 							disabled={!allowUserChangeForm}
+							role={role}
 						/>
 						{orderId && (
 							<OrderNoteForm

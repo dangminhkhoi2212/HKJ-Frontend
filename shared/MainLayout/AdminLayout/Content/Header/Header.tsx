@@ -9,6 +9,8 @@ import useStypeStore from "@/stores/style";
 import { cn } from "@/utils/cn";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 
+import { ManagerNotificationButton } from "./ManagerNotificationButton";
+
 const { Header } = Layout;
 type Props = {};
 const AppHeader: React.FC<Props> = () => {
@@ -41,6 +43,7 @@ const AppHeader: React.FC<Props> = () => {
 			/>
 			<div className="flex justify-center items-center gap-4">
 				<RoleTag />
+				<ManagerNotificationButton />
 				<UserMenu />
 			</div>
 		</Header>

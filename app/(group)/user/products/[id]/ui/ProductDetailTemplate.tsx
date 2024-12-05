@@ -9,6 +9,7 @@ import { productDetailStore } from "../store";
 import ProductDescription from "./ProductDescription";
 import ProductGallery from "./ProductGallery";
 import ProductInfo from "./ProductInfo";
+import ProductRelative from "./ProductRelative";
 
 type Props = { id: string };
 
@@ -43,6 +44,10 @@ const ProductDetailTempate: React.FC<Props> = ({ id }) => {
 				</div>
 			</div>
 			<ProductDescription />
+			<ProductRelative
+				categoryId={getJewelry?.data?.category?.id}
+				jewelryId={getJewelry?.data?.id}
+			/>
 		</div>
 	);
 };

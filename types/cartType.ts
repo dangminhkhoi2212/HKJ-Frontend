@@ -15,4 +15,5 @@ export type TCartCRUD = Partial<Omit<TCart, "customer" | "product">> & {
 export type TCartQuery = {
 	customerId?: TFilter;
 	productId?: TFilter;
+	status?: TFilter;
 };

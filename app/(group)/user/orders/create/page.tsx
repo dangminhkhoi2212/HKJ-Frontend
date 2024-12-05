@@ -1,10 +1,10 @@
-import React from "react";
+import React from 'react';
 
-import projectService from "@/services/projectService";
-import queryClientUtil from "@/utils/queryClientUtil";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import projectService from '@/services/projectService';
+import queryClientUtil from '@/utils/queryClientUtil';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 
-import { OrderProcessingForm } from "./ui";
+import { CreateOrderBasicForm } from './ui';
 
 type Props = {
 	searchParams: { pId?: string };
@@ -24,7 +24,7 @@ const CreateOrderPage: React.FC<Props> = ({ searchParams }) => {
 	return (
 		<div className="">
 			<HydrationBoundary state={hydrate(searchParams?.pId!)}>
-				<OrderProcessingForm />
+				<CreateOrderBasicForm />
 			</HydrationBoundary>
 		</div>
 	);

@@ -1,13 +1,13 @@
 "use client";
-import { Form, Input, Space } from 'antd';
-import React from 'react';
-import { Control, Controller } from 'react-hook-form';
-import { NumericFormat, NumericFormatProps } from 'react-number-format';
+import { Form, Input, Space } from "antd";
+import React from "react";
+import { Control, Controller } from "react-hook-form";
+import { NumericFormat, NumericFormatProps } from "react-number-format";
 
-import { cn } from '@/utils';
+import { cn } from "@/utils";
 
-import NumberToWords from '../InputNumToWords/InputNumToWords';
-import { LabelCustom } from './LabelCustom';
+import NumberToWords from "../InputNumToWords/InputNumToWords";
+import { LabelCustom } from "./LabelCustom";
 
 const MIN: number = 0;
 const MAX: number = 100000000;
@@ -20,6 +20,7 @@ type InputNumberCustomProps = {
 	suffix?: string;
 	extra?: React.ReactNode;
 	toWords?: boolean;
+	required?: boolean;
 } & NumericFormatProps;
 
 const InputNumberCustom = React.forwardRef<
@@ -36,6 +37,7 @@ const InputNumberCustom = React.forwardRef<
 			suffix = " VND",
 			extra,
 			toWords = false,
+			required = true,
 			...props
 		},
 		ref
@@ -49,7 +51,10 @@ const InputNumberCustom = React.forwardRef<
 					<Form.Item
 						label={
 							label && (
-								<LabelCustom label={label} required={true} />
+								<LabelCustom
+									label={label}
+									required={required}
+								/>
 							)
 						}
 						validateStatus={fieldState.invalid ? "error" : ""}

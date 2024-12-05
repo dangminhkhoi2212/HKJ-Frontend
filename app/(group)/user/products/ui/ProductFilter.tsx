@@ -44,7 +44,7 @@ const Filter: React.FC<Props> = ({}) => {
 		maxPrice,
 	]);
 	const [priceRangeDebounced] = useDebounce(priceRange, 700);
-	const { searchParams } = useRouterCustom();
+	const { searchParams, updatePathname } = useRouterCustom();
 
 	useEffect(() => {
 		const textSearch = searchParams?.get("textSearch");
@@ -106,11 +106,16 @@ const Filter: React.FC<Props> = ({}) => {
 
 		return `${startPrice} - ${endPrice}`;
 	}, [priceRangeDebounced]);
-
+	const handleCategoryChange = (value: number) => {
+		updatePathname({
+			query: { categoryId: value, page: 0 },
+			type: "replace",
+		});
+	};
 	const handleMaterialChange = (value: number) => {
-		setQuery({
-			page: 0,
-			materialId: { equals: value },
+		updatePathname({
+			query: { materialId: value, page: 0 },
+			type: "replace",
 		});
 	};
 
@@ -130,14 +135,7 @@ const Filter: React.FC<Props> = ({}) => {
 						size="large"
 						allowClear
 						value={query.categoryId?.equals}
-						onChange={(value) => {
-							console.log("🚀 ~ onChange ~ SelectCategoryForm");
-
-							setQuery({
-								page: 0,
-								categoryId: { equals: value },
-							});
-						}}
+						onChange={handleCategoryChange}
 					/>
 				</div>
 				<SelectMaterialForm

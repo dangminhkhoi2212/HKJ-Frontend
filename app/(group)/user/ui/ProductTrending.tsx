@@ -3,7 +3,7 @@ import { Card, List, Skeleton, Tag } from "antd";
 import React from "react";
 
 import { QUERY_CONST } from "@/const";
-import { jewelryService } from "@/services";
+import { statisticService } from "@/services";
 import { ProductCard } from "@/shared/CardCustom";
 import { EmptyCustom } from "@/shared/EmptyCustom";
 import { Frame } from "@/shared/Frame";
@@ -22,8 +22,9 @@ const topTags: { [key: number]: JSX.Element } = {
 const ProductTrending: React.FC<Props> = ({}) => {
 	const getProducts = useQuery({
 		queryKey: ["product"],
-		queryFn: () => jewelryService.get({ ...defaultQuery, size: 6 }),
+		queryFn: () => statisticService.getTopProductOrder(),
 	});
+
 	if (getProducts.isLoading) {
 		return (
 			<List
@@ -32,8 +33,8 @@ const ProductTrending: React.FC<Props> = ({}) => {
 					xs: 2,
 					sm: 3,
 					md: 3,
-					lg: 6,
-					xl: 6,
+					lg: 5,
+					xl: 5,
 				}}
 				dataSource={Array.from({ length: 6 }, (_, index) => index + 1)}
 				renderItem={(item, index) => (
@@ -63,7 +64,7 @@ const ProductTrending: React.FC<Props> = ({}) => {
 	}
 
 	return (
-		<Frame title="Tìm kiếm nhiều nhất">
+		<Frame title="Đặt nhiều nhất">
 			<div className="flex flex-col gap-4">
 				<List
 					grid={{
@@ -71,8 +72,8 @@ const ProductTrending: React.FC<Props> = ({}) => {
 						xs: 2,
 						sm: 3,
 						md: 3,
-						lg: 6,
-						xl: 6,
+						lg: 5,
+						xl: 5,
 					}}
 					dataSource={getProducts.data}
 					renderItem={(item, index) => (

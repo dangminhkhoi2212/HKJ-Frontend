@@ -23,22 +23,23 @@ const ProductList: React.FC = () => {
 	const [pagination, setPagination] = useState<PaginationProps>({
 		...QUERY_CONST.initPagination,
 		pageSize: 30,
+		showSizeChanger: false,
 	});
 	const { updatePathname } = useRouterCustom();
-	const queries = useQueries({
+	const [getJewelrys, getJewelrysCount, getJewelryAI] = useQueries({
 		queries: [
 			{
-				queryKey: ["products", query, image?.name],
+				queryKey: ["products", query],
 				queryFn: () => jewelryService.get(query),
-				enabled: !image,
+				enabled: false,
 			},
 			{
-				queryKey: ["products-count", query, image?.name],
+				queryKey: ["products-count", query],
 				queryFn: () => jewelryService.getCount(query),
-				enabled: !image,
+				enabled: false,
 			},
 			{
-				queryKey: ["products-ai", query, image?.name],
+				queryKey: ["products-ai", image?.name],
 				queryFn: () => imageSearchAIService.searchImage(image!),
 				enabled: false,
 				staleTime: 0,
@@ -46,8 +47,10 @@ const ProductList: React.FC = () => {
 		],
 	});
 
-	const [getJewelrys, getJewelrysCount, getJewelryAI] = queries;
-
+	useEffect(() => {
+		getJewelrys.refetch();
+		getJewelrysCount.refetch();
+	}, [query]);
 	useEffect(() => {
 		if (getJewelrys.isSuccess) {
 			setData(getJewelrys.data);
@@ -138,11 +141,13 @@ const ProductList: React.FC = () => {
 					</List.Item>
 				)}
 			/>
-			<Pagination
-				align="center"
-				{...pagination}
-				onChange={handleOnChangePagination}
-			/>
+			{!image && (
+				<Pagination
+					align="center"
+					{...pagination}
+					onChange={handleOnChangePagination}
+				/>
+			)}
 		</div>
 	);
 };

@@ -1,6 +1,8 @@
 import { Tag } from "antd";
+import { ClipboardCheck, ClipboardPlus, Package, SquareX } from "lucide-react";
 
 import { TPriority, TStatus } from "@/types";
+import { TNotificationIcon } from "@/types/notificationIcon";
 
 const TPriorityMapper = (key: TPriority): string => {
 	switch (key) {
@@ -29,7 +31,7 @@ const TPriorityColorMapper = (key: TPriority): React.ReactNode => {
 const TStatusMapper = (key: TStatus): string => {
 	switch (key) {
 		case TStatus.NEW:
-			return "Mới";
+			return "Chờ xử lý";
 		case TStatus.IN_PROCESS:
 			return "Đang xử lý";
 		case TStatus.COMPLETED:
@@ -41,13 +43,13 @@ const TStatusMapper = (key: TStatus): string => {
 		case TStatus.CANCEL:
 			return "Hủy";
 		default:
-			return "Mới";
+			return "Chờ xử lý";
 	}
 };
 const TStatusColorMapper = (key: TStatus): React.ReactNode => {
 	switch (key) {
 		case TStatus.NEW:
-			return <Tag color="cyan">Mới</Tag>;
+			return <Tag color="cyan">Chờ xử lý</Tag>;
 		case TStatus.IN_PROCESS:
 			return <Tag color="blue">Đang xử lý</Tag>;
 		case TStatus.COMPLETED:
@@ -74,11 +76,29 @@ const colorPriority = (priority: TPriority): string => {
 			return "#F1D4D4";
 	}
 };
+
+const TNotificationIconMapper = (icon: TNotificationIcon) => {
+	switch (icon) {
+		case TNotificationIcon.PLACE:
+			return <ClipboardPlus color="#33b5e5" />;
+		case TNotificationIcon.CANCEL:
+			return <SquareX color="#ff4444" />;
+		case TNotificationIcon.COMPLETED:
+			return <ClipboardCheck color="#00c851" />;
+		case TNotificationIcon.DELIVERED:
+			return <Package color="#00c851" />;
+		case TNotificationIcon.IN_PROCESS:
+			return <Package color="#fbd009" />;
+		default:
+			return <ClipboardPlus />;
+	}
+};
 const tagMapperUtil = {
 	TPriorityMapper,
 	TPriorityColorMapper,
 	TStatusMapper,
 	TStatusColorMapper,
 	colorPriority,
+	TNotificationIconMapper,
 };
 export default tagMapperUtil;

@@ -1,5 +1,5 @@
 "use client";
-import { App, Button, Space, Table, TableProps, Tag } from "antd";
+import { App, Button, Space, Table, TableProps } from "antd";
 import { ArrowBigRight } from "lucide-react";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
@@ -8,7 +8,8 @@ import { QUERY_CONST } from "@/const";
 import { useAccountStore } from "@/providers";
 import { routesUser } from "@/routes";
 import { cartService, orderService } from "@/services";
-import { TCartCRUD, TCartQuery, TOrder, TQuery } from "@/types";
+import { SelectStatusForm } from "@/shared/FormSelect";
+import { TCartCRUD, TCartQuery, TOrder, TQuery, TStatus } from "@/types";
 import { formatUtil, tagMapperUtil } from "@/utils";
 import { useMutation, useQueries } from "@tanstack/react-query";
 
@@ -44,7 +45,9 @@ const columns: TableProps<TOrder>["columns"] = [
 		dataIndex: "expectedDeliveryDate",
 		key: "expectedDeliveryDate",
 		render(value, record, index) {
-			return value ? formatDate(value) : "Chưa cập nhật";
+			return value
+				? formatDate(value, { removeTime: true })
+				: "Chưa cập nhật";
 		},
 	},
 	{
@@ -59,8 +62,10 @@ const columns: TableProps<TOrder>["columns"] = [
 		title: "Tổng cộng",
 		dataIndex: "totalPrice",
 		key: "totalPrice",
-		render(value) {
-			return value ? formatCurrency(value) : <Tag>Đang xử lý</Tag>;
+		render(value, record) {
+			if (record.status === TStatus.CANCEL)
+				return TStatusColorMapper(record.status);
+			return value && formatCurrency(value);
 		},
 	},
 	{
@@ -79,6 +84,7 @@ const OrderList: React.FC = () => {
 	const [query, setQuery] = React.useState<TQuery<TCartQuery>>({
 		...defaultQuery,
 		customerId: { equals: account?.id },
+		sort: "orderDate,desc",
 	});
 	const [pagination, setPagination] = useState({
 		...initPagination,
@@ -170,9 +176,12 @@ const OrderList: React.FC = () => {
 	const onChangCategorySelect = (value: number) => {
 		setQuery((pre) => ({ ...pre, page: 0, categoryId: { equals: value } }));
 	};
-
+	const handleSelectStatus = (value: any) => {
+		setQuery((pre) => ({ ...pre, status: { equals: value } }));
+	};
 	return (
 		<Space direction="vertical" className="flex">
+			<SelectStatusForm onChange={handleSelectStatus} />
 			<Table<TOrder>
 				columns={columns}
 				dataSource={carts}

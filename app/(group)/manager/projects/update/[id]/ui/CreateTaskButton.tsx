@@ -126,7 +126,7 @@ const CreateTaskButton: React.FC<Props> = ({ refresh }) => {
 						<InputCustom
 							control={control}
 							name="date"
-							label="Thời gian dự án"
+							label="Thời gian"
 							type="rangeDate"
 							minDate={dayjs(project?.startDate)}
 							maxDate={dayjs(project?.endDate)}
@@ -142,8 +142,9 @@ const CreateTaskButton: React.FC<Props> = ({ refresh }) => {
 										size="large"
 										allowClear={false}
 										ignoreStatus={[
-											TStatus.DELIVERED,
 											TStatus.NEW,
+											TStatus.DELIVERED,
+											TStatus.CANCEL,
 										]}
 										className="w-40"
 									/>
@@ -165,6 +166,7 @@ const CreateTaskButton: React.FC<Props> = ({ refresh }) => {
 							className="w-40"
 						/>
 						<InputCustom
+							label="Ghi chú"
 							control={control}
 							name="description"
 							type="description"

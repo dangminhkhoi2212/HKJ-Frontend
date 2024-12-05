@@ -11,7 +11,11 @@ import { useAccountStore } from "@/providers";
 import { orderImageService, orderService } from "@/services";
 import orderItemService from "@/services/orderItemService";
 import { AccountDisplay } from "@/shared/FormSelect/AccountForm";
-import { OrderDateInfo, OrderItemForm } from "@/shared/OrderForm";
+import {
+	OrderDateInfo,
+	OrderItemForm,
+	OrderTotalPrice,
+} from "@/shared/OrderForm";
 import OrderDetailAction from "@/shared/OrderForm/OrderDetailAction";
 import { TOrderItem, TStatus } from "@/types";
 import { imageUtil } from "@/utils";
@@ -30,17 +34,16 @@ const initValues: TForm = {
 	status: TStatus.NEW,
 	totalPrice: null,
 	customer: { id: 0 },
+	project: null,
 	orderItems: [
 		{
 			id: 0,
 			jewelry: null,
 			quantity: 1,
 			price: null,
-			specialRequests: "Không",
+			specialRequests: "",
 			notes: "",
-			project: null,
 			category: { id: 0 },
-			material: { id: 0 },
 		},
 	],
 };
@@ -159,7 +162,9 @@ const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 							<Card>
 								<Title level={4}>Chi tiết</Title>
 								<div className="flex flex-col gap-2">
+									<p>Mã đơn hàng: {id}</p>
 									<OrderDateInfo />
+									<OrderTotalPrice role="user" />
 									<OrderDetailAction />
 								</div>
 							</Card>

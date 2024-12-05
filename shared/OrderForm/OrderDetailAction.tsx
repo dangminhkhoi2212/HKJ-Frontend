@@ -5,9 +5,13 @@ import React, { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { useRouterCustom } from "@/hooks";
-import { routesUser } from "@/routes";
+import { useAccountStore } from "@/providers";
+import { routesManager, routesUser } from "@/routes";
 import { orderService } from "@/services";
+import notificationService from "@/services/notificationService";
 import { TStatus } from "@/types";
+import { TNotificationIcon } from "@/types/notificationIcon";
+import { NotificationType } from "@/types/notificationType";
 import { useMutation } from "@tanstack/react-query";
 
 type Props = { isPending?: boolean; role?: "user" | "manager" };
@@ -41,23 +45,31 @@ const OrderDetailAction: React.FC<Props> = ({ isPending, role = "user" }) => {
 	const [modelDelete, setModelDelete] = useState<boolean>(false);
 	const [modelRecive, setModelRecive] = useState<boolean>(false);
 	const order = getValues();
+	const account = useAccountStore((state) => state.account);
 	const router = useRouterCustom().router;
 	const message = App.useApp().message;
 	const RenderButton = () => {
 		if (role === "manager") {
-			switch (order?.status) {
-				case TStatus.NEW: {
-					return (
-						<div className="grid grid-cols-2 gap-4">
-							<CancelButton setModelDelete={setModelDelete} />
-							<UpdateButton />
-						</div>
-					);
-				}
-				case TStatus.IN_PROCESS: {
-					return <UpdateButton />;
-				}
+			// switch (order?.status) {
+			// case TStatus.NEW: {
+			if (
+				order?.status === TStatus.CANCEL ||
+				order.status === TStatus.COMPLETED ||
+				order.status === TStatus.DELIVERED
+			) {
+				return;
 			}
+			return (
+				<div className="grid grid-cols-2 gap-4">
+					<CancelButton setModelDelete={setModelDelete} />
+					<UpdateButton />
+				</div>
+			);
+			// }
+			// case TStatus.IN_PROCESS: {
+			// 	return <UpdateButton />;
+			// }
+			// }
 		} else {
 			if (order?.status === TStatus.NEW) {
 				if (!order.id) {
@@ -78,7 +90,28 @@ const OrderDetailAction: React.FC<Props> = ({ isPending, role = "user" }) => {
 			}),
 		onSuccess: () => {
 			message.success("Đã hủy đơn hàng");
-			router.push(`${routesUser.order}?status=${TStatus.CANCEL}`);
+			if (role === "manager") {
+				notificationService.createNotification({
+					content: `Đơn hàng ${order.id} của bạn đã được hủy.`,
+					sender_id: account?.id!,
+					receiver_id: order.customer.id,
+					icon: TNotificationIcon.CANCEL,
+					type: NotificationType.USER,
+					url:
+						routesUser.orderDetail(order.id) +
+						`?status=${TStatus.CANCEL}`,
+				});
+				router.push(`${routesManager.order}?status=${TStatus.CANCEL}`);
+			} else if (role === "user") {
+				notificationService.createNotification({
+					content: `${account?.firstName} ${account?.lastName} đã hủy đơn hàng ${order.id}.`,
+					sender_id: account?.id!,
+					icon: TNotificationIcon.CANCEL,
+					type: NotificationType.MANAGER,
+					url: routesManager.updateOrder(order.id),
+				});
+				router.push(`${routesUser.order}?status=${TStatus.CANCEL}`);
+			}
 		},
 		onError: () => {
 			message.error("Đã có lỗi xảy ra. Vui lòng thử lại");
@@ -93,6 +126,13 @@ const OrderDetailAction: React.FC<Props> = ({ isPending, role = "user" }) => {
 			}),
 		onSuccess: () => {
 			message.success("Đã nhận hàng");
+			notificationService.createNotification({
+				content: `${account?.firstName} ${account?.lastName} đã nhận đơn hàng ${order.id}.`,
+				sender_id: account?.id!,
+				icon: TNotificationIcon.DELIVERED,
+				type: NotificationType.MANAGER,
+				url: routesManager.updateOrder(order.id),
+			});
 			router.push(`${routesUser.order}?status=${TStatus.DELIVERED}`);
 		},
 		onError: () => {

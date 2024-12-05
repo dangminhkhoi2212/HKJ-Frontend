@@ -1,242 +1,262 @@
-import { UploadFile } from 'antd/lib';
+import { UploadFile } from "antd/lib";
 
-import { createClient } from '@supabase/supabase-js';
+import { getSupbaseInstance } from "@/config";
 
 // Types
-type FolderName = "materials" | "projects" | "orders" | "tasks"|'jewelry-models';
+type FolderName =
+	| "materials"
+	| "projects"
+	| "orders"
+	| "tasks"
+	| "jewelry-models";
 
 interface UploadResult {
-  id: string;
-  path: string;
-  fullPath: string;
-  publicUrl: string;
+	id: string;
+	path: string;
+	fullPath: string;
+	publicUrl: string;
 }
 
 interface StorageConfig {
-  bucket: string;
-  defaultContentType: string;
+	bucket: string;
+	defaultContentType: string;
 }
 
 class SupabaseStorageService {
-  private client;
-  private config: StorageConfig;
+	client;
+	private config: StorageConfig;
+	private static instance: SupabaseStorageService;
+	constructor() {
+		this.client = getSupbaseInstance();
+		this.config = {
+			bucket: "images",
+			defaultContentType: "image/png",
+		};
+	}
+	public static getInstance(): SupabaseStorageService {
+		if (!SupabaseStorageService.instance) {
+			SupabaseStorageService.instance = new SupabaseStorageService();
+		}
+		return SupabaseStorageService.instance;
+	}
+	/**
+	 * Generates a unique filename with extension
+	 */
+	private generateFileName(originalName: string): string {
+		const extension = originalName.split(".").pop() || "png";
+		return `${Date.now()}.${extension}`;
+	}
 
-  constructor() {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+	/**
+	 * Creates a full path for storage
+	 */
+	private createPath(folder: string, fileName: string): string {
+		return `${folder}/${fileName}`.replace(/\/+/g, "/");
+	}
+	private createPathByUrl(folder: string, url: string) {
+		const name = url.split("/")[-1];
+		return `${folder}/${name}`.replace(/\/+/g, "/");
+	}
+	/**
+	 * Gets public URL for a file
+	 */
+	private async getPublicUrl(path: string): Promise<string> {
+		const {
+			data: { publicUrl },
+		} = await this.client.storage
+			.from(this.config.bucket)
+			.getPublicUrl(path);
+		return publicUrl;
+	}
 
-    if (!supabaseUrl || !supabaseKey) {
-      throw new Error("Supabase credentials are not properly configured");
-    }
+	/**
+	 * Upload a file to Supabase storage
+	 */
+	async uploadFile(file: File, folder: string): Promise<UploadResult> {
+		try {
+			const fileName = this.generateFileName(file.name);
+			const path = this.createPath(folder, fileName);
+			const fileContent = await file.arrayBuffer();
 
-    this.client = createClient(supabaseUrl, supabaseKey);
-    this.config = {
-      bucket: "images",
-      defaultContentType: "image/png",
-    };
-  }
+			const { data, error } = await this.client.storage
+				.from(this.config.bucket)
+				.upload(path, fileContent, {
+					contentType: file.type || this.config.defaultContentType,
+					cacheControl: "3600",
+					upsert: false,
+				});
 
-  /**
-   * Generates a unique filename with extension
-   */
-  private generateFileName(originalName: string): string {
-    const extension = originalName.split(".").pop() || "png";
-    return `${Date.now()}.${extension}`;
-  }
+			if (error) throw new Error(`Upload failed: ${error.message}`);
+			if (!data) throw new Error("Upload failed: No data returned");
 
-  /**
-   * Creates a full path for storage
-   */
-  private createPath(folder: string, fileName: string): string {
-    return `${folder}/${fileName}`.replace(/\/+/g, "/");
-  }
-  private createPathByUrl(folder: string, url: string) {
-    const name = url.split("/")[-1];
-    return `${folder}/${name}`.replace(/\/+/g, "/");
-  }
-  /**
-   * Gets public URL for a file
-   */
-  private async getPublicUrl(path: string): Promise<string> {
-    const {
-      data: { publicUrl },
-    } = await this.client.storage.from(this.config.bucket).getPublicUrl(path);
-    return publicUrl;
-  }
+			const publicUrl = await this.getPublicUrl(path);
 
-  /**
-   * Upload a file to Supabase storage
-   */
-  async uploadFile(file: File, folder: string): Promise<UploadResult> {
-    try {
-      const fileName = this.generateFileName(file.name);
-      const path = this.createPath(folder, fileName);
-      const fileContent = await file.arrayBuffer();
+			return {
+				id: data.id,
+				path: data.path,
+				fullPath: `${this.config.bucket}/${data.path}`,
+				publicUrl,
+			};
+		} catch (error) {
+			console.error("File upload error:", error);
+			throw this.handleError(error);
+		}
+	}
 
-      const { data, error } = await this.client.storage
-        .from(this.config.bucket)
-        .upload(path, fileContent, {
-          contentType: file.type || this.config.defaultContentType,
-          cacheControl: "3600",
-          upsert: false,
-        });
+	/**
+	 * Extracts the filename from a path
+	 * @param path the path to extract the filename from
+	 * @returns the filename, or an empty string if no filename is present
+	 */
+	private getFileNameFromPath(path: string): string {
+		return path.split("/").pop() || "";
+	}
 
-      if (error) throw new Error(`Upload failed: ${error.message}`);
-      if (!data) throw new Error("Upload failed: No data returned");
+	/**
+	 * Removes leading and trailing slashes from a path
+	 * @param path the path to normalize
+	 * @returns the normalized path
+	 */
+	private normalizePath(path: string): string {
+		return path.replace(/^\/+|\/+$/g, "");
+	}
+	/**
+	 * Delete images from a folder that are not in the provided list
+	 */
+	async deleteImages(
+		keepImages: string[],
+		folder: string
+	): Promise<string[]> {
+		try {
+			if (!keepImages?.length) {
+				throw new Error("No image URLs provided for deletion filter");
+			}
 
-      const publicUrl = await this.getPublicUrl(path);
+			// Normalize the keep list to just filenames
+			const keepFilenames = keepImages.map((path) =>
+				this.getFileNameFromPath(path)
+			);
+			console.log("Keep filenames:", keepFilenames);
 
-      return {
-        id: data.id,
-        path: data.path,
-        fullPath: `${this.config.bucket}/${data.path}`,
-        publicUrl,
-      };
-    } catch (error) {
-      console.error("File upload error:", error);
-      throw this.handleError(error);
-    }
-  }
+			const { data: files, error: listError } = await this.client.storage
+				.from(this.config.bucket)
+				.list(this.normalizePath(folder));
 
-  /**
-   * Extracts the filename from a path
-   * @param path the path to extract the filename from
-   * @returns the filename, or an empty string if no filename is present
-   */
-  private getFileNameFromPath(path: string): string {
-    return path.split("/").pop() || "";
-  }
+			if (listError) throw listError;
+			if (!files) return [];
 
-  /**
-   * Removes leading and trailing slashes from a path
-   * @param path the path to normalize
-   * @returns the normalized path
-   */
-  private normalizePath(path: string): string {
-    return path.replace(/^\/+|\/+$/g, "");
-  }
-  /**
-   * Delete images from a folder that are not in the provided list
-   */
-  async deleteImages(keepImages: string[], folder: string): Promise<string[]> {
-    try {
-      if (!keepImages?.length) {
-        throw new Error("No image URLs provided for deletion filter");
-      }
+			console.log(
+				"Files in folder:",
+				files.map((f) => f.name)
+			);
 
-      // Normalize the keep list to just filenames
-      const keepFilenames = keepImages.map((path) =>
-        this.getFileNameFromPath(path)
-      );
-      console.log("Keep filenames:", keepFilenames);
+			// Filter files to delete by comparing just the filenames
+			const imagesToDelete = files
+				.filter((file) => !keepFilenames.includes(file.name))
+				.map((file) => this.createPath(folder, file.name));
 
-      const { data: files, error: listError } = await this.client.storage
-        .from(this.config.bucket)
-        .list(this.normalizePath(folder));
+			console.log("Files to delete:", imagesToDelete);
 
-      if (listError) throw listError;
-      if (!files) return [];
+			if (!imagesToDelete.length) return [];
 
-      console.log(
-        "Files in folder:",
-        files.map((f) => f.name)
-      );
+			const { error: deleteError } = await this.client.storage
+				.from(this.config.bucket)
+				.remove(imagesToDelete);
 
-      // Filter files to delete by comparing just the filenames
-      const imagesToDelete = files
-        .filter((file) => !keepFilenames.includes(file.name))
-        .map((file) => this.createPath(folder, file.name));
+			if (deleteError) throw deleteError;
 
-      console.log("Files to delete:", imagesToDelete);
+			return imagesToDelete;
+		} catch (error) {
+			console.error("Image deletion error:", error);
+			throw this.handleError(error);
+		}
+	}
+	async deleteOne(url: string, folder: string) {
+		await this.client.storage
+			.from("images")
+			.remove([this.createPathByUrl(folder, url)]);
+	}
+	async deleteMultiple(imageUrls: string[], folder: string) {
+		await Promise.all(
+			imageUrls.map(
+				async (url) =>
+					await this.deleteOne(
+						this.createPathByUrl(folder, url),
+						folder
+					)
+			)
+		);
+	}
+	/**
+	 * Create folder path for cover images
+	 */
+	createCoverFolder(folderName: FolderName, id: number | string): string {
+		return `${folderName}/${id}/cover`;
+	}
 
-      if (!imagesToDelete.length) return [];
+	/**
+	 * Create folder path for multiple images
+	 */
+	createImagesFolder(folderName: FolderName, id: number | string): string {
+		return `${folderName}/${id}/images`;
+	}
 
-      const { error: deleteError } = await this.client.storage
-        .from(this.config.bucket)
-        .remove(imagesToDelete);
+	/**
+	 * Standardized error handling
+	 */
+	private handleError(error: unknown): Error {
+		if (error instanceof Error) {
+			return new Error(`Storage operation failed: ${error.message}`);
+		}
+		return new Error("An unknown error occurred during storage operation");
+	}
 
-      if (deleteError) throw deleteError;
+	async uploadAnDelete(
+		keepImages: string[],
+		newImages: File[],
+		folder: string
+	): Promise<string[]> {
+		const imagesUpload = await Promise.all(
+			newImages.map(async (file) => {
+				return await this.uploadFile(file, folder);
+			})
+		);
+		console.log(
+			"🚀 ~ SupabaseStorageService ~ imagesUpload:",
+			imagesUpload
+		);
 
-      return imagesToDelete;
-    } catch (error) {
-      console.error("Image deletion error:", error);
-      throw this.handleError(error);
-    }
-  }
-  async deleteOne(url: string, folder: string) {
-    await this.client.storage
-      .from("images")
-      .remove([this.createPathByUrl(folder, url)]);
-  }
-  async deleteMultiple(imageUrls: string[], folder: string) {
-    await Promise.all(
-      imageUrls.map(
-        async (url) =>
-          await this.deleteOne(this.createPathByUrl(folder, url), folder)
-      )
-    );
-  }
-  /**
-   * Create folder path for cover images
-   */
-  createCoverFolder(folderName: FolderName, id: number | string): string {
-    return `${folderName}/${id}/cover`;
-  }
+		const keepImagesUrl = [
+			...imagesUpload.map((img) => img.publicUrl),
+			...keepImages,
+		];
+		console.log(
+			"🚀 ~ SupabaseStorageService ~ keepImagesUrl:",
+			keepImagesUrl
+		);
+		await this.deleteImages(keepImagesUrl, folder);
+		return [...imagesUpload.map((img) => img.publicUrl)];
+	}
+	async uploadMultiple(
+		images: UploadFile[],
+		folder: string
+	): Promise<string[]> {
+		const urls = await Promise.all(
+			images.map(async (file) => {
+				return await this.uploadFile(this.convertFile(file), folder);
+			})
+		);
+		return urls.map((img) => img.publicUrl);
+	}
 
-  /**
-   * Create folder path for multiple images
-   */
-  createImagesFolder(folderName: FolderName, id: number | string): string {
-    return `${folderName}/${id}/images`;
-  }
-
-  /**
-   * Standardized error handling
-   */
-  private handleError(error: unknown): Error {
-    if (error instanceof Error) {
-      return new Error(`Storage operation failed: ${error.message}`);
-    }
-    return new Error("An unknown error occurred during storage operation");
-  }
-
-  async uploadAnDelete(
-    keepImages: string[],
-    newImages: File[],
-    folder: string
-  ): Promise<string[]> {
-    const imagesUpload = await Promise.all(
-      newImages.map(async (file) => {
-        return await this.uploadFile(file, folder);
-      })
-    );
-    console.log("🚀 ~ SupabaseStorageService ~ imagesUpload:", imagesUpload);
-
-    const keepImagesUrl = [
-      ...imagesUpload.map((img) => img.publicUrl),
-      ...keepImages,
-    ];
-    console.log("🚀 ~ SupabaseStorageService ~ keepImagesUrl:", keepImagesUrl);
-    await this.deleteImages(keepImagesUrl, folder);
-    return [...imagesUpload.map((img) => img.publicUrl)];
-  }
-    async uploadMultiple(images:UploadFile[], folder: string):Promise<string[]> {
-        const urls= await Promise.all(
-            images.map(async (file) => {
-                return await this.uploadFile(this.convertFile(file), folder);
-            })
-        )
-        return urls.map((img) => img.publicUrl)
-    }
-
-  convertFile(file: UploadFile): File {
-    return new File([file.originFileObj!], file.name, {
-      type: file.type,
-    });
-  }
+	convertFile(file: UploadFile): File {
+		return new File([file.originFileObj!], file.name, {
+			type: file.type,
+		});
+	}
 }
 
 // Create and export a singleton instance
-const supabaseService = new SupabaseStorageService();
+const supabaseService = SupabaseStorageService.getInstance();
 
 export default supabaseService;

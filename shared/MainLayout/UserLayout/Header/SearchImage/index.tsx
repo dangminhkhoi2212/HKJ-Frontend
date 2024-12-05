@@ -15,7 +15,7 @@ const SearchImage: React.FC<Props> = ({ ...props }) => {
 				placeholder="Tìm kiếm"
 				allowClear={true}
 				size="small"
-				className={"w-72 "}
+				className={"max-w-72 "}
 				{...props}
 			/>
 			<ImageSearchButton />

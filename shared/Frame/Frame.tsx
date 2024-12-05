@@ -23,7 +23,7 @@ const Frame: React.FC<{
 				</div>
 				{buttons && <div className="">{buttons}</div>}
 			</div>
-			<div className={cn("px-8 py-4", classsName)}>{children}</div>
+			<div className={cn("md:px-8 md:py-4", classsName)}>{children}</div>
 		</div>
 	);
 };

@@ -1,7 +1,8 @@
 import dayjs from "dayjs";
 
+import { getSupbaseInstance } from "@/config";
 import { KEY_CONST } from "@/const";
-import { createClient } from "@supabase/supabase-js";
+import { TJewelry } from "@/types";
 
 interface StorageConfig {
 	bucket: string;
@@ -19,21 +20,9 @@ const formatDateType = (time: string, type: "day" | "month" | "year") => {
 };
 class StatisticService {
 	private client;
-	private config: StorageConfig;
 
 	constructor() {
-		const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-		const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-		if (!supabaseUrl || !supabaseKey) {
-			throw new Error("Supabase credentials are not properly configured");
-		}
-
-		this.client = createClient(supabaseUrl, supabaseKey);
-		this.config = {
-			bucket: "images",
-			defaultContentType: "image/png",
-		};
+		this.client = getSupbaseInstance();
 	}
 	async getOrderQuantityByTime(
 		input: string,
@@ -176,6 +165,22 @@ class StatisticService {
 		results["revenue"] = total || 0;
 
 		return results;
+	}
+	async getTopProductOrder(limit: number = 5): Promise<TJewelry[]> {
+		const reponse = await this.client.rpc("get_product_trending", {
+			limit_count: limit,
+		});
+		const data = reponse.data;
+		const dataConvert = data?.map((item: any) => {
+			return {
+				id: item.id,
+				name: item.name,
+				coverImage: item["cover_image"],
+				price: item.price,
+			};
+		});
+
+		return dataConvert;
 	}
 }
 const statisticService = new StatisticService();

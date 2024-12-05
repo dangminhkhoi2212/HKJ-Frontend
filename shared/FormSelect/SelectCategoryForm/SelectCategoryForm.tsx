@@ -1,12 +1,12 @@
 "use client";
-import { Select, Space } from 'antd';
-import { SelectProps } from 'antd/lib';
-import React, { memo, useEffect, useState } from 'react';
+import { Select, Space } from "antd";
+import { SelectProps } from "antd/lib";
+import React, { memo, useEffect, useState } from "react";
 
-import categoryService from '@/services/categoryService';
-import { LabelCustom } from '@/shared/FormCustom/InputCustom';
-import { TCategory } from '@/types';
-import { useQuery } from '@tanstack/react-query';
+import categoryService from "@/services/categoryService";
+import { LabelCustom } from "@/shared/FormCustom/InputCustom";
+import { TCategory } from "@/types";
+import { useQuery } from "@tanstack/react-query";
 
 type TProps = SelectProps & {
 	hasLabel?: boolean;
@@ -16,7 +16,12 @@ const SelectCategoryForm: React.FC<TProps> = ({
 	...props
 }) => {
 	const [data, setData] = useState<SelectProps["options"]>([]);
-	const [query] = useState({ page: 0, size: 100 });
+	const [query] = useState({
+		page: 0,
+		size: 1000,
+		sort: "name,asc",
+		isDeleted: { equals: false },
+	});
 
 	// Using useQuery to fetch categories once
 	const {

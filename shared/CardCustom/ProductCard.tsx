@@ -21,7 +21,7 @@ const ProductCard: React.FC<Props> = ({ jewelry }) => {
 						<Image
 							alt={jewelry.name}
 							src={jewelry.coverImage}
-							sizes="150px"
+							sizes="250px"
 							fill
 							className="absolute object-cover" // Ensure the image covers the space without stretching
 						/>

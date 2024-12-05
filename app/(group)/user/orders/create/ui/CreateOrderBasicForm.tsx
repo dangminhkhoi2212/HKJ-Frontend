@@ -1,37 +1,32 @@
 "use client";
-import { App, Card, Col, Form, Row, Spin, Typography } from "antd";
-import { UploadFile } from "antd/lib";
-import dayjs from "dayjs";
-import React, { useEffect, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import * as yup from "yup";
+import { App, Button, Card, Col, Form, Row, Spin, Typography } from 'antd';
+import { UploadFile } from 'antd/lib';
+import dayjs from 'dayjs';
+import { ArrowLeftRight } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
+import * as yup from 'yup';
 
-import { KEY_CONST } from "@/const";
-import { useRouterCustom } from "@/hooks";
-import { useAccountStore } from "@/providers";
-import { orderImageService, orderService } from "@/services";
-import orderItemService from "@/services/orderItemService";
-import supabaseService from "@/services/supabaseService";
-import { AccountDisplay } from "@/shared/FormSelect/AccountForm";
-import {
-	OrderDateInfo,
-	OrderItemForm,
-	OrderTotalPrice,
-} from "@/shared/OrderForm";
-import OrderDetailAction from "@/shared/OrderForm/OrderDetailAction";
-import {
-	TCartItemSession,
-	TJewelry,
-	TOrderCreate,
-	TOrderImageCreate,
-	TStatus,
-} from "@/types";
-import { TOrderItemCreate } from "@/types/orderItemType";
-import orderValidation from "@/validations/orderValidation";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useMutation } from "@tanstack/react-query";
+import { KEY_CONST } from '@/const';
+import { useRouterCustom } from '@/hooks';
+import { useAccountStore } from '@/providers';
+import { routesManager, routesUser } from '@/routes';
+import { orderImageService, orderService } from '@/services';
+import notificationService from '@/services/notificationService';
+import orderItemService from '@/services/orderItemService';
+import supabaseService from '@/services/supabaseService';
+import { AccountDisplay } from '@/shared/FormSelect/AccountForm';
+import { OrderDateInfo, OrderItemForm, OrderTotalPrice } from '@/shared/OrderForm';
+import OrderDetailAction from '@/shared/OrderForm/OrderDetailAction';
+import { TCartItemSession, TJewelry, TOrderCreate, TOrderImageCreate, TStatus } from '@/types';
+import { TNotificationIcon } from '@/types/notificationIcon';
+import { NotificationType } from '@/types/notificationType';
+import { TOrderItemCreate } from '@/types/orderItemType';
+import orderValidation from '@/validations/orderValidation';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useMutation } from '@tanstack/react-query';
 
-import { createOrderStore } from "../store";
+import { createOrderStore } from '../store';
 
 const { Title } = Typography;
 const schema = orderValidation.orderSchema.pick([
@@ -56,7 +51,7 @@ const initValues: TFormOrder = {
 			id: 0,
 			quantity: 1,
 			price: null,
-			specialRequests: "Không",
+			specialRequests: "",
 			notes: "",
 			jewelry: null,
 			category: { id: 0 },
@@ -73,8 +68,8 @@ const CreateOrderBasicForm: React.FC<Props> = ({}) => {
 	>(null);
 	const { searchParams } = useRouterCustom();
 	const account = useAccountStore((state) => state.account);
-	const [images, setImages] = useState<UploadFile[] | null>(null);
 	const next = createOrderStore((state) => state.next);
+	const router = useRouterCustom().router;
 	const [products, setProducts] = useState<TJewelry[] | null>(null);
 	const pId: string | null = searchParams.get("pId");
 	const quantity: number =
@@ -84,12 +79,13 @@ const CreateOrderBasicForm: React.FC<Props> = ({}) => {
 	const methods = useForm<TFormOrder>({
 		defaultValues: { ...initValues, customer: { id: account?.id } },
 		resolver: yupResolver(schema),
-		mode: "onChange",
+		mode: "all",
 	});
 	const {
 		setValue,
 		handleSubmit,
 		formState: { errors },
+		reset,
 	} = methods;
 	console.log("🚀 ~ errors:", errors);
 
@@ -121,7 +117,7 @@ const CreateOrderBasicForm: React.FC<Props> = ({}) => {
 						product: { ...item, id: item.id },
 						quantity: item.quantity,
 						price: item.price,
-						specialRequests: "Không",
+						specialRequests: "",
 						notes: "",
 						project: null,
 						material: null,
@@ -184,11 +180,19 @@ const CreateOrderBasicForm: React.FC<Props> = ({}) => {
 	const createMutation = useMutation({
 		mutationFn: async (data: TFormOrder) => {
 			const order = await createOrder(data);
-			return await Promise.all([await createOrderItem(data, order.id)]);
+			await Promise.all([await createOrderItem(data, order.id)]);
+			return order;
 		},
-		onSuccess: () => {
-			message.success("Đã tạo đơn hàng thành công");
-			next();
+		onSuccess: (data) => {
+			notificationService.createNotification({
+				content: `${account?.firstName} ${account?.lastName} vừa đặt một đơn hàng.`,
+				sender_id: account?.id!,
+				icon: TNotificationIcon.PLACE,
+				type: NotificationType.MANAGER,
+				url: routesManager.updateOrder(data.id),
+			});
+			message.success("Bạn đã đặt hàng thành công.");
+			router.push(routesUser.order);
 		},
 		onError(error) {
 			message.error("Tạo đơn hàng thất bại. Xin thử lại");
@@ -196,21 +200,43 @@ const CreateOrderBasicForm: React.FC<Props> = ({}) => {
 	});
 	const test = (data: TFormOrder) => {
 		console.log("🚀 ~ test ~ data:", data);
+		notificationService.createNotification({
+			content: `${account?.firstName} ${account?.lastName} vừa đặt hàng thành công`,
+			sender_id: account?.id!,
+			icon: TNotificationIcon.PLACE,
+			type: NotificationType.USER,
+			url: `/manager/orders`,
+		});
 		// createOrderItem(data, 1);
 	};
 
+	const handleConvertOrder = () => {
+		if (typeof window !== undefined) {
+			window.sessionStorage.removeItem(KEY_CONST.PLACE_ORDER_PRODUCT);
+		}
+		reset(initValues);
+	};
 	return (
 		<Spin spinning={createMutation.isPending}>
 			<FormProvider {...methods}>
 				<Form
 					layout="vertical"
-					onFinish={handleSubmit(
-						(data) => createMutation.mutate(data)
-						// test(data)
-					)}
+					onFinish={handleSubmit((data) => {
+						createMutation.mutate(data);
+
+						// test(data);
+					})}
 					className="flex flex-col gap-4"
 				>
 					{account && <AccountDisplay account={account} />}
+					<div>
+						<Button
+							onClick={handleConvertOrder}
+							icon={<ArrowLeftRight size={14} />}
+						>
+							Đặt hàng theo yêu cầu
+						</Button>
+					</div>
 					<Row gutter={[16, 16]}>
 						<Col span={16}>
 							<OrderItemForm products={cartItemSession} />
@@ -219,7 +245,7 @@ const CreateOrderBasicForm: React.FC<Props> = ({}) => {
 							<Card>
 								<Title level={4}>Chi tiết</Title>
 								<div className="flex flex-col gap-2">
-									<OrderDateInfo />
+									<OrderDateInfo showStatus={false} />
 									<OrderTotalPrice role={"user"} />
 									<OrderDetailAction />
 								</div>

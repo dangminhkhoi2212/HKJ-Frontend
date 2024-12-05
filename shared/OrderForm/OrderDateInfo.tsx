@@ -8,12 +8,15 @@ import { formatUtil, tagMapperUtil } from "@/utils";
 import { InputCustom, LabelCustom } from "../FormCustom/InputCustom";
 import { SelectStatusForm } from "../FormSelect";
 
-type Props = { allowManagerChange?: boolean };
+type Props = { allowManagerChange?: boolean; showStatus?: boolean };
 
 const { formatDate } = formatUtil;
 const { TStatusColorMapper } = tagMapperUtil;
 const ignoreStatus = [TStatus.DELIVERED, TStatus.CANCEL];
-const OrderDateInfo: React.FC<Props> = ({ allowManagerChange }) => {
+const OrderDateInfo: React.FC<Props> = ({
+	allowManagerChange,
+	showStatus = true,
+}) => {
 	const { getValues, control } = useFormContext();
 	const [ignoreStatus, setIgnoreStatus] = useState<TStatus[]>([
 		TStatus.DELIVERED,
@@ -32,30 +35,32 @@ const OrderDateInfo: React.FC<Props> = ({ allowManagerChange }) => {
 
 	return (
 		<div className="flex flex-col gap-2">
-			<Controller
-				name="status"
-				control={control}
-				render={({ field }) => (
-					<div>
-						{allowManagerChange ? (
-							<Space direction="vertical">
-								<LabelCustom label="Trạng thái" />
-								<SelectStatusForm
-									{...field}
-									size="large"
-									allowClear={false}
-									ignoreStatus={ignoreStatus}
-								/>
-							</Space>
-						) : (
-							<p>
-								Trạng thái đơn hàng:{" "}
-								{TStatusColorMapper(order.status)}
-							</p>
-						)}
-					</div>
-				)}
-			/>
+			{showStatus && (
+				<Controller
+					name="status"
+					control={control}
+					render={({ field }) => (
+						<div>
+							{allowManagerChange ? (
+								<Space direction="vertical">
+									<LabelCustom label="Trạng thái" />
+									<SelectStatusForm
+										{...field}
+										size="large"
+										allowClear={false}
+										ignoreStatus={ignoreStatus}
+									/>
+								</Space>
+							) : (
+								<p>
+									Trạng thái đơn hàng:{" "}
+									{TStatusColorMapper(order.status)}
+								</p>
+							)}
+						</div>
+					)}
+				/>
+			)}
 
 			<p>
 				Ngày đặt:{" "}

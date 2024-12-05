@@ -14,6 +14,7 @@ const orderSchema = yup.object({
 	orderDate: yup.string().required(REQUIRED_FIELD_MESSAGE),
 	expectedDeliveryDate: yup.string().required(REQUIRED_FIELD_MESSAGE),
 	actualDeliveryDate: yup.string().nullable(),
+
 	status: yup
 		.mixed<TStatus>()
 		.oneOf(Object.values(TStatus) as TStatus[])

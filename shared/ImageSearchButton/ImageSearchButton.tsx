@@ -42,9 +42,9 @@ const ImageSearchButton: React.FC = () => {
 						return (
 							<div className="flex flex-col justify-end gap-4">
 								<div>
-									<Tag color="yellow">
-										Hãy chọn rõ chi tiết để nâng cao độ
-										chính xác khi tìm kiếm
+									<Tag color="blue">
+										Đặt mẫu vừa với khung để nhận được kết
+										quả tương đồng nhất.
 									</Tag>
 								</div>
 								<div className="flex justify-end gap-4">
@@ -59,6 +59,7 @@ const ImageSearchButton: React.FC = () => {
 				rotationSlider
 				zoomSlider
 				showReset
+				resetText="Khôi phục"
 				maxZoom={10}
 			>
 				<Upload beforeUpload={beforeUpload} showUploadList={false}>

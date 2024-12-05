@@ -1,13 +1,13 @@
-import { Button, Descriptions } from 'antd';
-import { DescriptionsProps } from 'antd/lib';
-import { ChevronsRight } from 'lucide-react';
-import Link from 'next/link';
-import React from 'react';
+import { Button, Descriptions } from "antd";
+import { DescriptionsProps } from "antd/lib";
+import { ChevronsRight } from "lucide-react";
+import Link from "next/link";
+import React from "react";
 
-import { routesUser } from '@/routes';
-import { OrderProductCard } from '@/shared/CardCustom';
-import { TOrder } from '@/types';
-import { formatUtil, tagMapperUtil } from '@/utils';
+import { routesUser } from "@/routes";
+import { OrderProductCard } from "@/shared/CardCustom";
+import { TOrder } from "@/types";
+import { formatUtil, tagMapperUtil } from "@/utils";
 
 type Props = { order: TOrder };
 const { TStatusColorMapper } = tagMapperUtil;
@@ -18,12 +18,6 @@ const OrderCard: React.FC<Props> = ({ order }) => {
 			key: "orderDate",
 			label: "Ngày đặt",
 			children: formatDate(order.orderDate),
-			span: 1,
-		},
-		{
-			key: "catergory",
-			label: "Loại trang sức",
-			children: order?.category?.name,
 			span: 1,
 		},
 

@@ -58,7 +58,8 @@ const authOptions: NextAuthOptions = {
 				token.decoded = jwtDecode(account.access_token);
 				token.access_token = account.access_token;
 				token.id_token = account.id_token;
-				token.expires_at = account.expires_at;
+				token.expires_at =
+					Math.floor(Date.now() / 1000) + account.expires_in;
 				token.role = convertReamlRoles(
 					token.decoded.realm_access.roles
 				)[0];

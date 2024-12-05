@@ -13,8 +13,14 @@ const orderItemSchema = yup.object({
 		.number()
 		.min(1, REQUIRED_FIELD_MESSAGE)
 		.required(REQUIRED_FIELD_MESSAGE),
-	specialRequests: yup.string().max(5000, "Tối đa 5000 kí tự"),
-	notes: yup.string().max(5000, "Tối đa 5000 kí tự").nullable(),
+	specialRequests: yup
+		.string()
+		.max(5000, "Tối đa 5000 kí tự")
+		.required(REQUIRED_FIELD_MESSAGE),
+	notes: yup
+		.string()
+		.max(5000, "Tối đa 5000 kí tự")
+		.nullable(REQUIRED_FIELD_MESSAGE),
 	price: priceValidation(),
 
 	jewelry: objectIdNullable("jewelry"),

@@ -5,7 +5,7 @@ import { QUERY_CONST } from "@/const";
 import { materialService } from "@/services";
 import categoryService from "@/services/categoryService";
 import queryClientUtil from "@/utils/queryClientUtil";
-import { dehydrate } from "@tanstack/react-query";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
 import {
 	CategoryIntro,
@@ -33,13 +33,15 @@ const hydrate = async () => {
 };
 const UserHomePage: React.FC<{}> = () => {
 	return (
-		<Space direction="vertical" className="flex" size={"large"}>
-			<UserCarousel />
-			<Materials />
-			<ProductTrending />
-			<CategoryIntro />
-			<StorePicture />
-		</Space>
+		<HydrationBoundary state={hydrate()}>
+			<Space direction="vertical" className="flex" size={"large"}>
+				<UserCarousel />
+				<Materials />
+				<ProductTrending />
+				<CategoryIntro />
+				<StorePicture />
+			</Space>
+		</HydrationBoundary>
 	);
 };
 
