@@ -40,6 +40,7 @@ const UserNotificationButton: React.FC<Props> = () => {
 					notificationService.getNotifications({
 						accountId: account?.id!,
 					}),
+				staleTime: 0,
 				enabled: false,
 			},
 			{
@@ -48,6 +49,7 @@ const UserNotificationButton: React.FC<Props> = () => {
 					notificationService.getNotificationsCount({
 						accountId: account?.id!,
 					}),
+				staleTime: 0,
 				enabled: false,
 			},
 		],
@@ -62,6 +64,7 @@ const UserNotificationButton: React.FC<Props> = () => {
 		payload: RealtimePostgresInsertPayload<any>
 	) => {
 		const newNotification: TNotification = payload.new;
+		console.log("🚀 ~ newNotification:", newNotification);
 
 		if (
 			newNotification.receiver_id === account?.id &&
@@ -85,7 +88,11 @@ const UserNotificationButton: React.FC<Props> = () => {
 			.on(
 				"postgres_changes",
 				{ event: "UPDATE", schema: "public", table: "notifications" },
-				() => refetchNotificationCount()
+				(payload) => {
+					console.log("🚀 ~ useEffect ~ payload:", payload);
+
+					refetchNotificationCount();
+				}
 			)
 			.subscribe();
 
@@ -102,9 +109,8 @@ const UserNotificationButton: React.FC<Props> = () => {
 	}, [initNotifications]);
 
 	useEffect(() => {
-		if (notificationsCount) {
-			setNotificationsCount(notificationsCount);
-		}
+		setNotificationsCount(notificationsCount ?? 0);
+		console.log("🚀 ~ useEffect ~ notificationsCount:", notificationsCount);
 	}, [notificationsCount]);
 
 	return (

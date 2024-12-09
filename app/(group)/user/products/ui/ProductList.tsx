@@ -12,7 +12,7 @@ import { imageSearchAIStore } from "@/stores";
 import { TJewelry } from "@/types";
 import { useQueries } from "@tanstack/react-query";
 
-import { projectStore } from "../store/ProdcutStore";
+import { projectStore } from "../store/productStore";
 
 const { initPagination } = QUERY_CONST;
 const ProductList: React.FC = () => {

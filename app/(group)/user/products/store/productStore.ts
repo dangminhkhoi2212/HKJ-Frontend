@@ -11,7 +11,7 @@ type TState = {
 };
 const initValues: TState = {
 	query: {
-		...QUERY_CONST.defaultQuery,
+		...{ ...QUERY_CONST.defaultQuery, sort: "createdDate,desc" },
 		isDeleted: { equals: false },
 		active: { equals: true },
 		size: 30,

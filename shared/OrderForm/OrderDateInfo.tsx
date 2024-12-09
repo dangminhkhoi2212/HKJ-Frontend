@@ -1,6 +1,6 @@
 import { Space, Tag } from "antd";
 import React, { useEffect, useState } from "react";
-import { Controller, useFormContext, useWatch } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 import { TStatus } from "@/types";
 import { formatUtil, tagMapperUtil } from "@/utils";
@@ -17,7 +17,7 @@ const OrderDateInfo: React.FC<Props> = ({
 	allowManagerChange,
 	showStatus = true,
 }) => {
-	const { getValues, control } = useFormContext();
+	const { getValues, control, setValue } = useFormContext();
 	const [ignoreStatus, setIgnoreStatus] = useState<TStatus[]>([
 		TStatus.DELIVERED,
 		TStatus.CANCEL,
@@ -36,30 +36,28 @@ const OrderDateInfo: React.FC<Props> = ({
 	return (
 		<div className="flex flex-col gap-2">
 			{showStatus && (
-				<Controller
-					name="status"
-					control={control}
-					render={({ field }) => (
-						<div>
-							{allowManagerChange ? (
-								<Space direction="vertical">
-									<LabelCustom label="Trạng thái" />
-									<SelectStatusForm
-										{...field}
-										size="large"
-										allowClear={false}
-										ignoreStatus={ignoreStatus}
-									/>
-								</Space>
-							) : (
-								<p>
-									Trạng thái đơn hàng:{" "}
-									{TStatusColorMapper(order.status)}
-								</p>
-							)}
-						</div>
+				<div>
+					{allowManagerChange ? (
+						<Space direction="vertical">
+							<LabelCustom label="Trạng thái" />
+
+							<SelectStatusForm
+								size="large"
+								onChange={(value) => {
+									setValue("status", value);
+								}}
+								value={order.status}
+								allowClear={false}
+								ignoreStatus={ignoreStatus}
+							/>
+						</Space>
+					) : (
+						<p>
+							Trạng thái đơn hàng:{" "}
+							{TStatusColorMapper(order.status)}
+						</p>
 					)}
-				/>
+				</div>
 			)}
 
 			<p>

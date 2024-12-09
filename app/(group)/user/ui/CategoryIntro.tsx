@@ -46,7 +46,7 @@ const CategoryIntro: React.FC = () => {
 	});
 
 	return (
-		<Frame title="Sản phẩm nổi bật">
+		<Frame title="Sản phẩm theo loại">
 			<div className="flex flex-col gap-6 sm:mx-10 md:mx-20">
 				{jewelryQueries.map((query, index) => (
 					<Card

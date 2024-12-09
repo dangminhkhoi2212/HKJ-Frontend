@@ -9,12 +9,16 @@ import { useAccountStore } from "@/providers";
 import { routesManager, routesUser } from "@/routes";
 import { orderService } from "@/services";
 import notificationService from "@/services/notificationService";
-import { TStatus } from "@/types";
+import { TOrder, TStatus } from "@/types";
 import { TNotificationIcon } from "@/types/notificationIcon";
 import { NotificationType } from "@/types/notificationType";
 import { useMutation } from "@tanstack/react-query";
 
-type Props = { isPending?: boolean; role?: "user" | "manager" };
+type Props = {
+	isPending?: boolean;
+	role?: "user" | "manager";
+	currentOrder?: TOrder;
+};
 type TForm = {};
 const UpdateButton: React.FC<{}> = () => (
 	<Button type="primary" htmlType="submit">
@@ -40,7 +44,11 @@ const ReciveButton: React.FC<{ setModelRecive: (value: boolean) => void }> = ({
 		Nhận hàng
 	</Button>
 );
-const OrderDetailAction: React.FC<Props> = ({ isPending, role = "user" }) => {
+const OrderDetailAction: React.FC<Props> = ({
+	isPending,
+	role = "user",
+	currentOrder,
+}) => {
 	const { getValues, setValue } = useFormContext();
 	const [modelDelete, setModelDelete] = useState<boolean>(false);
 	const [modelRecive, setModelRecive] = useState<boolean>(false);
@@ -53,9 +61,9 @@ const OrderDetailAction: React.FC<Props> = ({ isPending, role = "user" }) => {
 			// switch (order?.status) {
 			// case TStatus.NEW: {
 			if (
-				order?.status === TStatus.CANCEL ||
-				order.status === TStatus.COMPLETED ||
-				order.status === TStatus.DELIVERED
+				currentOrder?.status === TStatus.CANCEL ||
+				currentOrder?.status === TStatus.COMPLETED ||
+				currentOrder?.status === TStatus.DELIVERED
 			) {
 				return;
 			}
@@ -71,13 +79,13 @@ const OrderDetailAction: React.FC<Props> = ({ isPending, role = "user" }) => {
 			// }
 			// }
 		} else {
-			if (order?.status === TStatus.NEW) {
-				if (!order.id) {
-					return <PlaceButton />;
-				}
+			if (!currentOrder) {
+				return <PlaceButton />;
+			}
+			if (currentOrder?.status === TStatus.NEW) {
 				return <CancelButton setModelDelete={setModelDelete} />;
 			}
-			if (order?.status === TStatus.COMPLETED) {
+			if (currentOrder?.status === TStatus.COMPLETED) {
 				return <ReciveButton setModelRecive={setModelRecive} />;
 			}
 		}
@@ -124,9 +132,9 @@ const OrderDetailAction: React.FC<Props> = ({ isPending, role = "user" }) => {
 				status: TStatus.DELIVERED,
 				actualDeliveryDate: dayjs().toISOString(),
 			}),
-		onSuccess: () => {
+		onSuccess: async () => {
 			message.success("Đã nhận hàng");
-			notificationService.createNotification({
+			await notificationService.createNotification({
 				content: `${account?.firstName} ${account?.lastName} đã nhận đơn hàng ${order.id}.`,
 				sender_id: account?.id!,
 				icon: TNotificationIcon.DELIVERED,
@@ -163,6 +171,7 @@ const OrderDetailAction: React.FC<Props> = ({ isPending, role = "user" }) => {
 				onOk={() => handleRevice.mutate()}
 				okButtonProps={{
 					loading: handleRevice.isPending,
+					type: "primary",
 				}}
 				cancelButtonProps={{ disabled: handleRevice.isPending }}
 				okText="Đồng ý"

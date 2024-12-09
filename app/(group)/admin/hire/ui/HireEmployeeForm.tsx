@@ -1,22 +1,25 @@
 "use client";
-import { App, Button, DatePicker, Form, Space } from 'antd';
-import dayjs from 'dayjs';
-import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { App, Button, DatePicker, Form, Space } from "antd";
+import dayjs from "dayjs";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 
-import { KEY_CONST } from '@/const';
-import { hireService } from '@/services';
-import { InputNumberCustom, LabelCustom } from '@/shared/FormCustom/InputCustom';
-import NumberToWords from '@/shared/FormCustom/InputNumToWords/InputNumToWords';
-import { AccountDisplay } from '@/shared/FormSelect/AccountForm';
-import { SelectEmployeeForm } from '@/shared/FormSelect/SelectEmployeeForm';
-import { SelectePositionForm } from '@/shared/FormSelect/SelectePositionForm';
-import { TEmployee } from '@/types';
-import { THire } from '@/types/hireType';
-import { TPosition } from '@/types/postionType';
-import { hireEmployeeSchema } from '@/validations/hireEmployee';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useMutation } from '@tanstack/react-query';
+import { KEY_CONST } from "@/const";
+import { hireService } from "@/services";
+import {
+	InputNumberCustom,
+	LabelCustom,
+} from "@/shared/FormCustom/InputCustom";
+import NumberToWords from "@/shared/FormCustom/InputNumToWords/InputNumToWords";
+import { AccountDisplay } from "@/shared/FormSelect/AccountForm";
+import { SelectEmployeeForm } from "@/shared/FormSelect/SelectEmployeeForm";
+import { SelectePositionForm } from "@/shared/FormSelect/SelectePositionForm";
+import { TEmployee } from "@/types";
+import { THire } from "@/types/hireType";
+import { TPosition } from "@/types/postionType";
+import { hireEmployeeSchema } from "@/validations/hireEmployee";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useMutation } from "@tanstack/react-query";
 
 const { RangePicker } = DatePicker;
 
@@ -53,14 +56,8 @@ const HireEmployeeForm: React.FC<{}> = () => {
 	const handleHireEmployee = (data: any) => {
 		const dataMapper: THire = {
 			...data,
-			beginDate: dayjs(data.beginDate).format(),
-			endDate: dayjs(data.endDate).format(),
-			position: {
-				id: parseInt(data.position),
-			},
-			employee: {
-				id: data.employee,
-			},
+			beginDate: dayjs(data.beginDate).toISOString(),
+			endDate: dayjs(data.endDate).toISOString(),
 		} as THire;
 		createHireMutation.mutate(dataMapper);
 	};
@@ -81,6 +78,15 @@ const HireEmployeeForm: React.FC<{}> = () => {
 		setSeletedPosition(null);
 		setSelectedEmployee(null);
 		reset();
+	};
+
+	const handleSelectEmployee = (data: TEmployee) => {
+		setSelectedEmployee(data);
+		setValue("employee.id", data?.id!, { shouldValidate: true });
+	};
+	const handleSelectPosition = (data: TPosition) => {
+		setSeletedPosition(data);
+		setValue("position.id", data?.id!, { shouldValidate: true });
 	};
 
 	return (
@@ -158,7 +164,7 @@ const HireEmployeeForm: React.FC<{}> = () => {
 						<Space direction="vertical">
 							<SelectePositionForm
 								onChange={(data: TPosition) =>
-									setSeletedPosition(data)
+									handleSelectPosition(data)
 								}
 							/>
 							{selectedPosition && (
@@ -190,7 +196,7 @@ const HireEmployeeForm: React.FC<{}> = () => {
 					<Space direction="vertical" className="col-span-3 flex">
 						<SelectEmployeeForm
 							onChange={(data) => {
-								setSelectedEmployee(data);
+								handleSelectEmployee(data);
 							}}
 						/>
 						{selectedEmployee && (

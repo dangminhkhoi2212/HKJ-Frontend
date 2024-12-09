@@ -1,13 +1,13 @@
-import { Button, Divider, List, Modal, Skeleton, Space } from 'antd';
-import React, { useEffect, useState } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import { Button, Divider, List, Modal, Skeleton, Space } from "antd";
+import React, { useEffect, useState } from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
 
-import { AUTHORIZATIONS_CONST } from '@/const';
-import { userService } from '@/services';
-import { LabelCustom } from '@/shared/FormCustom/InputCustom';
-import { InputSearchCustom } from '@/shared/FormCustom/InputSearchCustom';
-import { TAccontQuery, TAccountInfo, TQuery } from '@/types';
-import { useQueries } from '@tanstack/react-query';
+import { AUTHORIZATIONS_CONST } from "@/const";
+import { userService } from "@/services";
+import { LabelCustom } from "@/shared/FormCustom/InputCustom";
+import { InputSearchCustom } from "@/shared/FormCustom/InputSearchCustom";
+import { TAccontQuery, TAccountInfo, TQuery } from "@/types";
+import { useQueries } from "@tanstack/react-query";
 
 const { AUTHORIZATIONS } = AUTHORIZATIONS_CONST;
 type TPros = {
@@ -22,6 +22,7 @@ const SelectEmployeeForm: React.FC<TPros> = ({ onChange, defaultValueId }) => {
 		role: AUTHORIZATIONS.ROLE_EMPLOYEE,
 		page: 0,
 		size: 8,
+		active: { equals: true },
 	});
 	const [employee, setEmployee] = useState<TAccountInfo | null>(null);
 	const [showModel, setShowModel] = useState<boolean>(false);
@@ -93,7 +94,7 @@ const SelectEmployeeForm: React.FC<TPros> = ({ onChange, defaultValueId }) => {
 				<div>
 					<InputSearchCustom handleSearch={handleSearch} />
 					<p className="font-medium text-xs mt-2">
-						Tổng số vị trí: {getCountQuery.data || 0}
+						Tổng số nhân viên: {getCountQuery.data || 0}
 					</p>
 					<div
 						id="scrollableDiv"

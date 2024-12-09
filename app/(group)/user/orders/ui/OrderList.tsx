@@ -5,6 +5,7 @@ import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 
 import { QUERY_CONST } from "@/const";
+import { useRouterCustom } from "@/hooks";
 import { useAccountStore } from "@/providers";
 import { routesUser } from "@/routes";
 import { cartService, orderService } from "@/services";
@@ -89,6 +90,7 @@ const OrderList: React.FC = () => {
 	const [pagination, setPagination] = useState({
 		...initPagination,
 	});
+	const { updatePathname, searchParams } = useRouterCustom();
 
 	const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
 		console.log("selectedRowKeys changed: ", newSelectedRowKeys);
@@ -177,11 +179,21 @@ const OrderList: React.FC = () => {
 		setQuery((pre) => ({ ...pre, page: 0, categoryId: { equals: value } }));
 	};
 	const handleSelectStatus = (value: any) => {
-		setQuery((pre) => ({ ...pre, status: { equals: value } }));
+		updatePathname({ query: { status: value }, type: "replace" });
+		// setQuery((pre) => ({ ...pre, status: { equals: value } }));
 	};
+
+	useEffect(() => {
+		const status = searchParams.get("status");
+
+		setQuery((pre) => ({ ...pre, status: { equals: status } }));
+	}, [searchParams]);
 	return (
 		<Space direction="vertical" className="flex">
-			<SelectStatusForm onChange={handleSelectStatus} />
+			<SelectStatusForm
+				onChange={handleSelectStatus}
+				value={query.status?.equals}
+			/>
 			<Table<TOrder>
 				columns={columns}
 				dataSource={carts}

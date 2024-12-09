@@ -7,11 +7,7 @@ import { QUERY_CONST } from "@/const";
 import { routesManager } from "@/routes";
 import projectService from "@/services/projectService";
 import { Frame } from "@/shared/Frame";
-import {
-	dehydrate,
-	HydrationBoundary,
-	QueryClient,
-} from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 
 import { ProjectList } from "./ui";
 
@@ -45,9 +41,9 @@ const ProjectPage: React.FC<Props> = async ({}) => {
 				</Link>
 			}
 		>
-			<HydrationBoundary state={dehydrate(queryClient!)}>
-				<ProjectList />
-			</HydrationBoundary>
+			{/* <HydrationBoundary state={dehydrate(queryClient!)}> */}
+			<ProjectList />
+			{/* </HydrationBoundary> */}
 		</Frame>
 	);
 };

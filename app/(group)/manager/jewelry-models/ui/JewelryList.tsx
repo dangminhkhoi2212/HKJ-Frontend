@@ -4,7 +4,7 @@ import { PaginationProps } from "antd/lib";
 import { Pencil, RotateCcw, Trash } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { QUERY_CONST } from "@/const";
 import { useRouterCustom } from "@/hooks";
@@ -21,7 +21,7 @@ import { useQueries } from "@tanstack/react-query";
 import { jewelryStore } from "../store";
 import DeleteJewelryModal from "./DeleteJewelryModal";
 
-const createColumn = ({ setJewelry }: any) => {
+const createColumn = (setJewelry: (data: TJewelry | null) => void) => {
 	const columns: TableProps<TJewelry>["columns"] = [
 		{
 			title: "ID",
@@ -158,10 +158,12 @@ const JewelryList: React.FC = () => {
 			{
 				queryKey: ["jewelry-model", { ...query }],
 				queryFn: () => jewelryService.get(query),
+				staleTime: 0,
 			},
 			{
 				queryKey: ["jewelry-model-count", { ...query }],
 				queryFn: () => jewelryService.getCount(query),
+				staleTime: 0,
 			},
 		],
 	});
@@ -223,6 +225,11 @@ const JewelryList: React.FC = () => {
 			categoryId: { equals: categoryId ? Number(categoryId) : null },
 		}));
 	}, [searchParams]);
+
+	const columns = useMemo(
+		() => createColumn(setJewelry),
+		[createColumn, setJewelry]
+	);
 	return (
 		<Space direction="vertical" className="flex flex-col">
 			<DeleteJewelryModal />
@@ -254,7 +261,7 @@ const JewelryList: React.FC = () => {
 				</p>
 			</Space>
 			<Table
-				columns={createColumn(setJewelry)}
+				columns={columns}
 				dataSource={jewelryModels}
 				rowKey="id"
 				pagination={pagination}

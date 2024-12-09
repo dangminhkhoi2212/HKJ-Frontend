@@ -1,8 +1,8 @@
-import { TFilter } from './filterType';
-import { TJewelry } from './jewelryType';
-import { TProject } from './projectType';
-import { TStatus } from './statusType';
-import { TUserExtra } from './userExtraType';
+import { TFilter } from "./filterType";
+import { TJewelry } from "./jewelryType";
+import { TProject } from "./projectType";
+import { TStatus } from "./statusType";
+import { TUserExtra } from "./userExtraType";
 
 export type TCartItemSession = {
 	id: number;
@@ -19,7 +19,7 @@ export type TOrder = {
 	specialRequests: string;
 	status: TStatus;
 	customerRating: number;
-	totalPrice: number|null;
+	totalPrice: number | null;
 	budget: number;
 	notes: string;
 	project: TProject;
@@ -37,6 +37,7 @@ export type TOrderUpdate = Partial<TOrderCreate> & { id: number };
 export type TOrderQuery = {
 	customerId?: TFilter;
 	status?: TFilter;
+	priority?: TFilter;
 	id?: TFilter;
 	orderDate?: TFilter;
 	expectedDeliveryDate?: TFilter;

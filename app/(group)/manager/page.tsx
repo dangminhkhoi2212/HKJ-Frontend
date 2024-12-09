@@ -1,17 +1,12 @@
-import React from 'react';
+import { redirect } from "next/navigation";
+import React from "react";
 
-import { Frame } from '@/shared/Frame';
-
-import { StatisticDashBoard } from '../ui';
+import { routesManager } from "@/routes";
 
 type Props = {};
 
 const ManagerPage: React.FC<Props> = ({}) => {
-	return (
-		<Frame title="Thống kê">
-			<StatisticDashBoard />
-		</Frame>
-	);
+	redirect(routesManager.project);
 };
 
 export default ManagerPage;

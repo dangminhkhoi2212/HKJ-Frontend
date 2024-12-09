@@ -58,6 +58,7 @@ const ManagerNotificationButton: React.FC<Props> = () => {
 		payload: RealtimePostgresInsertPayload<any>
 	) => {
 		const newNotification: TNotification = payload.new;
+		console.log("🚀 ~ newNotification:", newNotification);
 
 		if (newNotification.type === NotificationType.MANAGER) {
 			setNotifications([newNotification]);
@@ -95,9 +96,7 @@ const ManagerNotificationButton: React.FC<Props> = () => {
 	}, [initNotifications]);
 
 	useEffect(() => {
-		if (notificationsCount) {
-			setNotificationsCount(notificationsCount);
-		}
+		setNotificationsCount(notificationsCount || 0);
 	}, [notificationsCount]);
 
 	return (

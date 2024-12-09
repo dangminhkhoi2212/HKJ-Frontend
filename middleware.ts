@@ -1,10 +1,10 @@
-import { getToken } from 'next-auth/jwt';
-import { withAuth } from 'next-auth/middleware';
-import { NextRequest, NextResponse } from 'next/server';
+import { getToken } from "next-auth/jwt";
+import { withAuth } from "next-auth/middleware";
+import { NextRequest, NextResponse } from "next/server";
 
-import { AUTHORIZATIONS_CONST } from '@/const';
+import { AUTHORIZATIONS_CONST } from "@/const";
 
-import { routes, routesManager } from './routes';
+import { routes, routesManager } from "./routes";
 
 // Define a secret to verify the token (make sure to keep it secure)
 const secret = process.env.NEXTAUTH_SECRET;
@@ -33,9 +33,13 @@ async function customMiddleware(req: NextRequest) {
 				!url.pathname.startsWith("/_next")
 			) {
 				const newUrl = `${prefix}${url.pathname}`;
+
+				console.log("🚀 ~ customMiddleware ~ newUrl:", newUrl);
 				url.pathname = newUrl;
-				if (newUrl === "/manager")
-					return NextResponse.redirect(routesManager.project);
+				if (url.pathname === "/manager/")
+					return NextResponse.redirect(
+						new URL(routesManager.project, req.url)
+					);
 
 				return NextResponse.redirect(url);
 			}

@@ -11,7 +11,7 @@ import {
 import { LabelCustom } from "@/shared/FormCustom/InputCustom";
 import { InputImage } from "@/shared/FormCustom/InputImage";
 import { SelectCategoryForm } from "@/shared/FormSelect";
-import { TCartItemSession, TJewelry, TStatus } from "@/types";
+import { TCartItemSession, TJewelry, TOrder, TStatus } from "@/types";
 
 import { OrderProductCard } from "../CardCustom";
 import { ImagePreview } from "../ImagePreview";
@@ -20,7 +20,11 @@ import OrderSpecialRequesteForm from "./OrderSpecialRequestForm";
 
 type TRole = "user" | "manager";
 const { Title } = Typography;
-type Props = { products?: TCartItemSession[] | null; role?: TRole };
+type Props = {
+	products?: TCartItemSession[] | null;
+	role?: TRole;
+	currentOrder?: TOrder;
+};
 type TForm = {
 	id?: number;
 	orderItems: {
@@ -42,15 +46,16 @@ export const allowUserChange = (
 	orderId: number,
 	status: TStatus,
 	role: TRole
-) => status === TStatus.NEW && !orderId && role === "user";
+) => !!(status === TStatus.NEW && !orderId && role === "user");
 export const allowManagerChange = (
 	orderId?: number,
 	status?: TStatus,
 	role: TRole = "manager"
 ) => {
-	return (
+	return !!(
 		(status === TStatus.IN_PROCESS || status === TStatus.NEW) &&
-		role === "manager"
+		role === "manager" &&
+		orderId
 	);
 };
 
@@ -78,7 +83,11 @@ const RenderImageForm: React.FC<{
 	if (!field?.images?.length) return "Không có ảnh ";
 	return <ImagePreview images={field.images.map((item) => item.url!)} />;
 };
-const OrderItemForm: React.FC<Props> = ({ products, role = "user" }) => {
+const OrderItemForm: React.FC<Props> = ({
+	products,
+	role = "user",
+	currentOrder,
+}) => {
 	const {
 		control,
 		setValue,
@@ -94,7 +103,7 @@ const OrderItemForm: React.FC<Props> = ({ products, role = "user" }) => {
 		control,
 		name: "status",
 	});
-	const { fields, update } = useFieldArray({
+	const { fields, update, append, remove } = useFieldArray({
 		control,
 		name: "orderItems",
 	});
@@ -109,12 +118,17 @@ const OrderItemForm: React.FC<Props> = ({ products, role = "user" }) => {
 		setValue(`orderItems.${index}.images`, newFileList);
 	};
 	const allowManagerChangeForm = useMemo(
-		() => allowManagerChange(orderId, orderStatus, role),
-		[orderId, orderStatus, role, allowManagerChange]
+		() => allowManagerChange(currentOrder?.id, currentOrder?.status, role),
+		[currentOrder?.id, currentOrder?.status, role, allowManagerChange]
 	);
 	const allowUserChangeForm = useMemo(
-		() => allowUserChange(orderId!, orderStatus, role),
-		[orderId, orderStatus, role, allowUserChange]
+		() =>
+			allowUserChange(
+				currentOrder?.id!,
+				currentOrder?.status ?? TStatus.NEW,
+				role
+			),
+		[currentOrder?.id, currentOrder?.status, role, allowUserChange]
 	);
 	const handleChangeCategory = (
 		index: number,
@@ -267,6 +281,7 @@ const OrderItemForm: React.FC<Props> = ({ products, role = "user" }) => {
 						{orderId && (
 							<OrderNoteForm
 								control={control}
+								role={role}
 								name={`orderItems.${index}.notes`}
 								disabled={!allowManagerChangeForm}
 							/>

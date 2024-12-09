@@ -1,9 +1,9 @@
-import { Tag } from 'antd';
-import React from 'react';
+import { Tag } from "antd";
+import React from "react";
 
-import { AUTHORIZATIONS_CONST } from '@/const';
-import { useAccountStore } from '@/providers';
-import { TAccountInfo } from '@/types';
+import { AUTHORIZATIONS_CONST } from "@/const";
+import { useAccountStore } from "@/providers";
+import { TAccountInfo } from "@/types";
 
 const AUTHORIZATIONS = AUTHORIZATIONS_CONST.AUTHORIZATIONS;
 const RoleTag: React.FC<{}> = () => {
@@ -13,13 +13,12 @@ const RoleTag: React.FC<{}> = () => {
 	if (!account) return <></>;
 	switch (account!.authorities![0]) {
 		case AUTHORIZATIONS.ROLE_ADMIN:
-			return <Tag color="blue">{AUTHORIZATIONS.ROLE_ADMIN}</Tag>;
-		case AUTHORIZATIONS.ROLE_USER:
-			return <Tag color="yellow">{AUTHORIZATIONS.ROLE_USER}</Tag>;
-		case AUTHORIZATIONS.ROLE_EMPLOYEE:
-			return <Tag color="green">{AUTHORIZATIONS.ROLE_EMPLOYEE}</Tag>;
+			return <Tag color="blue">Quản trị viên</Tag>;
+
+		case AUTHORIZATIONS.ROLE_MANAGER:
+			return <Tag color="green">Quản lý</Tag>;
 		default:
-			break;
+			<></>;
 	}
 };
 

@@ -41,6 +41,10 @@ class NotificationService {
 			.order("created_at", { ascending: false });
 
 		// Check if response has an error
+		console.log(
+			"🚀 ~ NotificationService ~ getNotificationsCount ~ response:",
+			response.count
+		);
 		if (response.error) {
 			return 0; // or handle the error as needed
 		}

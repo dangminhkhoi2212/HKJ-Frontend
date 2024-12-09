@@ -9,6 +9,8 @@ export const routesUser = {
 	createOrder: "/user/orders/create",
 };
 export const routesAdmin = {
+	home: "/admin",
+	employees: "/admin/employees",
 	positions: "/admin/positions",
 	accounts: "/admin/accounts",
 	hire: "/admin/hire",
@@ -36,6 +38,7 @@ export const routesManager = {
 		`/manager/jewelry-models/update/${id}`,
 
 	project: "/manager/projects",
+	schedule: "/manager/schedules",
 	createProject: "/manager/projects/create",
 	updateProject: (id: string | number) => `/manager/projects/update/${id}`,
 };

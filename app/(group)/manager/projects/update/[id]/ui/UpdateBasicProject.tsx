@@ -11,6 +11,7 @@ import { useRouterCustom } from "@/hooks";
 import { useAccountStore } from "@/providers";
 import projectService from "@/services/projectService";
 import { InputCustom, LabelCustom } from "@/shared/FormCustom/InputCustom";
+import { SelectStatusForm } from "@/shared/FormSelect";
 import { TProject, TProjectUpdate, TStatus } from "@/types";
 import { TPriority } from "@/types/priorityType";
 import { tagMapperUtil } from "@/utils";
@@ -169,21 +170,22 @@ const UpdateBasicProject: React.FC<Props> = ({}) => {
 						/>
 					</Space>
 					<Space direction="vertical" className="flex" size={"large"}>
-						<InputCustom
-							control={control}
-							name="status"
-							label="Trạng thái"
-							type="select"
-							defaultValue={TStatus.NEW}
-							options={Object.entries(TStatus).map(
-								([key, value]) => ({
-									label: TStatusMapper(value),
-									value: key,
-								})
-							)}
-							className="w-40"
-							errorMessage={errors?.status?.message}
-						/>
+						<Space direction="vertical">
+							<LabelCustom label="Trạng thái" />
+							<SelectStatusForm
+								size="large"
+								className="w-40"
+								defaultValue={project?.status}
+								value={watch("status")}
+								onChange={(value) => setValue("status", value)}
+								ignoreStatus={[
+									TStatus.CANCEL,
+									TStatus.DELIVERED,
+									TStatus.NEW,
+								]}
+							/>
+						</Space>
+
 						<InputCustom
 							control={control}
 							name="priority"

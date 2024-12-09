@@ -73,6 +73,8 @@ const CreateTaskButton: React.FC<Props> = ({ refresh }) => {
 		onSuccess(data, variables, context) {
 			message.success("Giao việc thành công!");
 			refresh();
+			setSelectedEmployee(null);
+			reset(initValue);
 		},
 		onSettled() {
 			reset(initValue);
@@ -157,6 +159,7 @@ const CreateTaskButton: React.FC<Props> = ({ refresh }) => {
 							name="priority"
 							label="Độ ưu tiên"
 							type="select"
+							required={false}
 							options={Object.entries(TPriority).map(
 								([key, value]) => ({
 									label: TPriorityMapper(value),
@@ -167,6 +170,7 @@ const CreateTaskButton: React.FC<Props> = ({ refresh }) => {
 						/>
 						<InputCustom
 							label="Ghi chú"
+							required={false}
 							control={control}
 							name="description"
 							type="description"

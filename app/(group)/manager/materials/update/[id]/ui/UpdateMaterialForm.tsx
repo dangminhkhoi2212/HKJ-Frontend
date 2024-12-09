@@ -171,6 +171,7 @@ const UpdateMaterial: React.FC<{ id: string }> = ({ id }) => {
 					placeholder={"Chất liệu"}
 					errorMessage={errors.name?.message}
 					className="w-full max-w-44"
+					disabled
 				/>
 				<InputCustom
 					name="unit"
@@ -178,6 +179,7 @@ const UpdateMaterial: React.FC<{ id: string }> = ({ id }) => {
 					placeholder={"Đơn vị"}
 					label="Đơn vị"
 					className="w-full max-w-44"
+					disabled
 				/>
 				<InputNumberCustom
 					name="pricePerUnit"

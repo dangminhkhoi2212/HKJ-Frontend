@@ -12,6 +12,7 @@ import { useAccountStore } from "@/providers";
 import { routesManager } from "@/routes";
 import projectService from "@/services/projectService";
 import { InputCustom, LabelCustom } from "@/shared/FormCustom/InputCustom";
+import { SelectStatusForm } from "@/shared/FormSelect";
 import { TProject, TProjectCreate, TStatus } from "@/types";
 import { TPriority } from "@/types/priorityType";
 import { tagMapperUtil } from "@/utils";
@@ -33,12 +34,12 @@ const initValue: TForm = {
 	description: "",
 	date: {
 		startDate: dayjs().hour(0).toISOString(),
-		endDate: dayjs().add(1, "week").hour(23).toISOString(),
+		endDate: dayjs().add(2, "week").hour(23).toISOString(),
 	},
-	expectDate: dayjs().add(1, "week").hour(23).toISOString(),
+	expectDate: dayjs().add(2, "week").hour(23).toISOString(),
 	priority: TPriority.MEDIUM,
 	notes: "",
-	status: TStatus.NEW,
+	status: TStatus.IN_PROCESS,
 	manager: { id: 0 },
 };
 
@@ -98,8 +99,8 @@ const CreateBasicProject: React.FC<Props> = ({}) => {
 						errorMessage={errors?.name?.message}
 						extra={
 							<Tag color="green" className="text-wrap my-2">
-								Có thể sử dụng mã đơn hàng để đặt tên giúp dàng
-								tìm kiếm
+								Có thể sử dụng mã đơn hàng để đặt tên giúp dễ
+								dàng tìm kiếm
 							</Tag>
 						}
 					/>
@@ -112,33 +113,34 @@ const CreateBasicProject: React.FC<Props> = ({}) => {
 						errorMessage={errors?.date?.message}
 					/>
 
-					<InputCustom
+					{/* <InputCustom
 						control={control}
 						name="expectDate"
 						label="Thời gian mong đợi hoàn thành"
 						type="date"
 						className="w-60"
 						errorMessage={errors?.expectDate?.message}
-					/>
+					/> */}
 				</Space>
 				<Space direction="vertical" className="flex" size={"large"}>
+					<Space direction="vertical">
+						<LabelCustom label="Trạng thái" />
+						<SelectStatusForm
+							size="large"
+							className="w-40"
+							defaultValue={TStatus.IN_PROCESS}
+							onChange={(value) => setValue("status", value)}
+							ignoreStatus={[
+								TStatus.CANCEL,
+								TStatus.DELIVERED,
+								TStatus.NEW,
+							]}
+						/>
+					</Space>
+
 					<InputCustom
 						control={control}
-						name="status"
-						label="Trạng thái"
-						type="select"
-						defaultValue={TStatus.NEW}
-						options={Object.entries(TStatus).map(
-							([key, value]) => ({
-								label: TStatusMapper(value),
-								value: key,
-							})
-						)}
-						className="w-40"
-						errorMessage={errors?.status?.message}
-					/>
-					<InputCustom
-						control={control}
+						required={false}
 						name="priority"
 						label="Độ ưu tiên"
 						type="select"

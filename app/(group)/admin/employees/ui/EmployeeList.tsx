@@ -1,13 +1,16 @@
 "use client";
-import { Button, Dropdown, Space, Table, TableProps, Tag } from "antd";
+import { Button, Space, Table, TableProps } from "antd";
 import { MenuProps } from "antd/lib";
-import { Menu as MenuIcon, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import React, { useState } from "react";
 
 import { QUERY_CONST } from "@/const";
 import { userService } from "@/services";
+import useExtraService from "@/services/userExtraService";
 import { TAccontQuery, TEmployee, TQuery } from "@/types";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+
+import ButtonEmployeeList from "./ButtonEmployeeList";
 
 const EmployeeList: React.FC<{}> = () => {
 	const [query, setQuery] = useState<TQuery<TAccontQuery>>(
@@ -56,25 +59,13 @@ const EmployeeList: React.FC<{}> = () => {
 			dataIndex: "phone",
 			key: "phone",
 		},
-		{
-			title: "Đã kích hoạt",
-			dataIndex: "activated",
-			key: "activated",
-			render: (value: boolean) =>
-				value ? (
-					<Tag color="green">Đã kích hoạt</Tag>
-				) : (
-					<Tag color="red">Chưa kích hoạt</Tag>
-				),
-		},
+
 		{
 			title: "Tùy chọn",
 			dataIndex: "actions",
 			key: "actions",
-			render: () => (
-				<Dropdown menu={{ items }} trigger={["click"]} arrow>
-					<Button icon={<MenuIcon />}></Button>
-				</Dropdown>
+			render: (value, record) => (
+				<ButtonEmployeeList record={record} refetch={refetch} />
 			),
 		},
 	];
@@ -87,6 +78,11 @@ const EmployeeList: React.FC<{}> = () => {
 	// 		},
 	// 	});
 	// };
+	const unActivedMutation = useMutation({
+		mutationFn: () => {
+			return useExtraService.updatePartical({});
+		},
+	});
 	return (
 		<Space direction="vertical" className="flex">
 			<Space>

@@ -16,7 +16,7 @@ const HireDisplay: React.FC<Props> = ({ data }) => {
 			key: useId(),
 			label: "Họ Tên",
 			children: `
-          ${data.employee.user.firstName} ${data.employee.user.lastName}
+          ${data?.employee?.user?.firstName} ${data?.employee?.user?.lastName}
        `,
 			span: 1,
 		},
@@ -24,7 +24,7 @@ const HireDisplay: React.FC<Props> = ({ data }) => {
 		{
 			key: useId(),
 			label: "Email",
-			children: data?.employee.user.email,
+			children: data?.employee?.user?.email,
 			span: 1,
 		},
 		{
@@ -89,8 +89,7 @@ const HireDisplay: React.FC<Props> = ({ data }) => {
 			layout="vertical"
 			bordered
 			items={items}
-            column={{ xs: 1, sm: 1, md: 2, lg: 2, xl: 2, xxl: 2 }}
-            
+			column={{ xs: 1, sm: 1, md: 2, lg: 2, xl: 2, xxl: 2 }}
 		/>
 	);
 };

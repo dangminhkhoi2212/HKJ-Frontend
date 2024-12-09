@@ -71,17 +71,14 @@ const JewelryMaterialUsageForm: React.FC<Props> = () => {
 		[setValue]
 	);
 
-	const handleUsageChange = useCallback(
-		(index: number, value: any, field: any) => {
-			const pricePerUnit = getValues(
-				`materials.${index}.material.pricePerUnit`
-			);
-			const price = value.floatValue! * pricePerUnit;
+	const handleUsageChange = (index: number, value: any, field: any) => {
+		const pricePerUnit = getValues(
+			`materials.${index}.material.pricePerUnit`
+		);
+		const price = value.floatValue! * pricePerUnit;
 
-			setValue(`materials.${index}.price`, price);
-		},
-		[getValues, update]
-	);
+		setValue(`materials.${index}.price`, price);
+	};
 
 	useEffect(() => {
 		if (materials.length === 0) return;

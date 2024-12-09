@@ -9,6 +9,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
 import {
 	CategoryIntro,
+	OrderIntro,
 	ProductTrending,
 	StorePicture,
 	UserCarousel,
@@ -36,6 +37,7 @@ const UserHomePage: React.FC<{}> = () => {
 		<HydrationBoundary state={hydrate()}>
 			<Space direction="vertical" className="flex" size={"large"}>
 				<UserCarousel />
+				<OrderIntro />
 				<Materials />
 				<ProductTrending />
 				<CategoryIntro />

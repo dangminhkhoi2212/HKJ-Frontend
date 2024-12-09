@@ -1,14 +1,14 @@
 "use client";
-import { App, Card, Col, Form, Row, Spin, Typography } from "antd";
+import { App, Card, Col, Form, Row, Skeleton, Spin, Typography } from "antd";
 import dayjs from "dayjs";
 import React, { useEffect, useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 
-import { KEY_CONST, QUERY_CONST } from "@/const";
+import { QUERY_CONST } from "@/const";
 import { useRouterCustom } from "@/hooks";
 import { useAccountStore } from "@/providers";
-import { routesUser } from "@/routes";
+import { routesManager, routesUser } from "@/routes";
 import { orderImageService, orderService } from "@/services";
 import notificationService from "@/services/notificationService";
 import orderItemService from "@/services/orderItemService";
@@ -25,6 +25,7 @@ import { TAccountInfo, TOrder, TOrderItem, TStatus } from "@/types";
 import { TNotificationIcon } from "@/types/notificationIcon";
 import { NotificationType } from "@/types/notificationType";
 import { imageUtil } from "@/utils";
+import queryClientUtil from "@/utils/queryClientUtil";
 import orderValidation from "@/validations/orderValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -32,7 +33,10 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 const { Paragraph } = Typography;
 const { defaultQuery } = QUERY_CONST;
 const schema = orderValidation.orderSchema;
+const queryClient = queryClientUtil.getQueryClient();
 type TForm = yup.InferType<yup.ObjectSchema<typeof schema>>["__outputType"];
+
+const ROLE = "manager";
 const initValues: TForm = {
 	id: 0,
 	orderDate: dayjs().toISOString(),
@@ -41,7 +45,7 @@ const initValues: TForm = {
 	totalPrice: 0,
 	actualDeliveryDate: "",
 	customer: { id: 0 },
-	project: null,
+	project: { id: 0 },
 	orderItems: [
 		{
 			id: 0,
@@ -59,14 +63,14 @@ type Props = { id: string };
 
 const { convertToUploadFile } = imageUtil;
 const { Title } = Typography;
-const createNotification = (
+const createNotification = async (
 	accountId: number,
 	customerId: number,
 	icon: TNotificationIcon,
 	orderId: number | string,
 	content: string
 ) => {
-	notificationService.createNotification({
+	await notificationService.createNotification({
 		content,
 		sender_id: accountId,
 		receiver_id: customerId,
@@ -79,7 +83,6 @@ const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 	const { router } = useRouterCustom();
 	const [showModal, setShowModal] = useState<boolean>(false);
 	const [status, setStatus] = useState<TStatus>();
-	console.log("🚀 ~ status:", status);
 	const account = useAccountStore((state) => state.account);
 	const methods = useForm<TForm>({
 		defaultValues: { ...initValues, customer: { id: account?.id } },
@@ -107,8 +110,12 @@ const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 		queryKey: ["order", id],
 		queryFn: () => orderService.getOne(id),
 		enabled: !!id,
+		refetchOnMount: true,
 		staleTime: 0,
+		gcTime: 0,
+		networkMode: "always",
 	});
+
 	const allowChangeForm = useMemo(() => {
 		if (!getOrder.data) return false;
 		const data = getOrder.data;
@@ -145,8 +152,9 @@ const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 		queryFn: () => getOrderItems(),
 		enabled: !!id,
 		staleTime: 0,
+		gcTime: 0,
+		networkMode: "always",
 	});
-	console.log("🚀 ~ orderItems:", orderItems);
 
 	useEffect(() => {
 		if (orderItems) {
@@ -174,6 +182,9 @@ const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 				})),
 			});
 		}
+		return () => {
+			reset(initValues);
+		};
 	}, [orderItems]);
 	const updateOrderItems = async (data: TForm) => {
 		return data.orderItems?.map((item) => {
@@ -187,20 +198,22 @@ const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 		mutationFn: async (data: TForm) => {
 			const [_, order] = await Promise.all([
 				updateOrderItems(data),
-				orderService.updatePartical({
-					id: data?.id,
+				orderService.update({
+					...getOrder?.data,
+					id: getOrder?.data?.id!,
 					status: data.status,
 					expectedDeliveryDate: data.expectedDeliveryDate,
 					project: data?.project?.id ? { id: data.project.id } : null,
 					totalPrice: data?.totalPrice ?? null,
+					customer: { id: getOrder?.data?.customer?.id! },
 				}),
 			]);
 			return order;
 		},
-		onSuccess: (data: TOrder) => {
+		onSuccess: async (data: TOrder) => {
 			if (status !== data.status) {
 				if (data.status === TStatus.IN_PROCESS) {
-					createNotification(
+					await createNotification(
 						account?.id!,
 						data?.customer?.id!,
 						TNotificationIcon.IN_PROCESS,
@@ -208,15 +221,15 @@ const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 						`Đơn hàng ${data.id} của bạn đang được xử lý.`
 					);
 				} else if (data.status === TStatus.COMPLETED) {
-					createNotification(
+					await createNotification(
 						account?.id!,
 						data.customer.id!,
 						TNotificationIcon.COMPLETED,
 						data.id,
-						`Đơn hàng ${data.id} của bạn đã hoàn thành. Bạn có thể đến cửa hàng để nhận.`
+						`Đơn hàng ${data.id} của bạn đã hoàn thành. Vui lòng nhấn xác nhận đặt hàng.`
 					);
 				} else if (data.status === TStatus.CANCEL) {
-					createNotification(
+					await createNotification(
 						account?.id!,
 						data?.customer?.id!,
 						TNotificationIcon.CANCEL,
@@ -225,13 +238,31 @@ const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 					);
 				}
 			}
-			setStatus(data.status);
 			message.success("Đã cập nhật đơn hàng thành công");
+			await queryClient.invalidateQueries({
+				queryKey: ["order", id],
+				exact: true,
+			});
+			await queryClient.invalidateQueries({
+				queryKey: ["order-items", id],
+				exact: true,
+			});
+			// setStatus(data.status);
+			router.push(routesManager.order + "?status=" + data.status);
 		},
 		onError(error) {
 			message.error("Cập nhật hàng thất bại. Xin thử lại");
 		},
 	});
+
+	const handleUpdateOrder = async (data: TForm) => {
+		if (!data.totalPrice) {
+			message.error("Giá của đơn hàng phải lớn hơn 0.");
+		} else if (!data?.project?.id || errors?.project) {
+			message.error("Dự án chưa được chọn.");
+		} else updateMutation.mutate(data);
+		// test(data);
+	};
 	const test = (data: TForm) => {
 		createNotification(
 			account?.id!,
@@ -241,6 +272,8 @@ const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 			`Đơn hàng ${data.id} của bạn đã hoàn thành. Bạn có thể đến cửa hàng để nhận.`
 		);
 	};
+	if (getOrder.isLoading || isFetchingOrderItems || getOrder.isLoading)
+		return <Skeleton />;
 	return (
 		<Spin
 			spinning={
@@ -255,13 +288,7 @@ const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 					layout="vertical"
 					className="flex flex-col gap-6"
 					onFinish={handleSubmit((data) => {
-						if (!data.totalPrice) {
-							setError("totalPrice", {
-								type: "required",
-								message: KEY_CONST.REQUIRED_NUMBER_FIELD,
-							});
-						} else updateMutation.mutate(data);
-						// test(data);
+						handleUpdateOrder(data);
 					})}
 				>
 					{getOrder?.data?.customer && (
@@ -283,8 +310,11 @@ const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 					)}
 					<Row gutter={[16, 16]}>
 						<Col span={16} className="flex flex-col gap-4">
-							<OrderProject role="manager" />
-							<OrderItemForm role="manager" />
+							<OrderProject role={ROLE} />
+							<OrderItemForm
+								role={ROLE}
+								currentOrder={getOrder?.data!}
+							/>
 						</Col>
 						<Col span={8}>
 							<Card>
@@ -301,8 +331,11 @@ const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 									<OrderDateInfo
 										allowManagerChange={allowChangeForm}
 									/>
-									<OrderTotalPrice role="manager" />
-									<OrderDetailAction role="manager" />
+									<OrderTotalPrice role={ROLE} />
+									<OrderDetailAction
+										role={ROLE}
+										currentOrder={getOrder?.data!}
+									/>
 								</div>
 							</Card>
 						</Col>

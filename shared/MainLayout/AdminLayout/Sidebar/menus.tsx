@@ -1,10 +1,25 @@
-import { MenuProps } from 'antd';
+import { MenuProps } from "antd";
 import {
-    Atom, FolderClosed, Gem, Home, Images, LayoutDashboard, LineChart, ListOrdered, MessageCircle,
-    Notebook, PackageSearch, SquareUser, Truck, User, UserCog, Users
-} from 'lucide-react';
+	Atom,
+	FolderClosed,
+	Gem,
+	Home,
+	Images,
+	LayoutDashboard,
+	LineChart,
+	ListOrdered,
+	MessageCircle,
+	Network,
+	Notebook,
+	PackageSearch,
+	SquareUser,
+	Truck,
+	User,
+	UserCog,
+	Users,
+} from "lucide-react";
 
-import { routesAdmin, routesEmpoloyee, routesManager } from '@/routes';
+import { routesAdmin, routesEmpoloyee, routesManager } from "@/routes";
 
 type MenuItem = Required<MenuProps>["items"][number];
 export const menuUser: MenuItem[] = [
@@ -44,25 +59,21 @@ export const menuEmployee: MenuItem[] = [
 ];
 export const menuManager: MenuItem[] = [
 	{
-		key: routesManager.home,
-		icon: <Home size={18} />,
-		label: "Trang chủ",
-	},
-	{
 		key: routesManager.project,
 		icon: <FolderClosed size={18} />,
 		label: "Dự án",
+	},
+	{
+		key: routesManager.schedule,
+		icon: <Network size={18} />,
+		label: "Công việc hôm nay",
 	},
 	{
 		key: routesManager.jewelry,
 		icon: <Gem size={18} />,
 		label: "Trang sức",
 	},
-	{
-		key: routesManager.employees,
-		icon: <User size={18} />,
-		label: "Nhân viên",
-	},
+
 	{
 		key: routesManager.order,
 		icon: <ListOrdered size={18} />,
@@ -81,9 +92,19 @@ export const menuManager: MenuItem[] = [
 ];
 export const menuAdmin: MenuProps["items"] = [
 	{
+		key: routesAdmin.home,
+		icon: <Home size={18} />,
+		label: "Trang chủ",
+	},
+	{
 		key: routesAdmin.accounts,
 		icon: <Users size={18} />,
 		label: "Quản lí tài khoản",
+	},
+	{
+		key: routesAdmin.employees,
+		icon: <User size={18} />,
+		label: "Nhân viên",
 	},
 	{
 		key: routesAdmin.positions,

@@ -49,7 +49,14 @@ const CreateJeweleryProjectForm: React.FC = () => {
 		isFetching: isTasksFetching,
 		isPending: isTasksPending,
 	} = useQuery({
-		queryKey: ["tasks", { projectId: project?.id }],
+		queryKey: [
+			"tasks",
+			{
+				projectId: project?.id,
+				sort: "id,asc",
+				isDeleted: { equals: false },
+			},
+		],
 		queryFn: () => taskService.get({ projectId: { equals: project?.id! } }),
 		enabled: !!project?.id,
 	});

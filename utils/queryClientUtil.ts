@@ -6,7 +6,7 @@ import { QueryClient } from "@tanstack/react-query";
 const getQueryClient = cache(
 	() =>
 		new QueryClient({
-			defaultOptions: { queries: { staleTime: 5 * 60 * 1000 } },
+			// defaultOptions: { queries: { staleTime: 5 * 60 * 1000 } },
 		})
 );
 

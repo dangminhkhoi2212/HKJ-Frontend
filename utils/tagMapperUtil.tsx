@@ -38,8 +38,8 @@ const TStatusMapper = (key: TStatus): string => {
 			return "Hoàn thành";
 		case TStatus.DELIVERED:
 			return "Đã giao";
-		case TStatus.LATED:
-			return "Trễ";
+		// case TStatus.LATED:
+		// 	return "Trễ";
 		case TStatus.CANCEL:
 			return "Hủy";
 		default:
@@ -56,8 +56,8 @@ const TStatusColorMapper = (key: TStatus): React.ReactNode => {
 			return <Tag color="green">Hoàn thành</Tag>;
 		case TStatus.DELIVERED:
 			return <Tag color="geekblue">Đã giao</Tag>;
-		case TStatus.LATED:
-			return <Tag color="red">Trễ</Tag>;
+		// case TStatus.LATED:
+		// 	return <Tag color="red">Trễ</Tag>;
 		case TStatus.CANCEL:
 			return <Tag color="red">Đã hủy</Tag>;
 		default:

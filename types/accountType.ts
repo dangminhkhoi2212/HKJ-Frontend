@@ -1,6 +1,7 @@
 import { AUTHORIZATIONS_CONST } from "@/const";
 
 import { TAudit } from "./auditType";
+import { TFilter } from "./filterType";
 import { TQuery } from "./queryType";
 
 const AUTHORIZATIONS = AUTHORIZATIONS_CONST.AUTHORIZATIONS;
@@ -28,6 +29,8 @@ export type TPhone = {
 
 export type TAccontQuery = {
 	role?: keyof typeof AUTHORIZATIONS;
+	isDeleted?: TFilter;
+	active?: TFilter;
 } & TQuery;
 
 export type TAccountInfo = {
@@ -40,7 +43,7 @@ export type TAccountInfo = {
 	email?: string;
 	imageUrl?: string;
 	phone?: string;
-	activated?: boolean;
+	active?: boolean;
 	langKey?: string;
 	authorities?: string[];
 	address?: string;

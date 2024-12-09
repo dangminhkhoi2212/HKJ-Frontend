@@ -1,6 +1,8 @@
 import { Button, Layout, theme } from "antd";
 import React from "react";
 
+import { AUTHORIZATIONS_CONST } from "@/const";
+import { useAccountStore } from "@/providers";
 import {
 	RoleTag,
 	UserMenu,
@@ -19,6 +21,7 @@ const AppHeader: React.FC<Props> = () => {
 	} = theme.useToken();
 	const { collapsed } = useStypeStore((state) => state);
 	const toggleCollapsed = useStypeStore((state) => state.toggleCollapsed);
+	const account = useAccountStore((state) => state.account);
 
 	return (
 		<Header
@@ -43,7 +46,9 @@ const AppHeader: React.FC<Props> = () => {
 			/>
 			<div className="flex justify-center items-center gap-4">
 				<RoleTag />
-				<ManagerNotificationButton />
+				{account?.authorities?.includes(
+					AUTHORIZATIONS_CONST.AUTHORIZATIONS.ROLE_MANAGER
+				) && <ManagerNotificationButton />}
 				<UserMenu />
 			</div>
 		</Header>

@@ -1,9 +1,9 @@
-import { TAudit } from './auditType';
-import { TEmployee } from './employeeType';
-import { TFilter } from './filterType';
-import { TPriority } from './priorityType';
-import { TProject } from './projectType';
-import { TStatus } from './statusType';
+import { TAudit } from "./auditType";
+import { TEmployee } from "./employeeType";
+import { TFilter } from "./filterType";
+import { TPriority } from "./priorityType";
+import { TProject } from "./projectType";
+import { TStatus } from "./statusType";
 
 export type TTask = {
 	id: number;
@@ -26,7 +26,7 @@ export type TTaskCreate = Omit<
 
 export type TTaskUpdate = Omit<
 	TTask,
-	"project" | "materials" | "point" | "completedDate" | "coverImage"
+	"project" | "materials" | "point" | "coverImage"
 > & { project: { id: number } };
 export type TTaskQuery = {
 	projectId?: TFilter;

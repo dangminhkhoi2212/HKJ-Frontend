@@ -21,6 +21,7 @@ export * from "./priorityType";
 export * from "./projectType";
 export * from "./queryType";
 export * from "./responseType";
+export * from "./scheduleType";
 export * from "./statusType";
 export * from "./taskType";
 export * from "./templateStepType";

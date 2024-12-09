@@ -1,17 +1,17 @@
-"use client";
-import { useEffect } from "react";
+import React from "react";
 
-import { useRouterCustom } from "@/hooks";
-import { routesAdmin } from "@/routes";
+import { Frame } from "@/shared/Frame";
 
-const AdminPage: React.FC<{}> = () => {
-	const { router, pathname } = useRouterCustom();
-	useEffect(() => {
-		if (pathname === "/admin") {
-			router.push(routesAdmin.accounts);
-		}
-	}, []);
-	return <div></div>;
+import { StatisticDashBoard } from "../admin/ui";
+
+type Props = {};
+
+const AdminPage: React.FC<Props> = ({}) => {
+	return (
+		<Frame title="Thống kê">
+			<StatisticDashBoard />
+		</Frame>
+	);
 };
 
 export default AdminPage;

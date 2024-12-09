@@ -12,9 +12,15 @@ type Props = {
 	control: any;
 	name: string;
 	disabled?: boolean;
+	role: "manager" | "user";
 };
 
-const OrderNoteForm: React.FC<Props> = ({ control, name, disabled }) => {
+const OrderNoteForm: React.FC<Props> = ({
+	control,
+	name,
+	disabled,
+	role = "user",
+}) => {
 	return (
 		<Space direction="vertical" className="flex">
 			<LabelCustom
@@ -22,6 +28,7 @@ const OrderNoteForm: React.FC<Props> = ({ control, name, disabled }) => {
 				required={false}
 				classname=""
 			/>
+
 			<Controller
 				control={control}
 				name={name}
@@ -30,9 +37,9 @@ const OrderNoteForm: React.FC<Props> = ({ control, name, disabled }) => {
 						modules={{
 							toolbar: !disabled,
 						}}
-						value={field.value || "Không tìm thấy"}
+						value={field.value}
 						onChange={field.onChange}
-						readOnly={disabled}
+						readOnly={role === "user" || disabled}
 					/>
 				)}
 			/>

@@ -3,6 +3,6 @@ export enum TStatus {
 	IN_PROCESS = "IN_PROCESS",
 	COMPLETED = "COMPLETED",
 	DELIVERED = "DELIVERED",
-	LATED = "LATED",
+	// LATED = "LATED",
 	CANCEL = "CANCEL",
 }

@@ -5,7 +5,7 @@ import { orderService } from "@/services";
 import orderItemService from "@/services/orderItemService";
 import { TOrderItemQuery, TQuery } from "@/types";
 import queryClientUtil from "@/utils/queryClientUtil";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { dehydrate } from "@tanstack/react-query";
 
 import { OrderDetailForm } from "./ui";
 
@@ -39,9 +39,9 @@ const hydrate = async (id?: string) => {
 const OrderDetailPage: React.FC<Props> = ({ params: { id } }) => {
 	return (
 		<div className={"mx-4 md:mx-20"}>
-			<HydrationBoundary state={hydrate(id)}>
-				<OrderDetailForm id={id} />
-			</HydrationBoundary>
+			{/* <HydrationBoundary state={hydrate(id)}> */}
+			<OrderDetailForm id={id} />
+			{/* </HydrationBoundary> */}
 		</div>
 	);
 };

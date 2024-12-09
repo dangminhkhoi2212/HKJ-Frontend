@@ -64,7 +64,7 @@ const ProductTrending: React.FC<Props> = ({}) => {
 	}
 
 	return (
-		<Frame title="Đặt nhiều nhất">
+		<Frame title="Sản phẩm nổi bật">
 			<div className="flex flex-col gap-4">
 				<List
 					grid={{

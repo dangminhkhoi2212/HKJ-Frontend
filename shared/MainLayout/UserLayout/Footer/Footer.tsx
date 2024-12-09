@@ -1,7 +1,11 @@
+import { Space } from "antd";
 import { MapPinned, Phone } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
+import FacebookLogo from "@/public/images/logo/facebook_logo.png";
+import ZaloLogo from "@/public/images/logo/zalo_logo.png";
 import { Logo } from "@/shared/Logo";
 
 type Props = {};
@@ -45,6 +49,26 @@ const Contact: React.FC<{}> = () => {
 				<Phone size={14} />
 				<a href="tel:123-456-7890">123-456-7890</a>
 			</p>
+			<Space>
+				<Link href={"https://www.facebook.com/"}>
+					<Image
+						src={ZaloLogo.src}
+						alt="zalo logo"
+						width={40}
+						height={40}
+						className="rounded-full"
+					/>
+				</Link>
+				<Link href={"https://zalo.me/pc"}>
+					<Image
+						src={FacebookLogo.src}
+						alt="logo"
+						width={40}
+						height={40}
+						className="rounded-full"
+					/>
+				</Link>
+			</Space>
 		</div>
 	);
 };

@@ -19,12 +19,13 @@ import {
 import OrderDetailAction from "@/shared/OrderForm/OrderDetailAction";
 import { TOrderItem, TStatus } from "@/types";
 import { imageUtil } from "@/utils";
+import queryClientUtil from "@/utils/queryClientUtil";
 import orderValidation from "@/validations/orderValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useQuery } from "@tanstack/react-query";
 
 const { defaultQuery } = QUERY_CONST;
-const schema = orderValidation.orderSchema;
+const schema = orderValidation.orderSchema.omit(["project"]);
 type TForm = yup.InferType<yup.ObjectSchema<typeof schema>>["__outputType"];
 const initValues: TForm = {
 	id: 0,
@@ -34,7 +35,7 @@ const initValues: TForm = {
 	status: TStatus.NEW,
 	totalPrice: null,
 	customer: { id: 0 },
-	project: null,
+	// project: null,
 	orderItems: [
 		{
 			id: 0,
@@ -51,6 +52,7 @@ type Props = { id: string };
 
 const { convertToUploadFile } = imageUtil;
 const { Title } = Typography;
+const queryClient = queryClientUtil.getQueryClient();
 const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 	const { router } = useRouterCustom();
 	const [showModal, setShowModal] = useState<boolean>(false);
@@ -81,6 +83,8 @@ const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 		queryFn: () => orderService.getOne(id),
 		enabled: !!id,
 		staleTime: 0,
+		refetchOnMount: true,
+		gcTime: 0,
 	});
 
 	const getOrderItems = async () => {
@@ -107,12 +111,22 @@ const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 			message.error("Không thể lấy dữ liệu của đơn hàng");
 		}
 	};
-	const { data: orderItems, isFetching: isFetchingOrderItems } = useQuery({
+	const {
+		data: orderItems,
+		isFetching: isFetchingOrderItems,
+		refetch: refectOrderItems,
+	} = useQuery({
 		queryKey: ["order-items", id],
 		queryFn: () => getOrderItems(),
 		enabled: !!id,
 		staleTime: 0,
+		refetchOnMount: true,
+		gcTime: 0,
 	});
+	useEffect(() => {
+		getOrder.refetch();
+		refectOrderItems();
+	}, [id]);
 	console.log("🚀 ~ orderItems:", orderItems);
 
 	useEffect(() => {
@@ -156,7 +170,7 @@ const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 					{account && <AccountDisplay account={account} />}
 					<Row gutter={[16, 16]}>
 						<Col span={16}>
-							<OrderItemForm />
+							<OrderItemForm currentOrder={getOrder?.data!} />
 						</Col>
 						<Col span={8}>
 							<Card>
@@ -165,7 +179,9 @@ const CreateOrderBasicForm: React.FC<Props> = ({ id }) => {
 									<p>Mã đơn hàng: {id}</p>
 									<OrderDateInfo />
 									<OrderTotalPrice role="user" />
-									<OrderDetailAction />
+									<OrderDetailAction
+										currentOrder={getOrder?.data!}
+									/>
 								</div>
 							</Card>
 						</Col>

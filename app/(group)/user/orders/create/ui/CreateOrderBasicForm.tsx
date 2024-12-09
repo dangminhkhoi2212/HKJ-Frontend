@@ -1,32 +1,42 @@
 "use client";
-import { App, Button, Card, Col, Form, Row, Spin, Typography } from 'antd';
-import { UploadFile } from 'antd/lib';
-import dayjs from 'dayjs';
-import { ArrowLeftRight } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
-import * as yup from 'yup';
+import { App, Button, Card, Col, Form, Row, Spin, Typography } from "antd";
+import { UploadFile } from "antd/lib";
+import dayjs from "dayjs";
+import { ArrowLeftRight } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import * as yup from "yup";
 
-import { KEY_CONST } from '@/const';
-import { useRouterCustom } from '@/hooks';
-import { useAccountStore } from '@/providers';
-import { routesManager, routesUser } from '@/routes';
-import { orderImageService, orderService } from '@/services';
-import notificationService from '@/services/notificationService';
-import orderItemService from '@/services/orderItemService';
-import supabaseService from '@/services/supabaseService';
-import { AccountDisplay } from '@/shared/FormSelect/AccountForm';
-import { OrderDateInfo, OrderItemForm, OrderTotalPrice } from '@/shared/OrderForm';
-import OrderDetailAction from '@/shared/OrderForm/OrderDetailAction';
-import { TCartItemSession, TJewelry, TOrderCreate, TOrderImageCreate, TStatus } from '@/types';
-import { TNotificationIcon } from '@/types/notificationIcon';
-import { NotificationType } from '@/types/notificationType';
-import { TOrderItemCreate } from '@/types/orderItemType';
-import orderValidation from '@/validations/orderValidation';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useMutation } from '@tanstack/react-query';
+import { KEY_CONST } from "@/const";
+import { useRouterCustom } from "@/hooks";
+import { useAccountStore } from "@/providers";
+import { routesManager, routesUser } from "@/routes";
+import { orderImageService, orderService } from "@/services";
+import notificationService from "@/services/notificationService";
+import orderItemService from "@/services/orderItemService";
+import supabaseService from "@/services/supabaseService";
+import { AccountDisplay } from "@/shared/FormSelect/AccountForm";
+import {
+	OrderDateInfo,
+	OrderItemForm,
+	OrderTotalPrice,
+} from "@/shared/OrderForm";
+import OrderDetailAction from "@/shared/OrderForm/OrderDetailAction";
+import {
+	TCartItemSession,
+	TJewelry,
+	TOrderCreate,
+	TOrderImageCreate,
+	TStatus,
+} from "@/types";
+import { TNotificationIcon } from "@/types/notificationIcon";
+import { NotificationType } from "@/types/notificationType";
+import { TOrderItemCreate } from "@/types/orderItemType";
+import orderValidation from "@/validations/orderValidation";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useMutation } from "@tanstack/react-query";
 
-import { createOrderStore } from '../store';
+import { createOrderStore } from "../store";
 
 const { Title } = Typography;
 const schema = orderValidation.orderSchema.pick([
@@ -95,6 +105,16 @@ const CreateOrderBasicForm: React.FC<Props> = ({}) => {
 			setValue("customer.id", account?.id!);
 		}
 	}, [account]);
+	useEffect(() => {
+		if (errors?.orderItems && Array.isArray(errors?.orderItems)) {
+			const hasError = errors.orderItems.some(
+				(item) => item?.specialRequests?.message
+			);
+			if (hasError) {
+				message.error("Bạn chưa điền mục yêu cầu cụ thể.");
+			}
+		}
+	}, [errors]);
 	useEffect(() => {
 		if (typeof window !== "undefined") {
 			const productSession = window.sessionStorage.getItem(
@@ -192,7 +212,7 @@ const CreateOrderBasicForm: React.FC<Props> = ({}) => {
 				url: routesManager.updateOrder(data.id),
 			});
 			message.success("Bạn đã đặt hàng thành công.");
-			router.push(routesUser.order);
+			router.push(`${routesUser.order}?staus=${TStatus.NEW}`);
 		},
 		onError(error) {
 			message.error("Tạo đơn hàng thất bại. Xin thử lại");

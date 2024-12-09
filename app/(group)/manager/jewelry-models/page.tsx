@@ -7,11 +7,7 @@ import { routesManager } from "@/routes";
 import { jewelryService } from "@/services";
 import { Frame } from "@/shared/Frame";
 import queryClientUtil from "@/utils/queryClientUtil";
-import {
-	dehydrate,
-	DehydratedState,
-	HydrationBoundary,
-} from "@tanstack/react-query";
+import { dehydrate, DehydratedState } from "@tanstack/react-query";
 
 import JewelryList from "./ui/JewelryList";
 
@@ -46,9 +42,9 @@ const JewelryModelPage: React.FC<Props> = async () => {
 				</Link>
 			}
 		>
-			<HydrationBoundary state={await getHydrateState()}>
-				<JewelryList />
-			</HydrationBoundary>
+			{/* <HydrationBoundary state={await getHydrateState()}> */}
+			<JewelryList />
+			{/* </HydrationBoundary> */}
 		</Frame>
 	);
 };

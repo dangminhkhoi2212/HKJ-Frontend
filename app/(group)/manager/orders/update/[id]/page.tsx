@@ -5,7 +5,7 @@ import { orderImageService, orderService } from "@/services";
 import { EmptyCustom } from "@/shared/EmptyCustom";
 import { Frame } from "@/shared/Frame";
 import queryClientUtil from "@/utils/queryClientUtil";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { dehydrate } from "@tanstack/react-query";
 
 import { HandleOrder } from "./ui";
 
@@ -32,9 +32,9 @@ const OrderDetailPage: React.FC<Props> = ({ params: { id } }) => {
 	return (
 		<Frame title="Cập nhật đơn hàng">
 			<div className={""}>
-				<HydrationBoundary state={hydrate(id)}>
-					<HandleOrder id={id} />
-				</HydrationBoundary>
+				{/* <HydrationBoundary state={hydrate(id)}> */}
+				<HandleOrder id={id} />
+				{/* </HydrationBoundary> */}
 			</div>
 		</Frame>
 	);

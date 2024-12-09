@@ -78,13 +78,7 @@ const ProjectList: React.FC<TProps> = () => {
 				dataIndex: "name",
 				key: "name",
 			},
-			{
-				title: "Loại",
-				dataIndex: "category",
-				key: "category",
-				render: (value) => value?.name,
-				width: 150,
-			},
+
 			{
 				title: "Tạo bởi",
 				dataIndex: "createdBy",

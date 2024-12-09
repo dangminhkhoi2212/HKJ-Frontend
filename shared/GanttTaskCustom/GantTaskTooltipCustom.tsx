@@ -11,7 +11,7 @@ const GantTaskModelCustom: React.FC<Props> = ({ task }) => {
 	const duration = useMemo(() => {
 		const start = dayjs(task.start);
 		const end = dayjs(task.end);
-		const duration = end.diff(start, "days");
+		const duration = end.diff(start, "days") + 1;
 		return duration;
 	}, [task]);
 	return (

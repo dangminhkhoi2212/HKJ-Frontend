@@ -5,6 +5,7 @@ import { Gantt, ViewMode } from "gantt-task-react";
 import { RotateCcw } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 
+import { COLORS_CONST } from "@/const";
 import { useRouterCustom } from "@/hooks";
 import taskService from "@/services/taskService";
 import MapAnotations from "@/shared/Anotation/MapAnotation";
@@ -16,6 +17,7 @@ import { updateProjectStore } from "../store";
 import CreateTaskButton from "./CreateTaskButton";
 import UpdateTask from "./UpdateTask";
 
+const { SELECT_GANT_COLOR, COMPLETED_TASK_COLOR } = COLORS_CONST;
 type Props = {};
 const colorPriority = (priority: TPriority): string => {
 	console.log("🚀 ~ colorPriority ~ priority:", priority);
@@ -48,7 +50,7 @@ const UpdateProcessing: React.FC<Props> = ({}) => {
 	});
 	const [tasksGantt, setTasksGantt] = useState<TGanttTaskCustom[]>([]);
 	console.log("🚀 ~ tasksGantt:", tasksGantt);
-	const [showList, setShowList] = React.useState(true);
+	const [showList, setShowList] = React.useState(false);
 	const {
 		data: tasks,
 		refetch: refresh,
@@ -61,7 +63,8 @@ const UpdateProcessing: React.FC<Props> = ({}) => {
 		queryFn: () =>
 			taskService.get({
 				projectId: { equals: project?.id! },
-				sort: "assignedDate,asc",
+				sort: "id,asc",
+				isDeleted: { equals: false },
 			}),
 		enabled: !!project?.id!,
 	});
@@ -79,14 +82,16 @@ const UpdateProcessing: React.FC<Props> = ({}) => {
 					isDisabled: false,
 					styles: {
 						progressColor: colorPriority(project!.priority!),
-						backgroundSelectedColor: colorPriority(
-							project?.priority!
-						),
+						backgroundSelectedColor: SELECT_GANT_COLOR,
 					},
 					more: { status: project?.status! },
 				},
 			];
 			tasks?.forEach((task: TTask, index: number) => {
+				const color =
+					task.status === TStatus.COMPLETED
+						? COMPLETED_TASK_COLOR
+						: colorPriority(task.priority!);
 				tasksChart.push({
 					start: dayjs(task?.assignedDate!).toDate(),
 					end: dayjs(task?.expectDate).toDate(),
@@ -102,8 +107,10 @@ const UpdateProcessing: React.FC<Props> = ({}) => {
 							: tasks[index - 1].id.toString(),
 					],
 					styles: {
-						progressColor: colorPriority(task.priority!),
-						backgroundSelectedColor: colorPriority(task.priority!),
+						progressColor: color,
+						backgroundSelectedColor: color,
+						progressSelectedColor: color,
+						backgroundColor: color,
 					},
 					more: { status: task?.status! },
 				});
@@ -152,7 +159,7 @@ const UpdateProcessing: React.FC<Props> = ({}) => {
 	return (
 		<div>
 			<Space direction="vertical" className="flex" size={"large"}>
-				{showUpdateTask?.task && <UpdateTask />}
+				{showUpdateTask?.task && <UpdateTask refresh={refresh} />}
 				<Space className="flex justify-between">
 					<Button
 						icon={<RotateCcw size={18} />}

@@ -229,6 +229,10 @@ const CartList: React.FC = () => {
 		const cartsSelected = carts?.filter((cart) =>
 			selectedRowKeys.includes(cart.id!)
 		);
+		if (!cartsSelected?.length) {
+			message.error("Chọn ít nhất một phẩm!");
+			return;
+		}
 		const cartItemSession: TCartItemSession[] | undefined =
 			cartsSelected?.map((product) => ({
 				...product.product,

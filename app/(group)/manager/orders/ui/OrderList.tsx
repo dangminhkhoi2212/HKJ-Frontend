@@ -6,6 +6,7 @@ import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 
 import { KEY_CONST, QUERY_CONST } from "@/const";
+import { useRouterCustom } from "@/hooks";
 import { routesManager } from "@/routes";
 import { orderService } from "@/services";
 import { LabelCustom } from "@/shared/FormCustom/InputCustom";
@@ -101,12 +102,13 @@ const columns: TableProps<TOrder>["columns"] = [
 	},
 ];
 const { RangePicker } = DatePicker;
-const { TStatusColorMapper } = tagMapperUtil;
+const { TStatusColorMapper, TPriorityColorMapper } = tagMapperUtil;
 const JewelryList: React.FC = () => {
 	const [query, setQuery] = React.useState<TQuery<TOrderQuery>>({
 		...QUERY_CONST.defaultQuery,
 	});
 	console.log("🚀 ~ query:", query);
+	const { updatePathname, searchParams } = useRouterCustom();
 	const [pagination, setPagination] = useState({
 		...QUERY_CONST.initPagination,
 	});
@@ -123,10 +125,12 @@ const JewelryList: React.FC = () => {
 			{
 				queryKey: ["order", { ...query }],
 				queryFn: () => orderService.get(query),
+				staleTime: 0,
 			},
 			{
 				queryKey: ["order-count", { ...query }],
 				queryFn: () => orderService.getCount(query),
+				staleTime: 0,
 			},
 		],
 	});
@@ -150,8 +154,21 @@ const JewelryList: React.FC = () => {
 		refetchOrders();
 		refetchOrderCount();
 	}, []);
-	const onChangeStaus = (value: number) => {
-		setQuery((pre) => ({ ...pre, page: 0, status: { equals: value } }));
+
+	useEffect(() => {
+		const status = searchParams.get("status");
+		const priority = searchParams.get("priority");
+
+		setQuery((pre) => ({
+			...pre,
+			status: { equals: status },
+			priority: { equals: priority },
+			page: 0,
+		}));
+	}, [searchParams]);
+	const onChangeStaus = (value: TStatus) => {
+		// setQuery((pre) => ({ ...pre, page: 0, status: { equals: value } }));
+		updatePathname({ query: { status: value }, type: "replace" });
 	};
 
 	const onChangeOrderDate = (value: any) => {
@@ -203,7 +220,11 @@ const JewelryList: React.FC = () => {
 					handleSearch={handleSearch}
 					placeholder="Mã đơn hàng"
 				/>
-				<SelectStatusForm onChange={onChangeStaus} />
+				<SelectStatusForm
+					onChange={onChangeStaus}
+					value={query.status?.equals}
+				/>
+
 				<SelectRangeDate
 					label="Thời gian đặt"
 					onChange={onChangeOrderDate}

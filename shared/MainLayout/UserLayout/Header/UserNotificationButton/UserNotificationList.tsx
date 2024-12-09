@@ -15,6 +15,10 @@ type Props = {};
 const NotificationList: React.FC<Props> = ({}) => {
 	const { notifications, notificationsCount, reset } =
 		userNotificationStore();
+	console.log(
+		"🚀 ~ notificationsCount NotificationList:",
+		notificationsCount
+	);
 	const account = useAccountStore((state) => state.account);
 	const message = App.useApp().message;
 	const [open, setOpen] = useState(false);
@@ -23,7 +27,7 @@ const NotificationList: React.FC<Props> = ({}) => {
 		mutationFn: () => {
 			return notificationService.clearAll({ accountId: account?.id! });
 		},
-		onSettled(data, error, variables, context) {
+		onSuccess() {
 			reset();
 		},
 		onError(error, variables, context) {
