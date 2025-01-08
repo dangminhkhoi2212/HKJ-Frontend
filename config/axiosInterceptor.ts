@@ -6,6 +6,7 @@ axios.defaults.baseURL = process.env.NEXT_PUBLIC_SERVER_API_URL;
 const headers = {
 	Accept: "application/json",
 	"Access-Control-Allow-Origin": "*",
+	"ngrok-skip-browser-warning": true,
 };
 const axiosInterceptor = () => {
 	const instance = axios.create({

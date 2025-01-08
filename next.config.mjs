@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+	output: "standalone",
 	images: {
 		remotePatterns: [
 			{
@@ -7,6 +8,9 @@ const nextConfig = {
 				hostname: "idjqfqnlknncdwemqlnf.supabase.co",
 			},
 		],
+	},
+	env: {
+		AUTH_SECRET: process.env.NEXT_PUBLIC_SECRET,
 	},
 	async headers() {
 		return [
